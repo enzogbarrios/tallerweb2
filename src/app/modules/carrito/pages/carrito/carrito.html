@@ -1,0 +1,133 @@
+<section class="page-header">
+  <div class="container">
+    <span class="eyebrow">Tu compra</span>
+    <h1>Carrito de compras</h1>
+    <p>Revisá los productos, ajustá las cantidades y confirmá tu pedido cuando estés listo.</p>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container">
+    @if (carrito.items().length === 0) {
+      <div class="estado-vacio">
+        <div class="icono"><i class="bi bi-bag"></i></div>
+        <h2>Tu carrito está vacío</h2>
+        <p>Todavía no agregaste ningún producto. Explorá el catálogo y encontrá algo que te guste.</p>
+        <a routerLink="/productos" class="btn btn-nb">
+          <i class="bi bi-grid"></i> Ver productos
+        </a>
+      </div>
+    } @else {
+      <div class="row g-4">
+        <div class="col-lg-8">
+          <div class="carrito-lista">
+            @for (item of carrito.items(); track item.producto.id) {
+              <article class="carrito-item">
+                <a [routerLink]="['/productos', item.producto.id]" class="carrito-imagen">
+                  <img
+                    [src]="item.producto.imagen"
+                    [alt]="item.producto.nombre"
+                    appImagenFallback
+                  />
+                </a>
+
+                <div class="carrito-info">
+                  <span class="clasificacion-mini">{{ item.producto.clasificacion }}</span>
+                  <h2>
+                    <a [routerLink]="['/productos', item.producto.id]">
+                      {{ item.producto.nombre }}
+                    </a>
+                  </h2>
+                  <span class="precio-unitario">
+                    {{ item.producto.precio | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}
+                    c/u
+                  </span>
+                </div>
+
+                <div class="carrito-cantidad">
+                  <div class="selector-cantidad">
+                    <button
+                      type="button"
+                      aria-label="Disminuir cantidad"
+                      (click)="carrito.cambiarCantidad(item.producto.id, item.cantidad - 1)"
+                    >
+                      <i class="bi bi-dash"></i>
+                    </button>
+                    <span>{{ item.cantidad }}</span>
+                    <button
+                      type="button"
+                      aria-label="Aumentar cantidad"
+                      (click)="carrito.cambiarCantidad(item.producto.id, item.cantidad + 1)"
+                    >
+                      <i class="bi bi-plus"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="carrito-subtotal">
+                  {{
+                    (item.producto.precio * item.cantidad)
+                      | currency: 'ARS' : 'symbol-narrow' : '1.0-0'
+                  }}
+                </div>
+
+                <button
+                  type="button"
+                  class="btn-quitar"
+                  aria-label="Quitar producto"
+                  (click)="quitar(item.producto.id, item.producto.nombre)"
+                >
+                  <i class="bi bi-trash3"></i>
+                </button>
+              </article>
+            }
+          </div>
+
+          <a routerLink="/productos" class="link-seguir">
+            <i class="bi bi-arrow-left"></i> Seguir comprando
+          </a>
+        </div>
+
+        <div class="col-lg-4">
+          <aside class="resumen-compra">
+            <h2>Resumen del pedido</h2>
+
+            <div class="fila">
+              <span>Productos ({{ carrito.cantidadTotal() }})</span>
+              <span>{{
+                carrito.subtotal() | currency: 'ARS' : 'symbol-narrow' : '1.0-0'
+              }}</span>
+            </div>
+
+            <div class="fila">
+              <span>Envío</span>
+              <span>
+                @if (carrito.envio() === 0) {
+                  <span class="text-success fw-semibold">Gratis</span>
+                } @else {
+                  {{ carrito.envio() | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}
+                }
+              </span>
+            </div>
+
+            <hr />
+
+            <div class="fila total">
+              <span>Total</span>
+              <span>{{ carrito.total() | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</span>
+            </div>
+
+            <button type="button" class="btn btn-nb w-100" (click)="realizarPedido()">
+              <i class="bi bi-check2-circle"></i> Realizar pedido
+            </button>
+
+            <p class="nota-pago">
+              <i class="bi bi-info-circle me-1"></i>
+              Pago simulado: no se realizará ningún cobro real.
+            </p>
+          </aside>
+        </div>
+      </div>
+    }
+  </div>
+</section>

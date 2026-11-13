@@ -1,0 +1,88 @@
+@if (producto(); as p) {
+  <section class="py-4 py-lg-5">
+    <div class="container">
+      <nav class="breadcrumb-nb" aria-label="Migas de pan">
+        <a routerLink="/">Inicio</a>
+        <i class="bi bi-chevron-right"></i>
+        <a routerLink="/productos">Productos</a>
+        <i class="bi bi-chevron-right"></i>
+        <span>{{ p.nombre }}</span>
+      </nav>
+
+      <div class="row g-5 align-items-start">
+        <div class="col-lg-6">
+          <div class="detalle-imagen">
+            <img [src]="p.imagen" [alt]="p.nombre" appImagenFallback />
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <span class="badge-clasificacion">
+            <i [class]="'bi ' + (p.clasificacion | clasificacionIcono)"></i>
+            {{ p.clasificacion }}
+          </span>
+
+          <h1 class="detalle-titulo">{{ p.nombre }}</h1>
+
+          <div class="detalle-rating">
+            <span class="estrellas">
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-half"></i>
+            </span>
+            <span>4.8 · 126 opiniones</span>
+          </div>
+
+          <p class="detalle-descripcion">{{ p.descripcion }}</p>
+
+          <div class="detalle-precio">
+            {{ p.precio | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}
+          </div>
+          <p class="detalle-cuotas">
+            Hasta 6 cuotas sin interés de
+            {{ p.precio / 6 | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}
+          </p>
+
+          <div class="detalle-acciones">
+            <div class="selector-cantidad">
+              <button type="button" aria-label="Disminuir cantidad" (click)="disminuir()">
+                <i class="bi bi-dash"></i>
+              </button>
+              <span>{{ cantidad() }}</span>
+              <button type="button" aria-label="Aumentar cantidad" (click)="aumentar()">
+                <i class="bi bi-plus"></i>
+              </button>
+            </div>
+
+            <button type="button" class="btn btn-nb btn-lg" (click)="agregarAlCarrito(p)">
+              <i class="bi bi-bag-plus"></i> Agregar al carrito
+            </button>
+          </div>
+
+          <a routerLink="/carrito" class="link-carrito">
+            Ir al carrito <i class="bi bi-arrow-right"></i>
+          </a>
+
+          <ul class="detalle-beneficios">
+            <li><i class="bi bi-truck"></i> Envío gratis en compras desde $50.000</li>
+            <li><i class="bi bi-shield-check"></i> Compra protegida y garantía oficial</li>
+            <li><i class="bi bi-arrow-repeat"></i> Cambios sin cargo dentro de los 30 días</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+} @else {
+  <section class="py-5">
+    <div class="container">
+      <div class="estado-vacio">
+        <div class="icono"><i class="bi bi-box-seam"></i></div>
+        <h2>Producto no encontrado</h2>
+        <p>El producto que buscás no existe o ya no está disponible.</p>
+        <a routerLink="/productos" class="btn btn-nb">Volver al catálogo</a>
+      </div>
+    </div>
+  </section>
+}

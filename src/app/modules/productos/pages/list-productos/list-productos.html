@@ -1,0 +1,79 @@
+<section class="page-header">
+  <div class="container">
+    <div class="d-flex flex-wrap justify-content-between align-items-end gap-3">
+      <div>
+        <span class="eyebrow">Catálogo</span>
+        <h1>Nuestros productos</h1>
+        <p>Explorá por categoría, buscá lo que necesitás y agregalo al carrito en un clic.</p>
+      </div>
+      <a routerLink="/productos/nuevo" class="btn btn-nb">
+        <i class="bi bi-plus-lg"></i> Publicar producto
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container">
+    <div class="barra-filtros">
+      <div class="buscador">
+        <i class="bi bi-search"></i>
+        <input
+          type="search"
+          placeholder="Buscar por nombre o descripción..."
+          aria-label="Buscar productos"
+          [value]="busqueda()"
+          (input)="buscar($event)"
+        />
+      </div>
+
+      <div class="chips">
+        @for (clasificacion of clasificaciones; track clasificacion) {
+          <button
+            type="button"
+            class="chip"
+            [class.activo]="clasificacionActiva() === clasificacion"
+            (click)="filtrar(clasificacion)"
+          >
+            {{ clasificacion }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+      <span class="resultados">
+        {{ cantidadResultados() }}
+        {{ cantidadResultados() === 1 ? 'producto encontrado' : 'productos encontrados' }}
+      </span>
+
+      @if (busqueda() || clasificacionActiva() !== 'Todas') {
+        <button type="button" class="btn-limpiar" (click)="limpiarFiltros()">
+          <i class="bi bi-x-circle"></i> Limpiar filtros
+        </button>
+      }
+    </div>
+
+    <div class="row g-4">
+      @for (producto of productosFiltrados(); track producto.id) {
+        <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+          <app-producto-card
+            [producto]="producto"
+            (agregar)="agregarAlCarrito($event)"
+          ></app-producto-card>
+        </div>
+      } @empty {
+        <div class="col-12">
+          <div class="estado-vacio">
+            <div class="icono"><i class="bi bi-search"></i></div>
+            <h2>No encontramos productos</h2>
+            <p>Probá con otra búsqueda o quitá los filtros para ver todo el catálogo.</p>
+            <button type="button" class="btn btn-nb" (click)="limpiarFiltros()">
+              Ver todos los productos
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</section>

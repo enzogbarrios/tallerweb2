@@ -1,0 +1,139 @@
+@if (pedido(); as p) {
+  <section class="pedido-hero">
+    <div class="container">
+      <div class="icono-exito"><i class="bi bi-check-lg"></i></div>
+      <span class="eyebrow eyebrow-light">Pedido confirmado</span>
+      <h1>¡Gracias por tu compra!</h1>
+      <p>
+        Tu pedido <strong>#{{ p.id }}</strong> fue registrado correctamente. Te enviaremos las
+        novedades por email.
+      </p>
+    </div>
+  </section>
+
+  <section class="py-5">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-lg-8">
+          <div class="tabla-pedido">
+            <table class="table align-middle">
+              <thead>
+                <tr>
+                  <th scope="col">Producto</th>
+                  <th scope="col" class="text-center">Cantidad</th>
+                  <th scope="col" class="text-end">Precio</th>
+                  <th scope="col" class="text-end">Subtotal</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (item of p.items; track item.producto.id) {
+                  <tr>
+                    <td>
+                      <div class="d-flex align-items-center gap-3">
+                        <img
+                          class="miniatura"
+                          [src]="item.producto.imagen"
+                          [alt]="item.producto.nombre"
+                          appImagenFallback
+                        />
+                        <div>
+                          <strong class="d-block">{{ item.producto.nombre }}</strong>
+                          <span class="texto-muted small">{{ item.producto.clasificacion }}</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="text-center">{{ item.cantidad }}</td>
+                    <td class="text-end">
+                      {{ item.producto.precio | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}
+                    </td>
+                    <td class="text-end fw-semibold">
+                      {{
+                        (item.producto.precio * item.cantidad)
+                          | currency: 'ARS' : 'symbol-narrow' : '1.0-0'
+                      }}
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <div class="pedido-acciones">
+            <a routerLink="/productos" class="btn btn-nb">
+              <i class="bi bi-bag"></i> Seguir comprando
+            </a>
+            <a routerLink="/" class="btn btn-nb-outline">Volver al inicio</a>
+          </div>
+        </div>
+
+        <div class="col-lg-4">
+          <aside class="resumen-compra">
+            <h2>Detalle del pedido</h2>
+
+            <div class="fila">
+              <span>Número</span>
+              <span class="fw-semibold text-dark">#{{ p.id }}</span>
+            </div>
+            <div class="fila">
+              <span>Fecha</span>
+              <span>{{ p.fecha | date: 'dd/MM/yyyy' }}</span>
+            </div>
+            <div class="fila">
+              <span>Estado</span>
+              <span class="badge bg-success-subtle text-success-emphasis">Confirmado</span>
+            </div>
+            <div class="fila">
+              <span>Productos</span>
+              <span>{{ p.items.length }}</span>
+            </div>
+            <div class="fila">
+              <span>Subtotal</span>
+              <span>{{ p.subtotal | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</span>
+            </div>
+            <div class="fila">
+              <span>Envío</span>
+              @if (p.envio === 0) {
+                <span class="text-success fw-semibold">Gratis</span>
+              } @else {
+                <span>{{ p.envio | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</span>
+              }
+            </div>
+
+            @if (auth.usuarioActual()?.direccion; as direccion) {
+              <div class="fila">
+                <span>Dirección</span>
+                <span class="text-end">{{ direccion }}</span>
+              </div>
+            }
+
+            <hr />
+
+            <div class="fila total">
+              <span>Total</span>
+              <span>{{ p.total | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</span>
+            </div>
+
+            <div class="aviso-pedido">
+              <i class="bi bi-truck"></i>
+              <div>
+                <strong>Entrega estimada</strong>
+                <span>Entre 24 y 48 horas hábiles.</span>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </section>
+} @else {
+  <section class="py-5">
+    <div class="container">
+      <div class="estado-vacio">
+        <div class="icono"><i class="bi bi-receipt"></i></div>
+        <h2>Todavía no realizaste ningún pedido</h2>
+        <p>Cuando confirmes una compra, acá vas a poder ver el detalle completo del pedido.</p>
+        <a routerLink="/productos" class="btn btn-nb">Explorar productos</a>
+      </div>
+    </div>
+  </section>
+}

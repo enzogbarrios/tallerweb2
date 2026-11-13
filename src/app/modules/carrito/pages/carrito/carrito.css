@@ -1,0 +1,131 @@
+.carrito-lista {
+  overflow: hidden;
+  border: 1px solid var(--nb-border);
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.carrito-item {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr) auto auto auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.15rem;
+  border-bottom: 1px solid var(--nb-border);
+}
+
+.carrito-item:last-child {
+  border-bottom: 0;
+}
+
+.carrito-imagen {
+  display: block;
+  overflow: hidden;
+  border-radius: 6px;
+  background: #e5e7eb;
+}
+
+.carrito-imagen img {
+  display: block;
+  width: 96px;
+  height: 80px;
+  object-fit: cover;
+}
+
+.carrito-info h2 {
+  margin: 0.15rem 0 0.25rem;
+  font-size: 1rem;
+}
+
+.carrito-info h2 a {
+  color: var(--nb-dark);
+}
+
+.carrito-info h2 a:hover {
+  color: var(--nb-primary);
+}
+
+.clasificacion-mini {
+  color: var(--nb-primary);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.precio-unitario {
+  color: var(--nb-muted);
+  font-size: 0.78rem;
+}
+
+.carrito-subtotal {
+  min-width: 100px;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  text-align: right;
+}
+
+.btn-quitar {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--nb-border);
+  border-radius: 6px;
+  background: #ffffff;
+  color: #6b7280;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.btn-quitar:hover {
+  border-color: #dc2626;
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.link-seguir {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 1.2rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.nota-pago {
+  margin: 1rem 0 0;
+  color: var(--nb-muted);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+@media (max-width: 767.98px) {
+  .carrito-item {
+    grid-template-columns: 76px minmax(0, 1fr) auto;
+    gap: 0.75rem;
+  }
+
+  .carrito-imagen img {
+    width: 76px;
+    height: 70px;
+  }
+
+  .carrito-cantidad {
+    grid-column: 2;
+  }
+
+  .carrito-subtotal {
+    grid-column: 2;
+    text-align: left;
+  }
+
+  .btn-quitar {
+    grid-column: 3;
+    grid-row: 1;
+  }
+}

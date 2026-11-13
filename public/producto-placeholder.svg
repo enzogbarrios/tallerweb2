@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600" role="img" aria-label="Imagen de producto no disponible">
+  <rect width="800" height="600" fill="#e5e7eb"/>
+  <rect x="290" y="190" width="220" height="170" rx="8" fill="#f3f4f6" stroke="#9ca3af" stroke-width="4"/>
+  <path d="M290 250 L360 190 L420 250 L490 200 L510 360 L290 360 Z" fill="#d1d5db"/>
+  <circle cx="350" cy="235" r="18" fill="#9ca3af"/>
+  <text x="400" y="430" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="28" fill="#6b7280">Nébula store</text>
+  <text x="400" y="462" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#9ca3af">Imagen no disponible</text>
+</svg>

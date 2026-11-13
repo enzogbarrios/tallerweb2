@@ -1,0 +1,60 @@
+.toast-nb {
+  position: fixed;
+  right: 1.5rem;
+  bottom: 1.5rem;
+  z-index: 1090;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  max-width: min(420px, calc(100vw - 2rem));
+  padding: 0.85rem 1rem;
+  border: 1px solid #a7f3d0;
+  border-radius: 6px;
+  background: #f0fdf4;
+  color: #166534;
+  font-size: 0.9rem;
+  font-weight: 500;
+  animation: aparecer-toast 0.2s ease-out;
+}
+
+.toast-nb > i {
+  font-size: 1.1rem;
+}
+
+.toast-nb.info {
+  border-color: #bfdbfe;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.toast-nb.error {
+  border-color: #fecaca;
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.toast-nb button {
+  margin-left: auto;
+  padding: 0.15rem;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  opacity: 0.7;
+  line-height: 1;
+}
+
+.toast-nb button:hover {
+  opacity: 1;
+}
+
+@keyframes aparecer-toast {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

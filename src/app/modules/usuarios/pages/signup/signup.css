@@ -1,0 +1,4 @@
+/* Los estilos generales de autenticación están en src/styles.css. */
+:host {
+  display: block;
+}

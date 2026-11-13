@@ -1,0 +1,79 @@
+.breadcrumb-nb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 1.5rem;
+  color: var(--nb-muted);
+  font-size: 0.82rem;
+}
+
+.breadcrumb-nb a {
+  color: var(--nb-muted);
+}
+
+.breadcrumb-nb a:hover {
+  color: var(--nb-primary);
+}
+
+.breadcrumb-nb i {
+  font-size: 0.65rem;
+}
+
+.breadcrumb-nb span {
+  color: var(--nb-dark);
+  font-weight: 600;
+}
+
+.badge-clasificacion {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.65rem;
+  border-radius: 4px;
+  background: var(--nb-primary-soft);
+  color: var(--nb-primary);
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.detalle-titulo {
+  margin: 1rem 0 0.6rem;
+  font-size: clamp(2rem, 4vw, 2.8rem);
+}
+
+.detalle-rating {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--nb-muted);
+  font-size: 0.82rem;
+}
+
+.estrellas {
+  display: inline-flex;
+  gap: 0.15rem;
+  color: var(--nb-accent);
+}
+
+.detalle-cuotas {
+  margin-bottom: 1.6rem;
+  color: var(--nb-muted);
+  font-size: 0.88rem;
+}
+
+.detalle-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.link-carrito {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}

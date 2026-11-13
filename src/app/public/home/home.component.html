@@ -1,0 +1,122 @@
+<section class="hero">
+  <div class="container position-relative">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-6">
+        <span class="hero-badge">
+          <i class="bi bi-truck"></i>
+          Envío gratis en compras desde $50.000
+        </span>
+
+        <h1 class="hero-title">
+          Tecnología y diseño para <span>tu día a día</span>
+        </h1>
+
+        <p class="hero-text">
+          Descubrí productos seleccionados, agregalos al carrito y realizá tu pedido en pocos
+          pasos. Una experiencia simple, rápida y pensada para vos.
+        </p>
+
+        <div class="d-flex flex-wrap gap-3">
+          <a routerLink="/productos" class="btn btn-nb btn-lg">
+            Ver productos <i class="bi bi-arrow-right"></i>
+          </a>
+          <a routerLink="/auth/signup" class="btn btn-nb-ghost btn-lg">Crear cuenta</a>
+        </div>
+
+        <div class="hero-stats">
+          <div>
+            <strong>{{ totalProductos() }}+</strong>
+            <span>Productos</span>
+          </div>
+          <div>
+            <strong>24/48 hs</strong>
+            <span>Envíos</span>
+          </div>
+          <div>
+            <strong>6 cuotas</strong>
+            <span>Sin interés</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6">
+        <div class="hero-visual">
+          <img
+            src="img/hero.jpg"
+            alt="Interior de la tienda Nébula"
+            appImagenFallback
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="destacados py-5">
+  <div class="container">
+    <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+      <div>
+        <span class="eyebrow">Destacados</span>
+        <h2 class="mt-2 mb-0">Los más elegidos</h2>
+      </div>
+      <a routerLink="/productos" class="link-ver-todo">
+        Ver todos <i class="bi bi-arrow-right"></i>
+      </a>
+    </div>
+
+    <div class="row g-4">
+      @for (producto of destacados(); track producto.id) {
+        <div class="col-12 col-sm-6 col-lg-3">
+          <app-producto-card
+            [producto]="producto"
+            (agregar)="agregarAlCarrito($event)"
+          ></app-producto-card>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<section class="beneficios py-5">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="beneficio-card">
+          <span class="icono"><i class="bi bi-truck"></i></span>
+          <h3>Envíos rápidos</h3>
+          <p>Despachamos tu pedido en 24/48 hs en todas las provincias.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="beneficio-card">
+          <span class="icono"><i class="bi bi-shield-check"></i></span>
+          <h3>Compra protegida</h3>
+          <p>Tu compra está respaldada por nuestra garantía de satisfacción.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="beneficio-card">
+          <span class="icono"><i class="bi bi-arrow-repeat"></i></span>
+          <h3>Cambios simples</h3>
+          <p>Tenés 30 días para cambiar tu producto sin complicaciones.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="pb-5">
+  <div class="container">
+    <div class="cta-final">
+      <div class="cta-texto">
+        <span class="eyebrow eyebrow-light">Sumate a Nébula</span>
+        <h2>Creá tu cuenta y comprá en minutos</h2>
+        <p>Guardá tus datos, seguí tus pedidos y accedé a beneficios exclusivos.</p>
+      </div>
+      <div class="d-flex flex-wrap gap-2">
+        <a routerLink="/auth/signup" class="btn btn-nb-light">Crear cuenta</a>
+        <a routerLink="/productos" class="btn btn-nb-ghost">Ver catálogo</a>
+      </div>
+    </div>
+  </div>
+</section>

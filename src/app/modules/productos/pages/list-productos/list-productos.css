@@ -1,0 +1,93 @@
+.barra-filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  padding: 0.9rem;
+  border: 1px solid var(--nb-border);
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.buscador {
+  display: flex;
+  flex: 1 1 300px;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid var(--nb-border);
+  border-radius: 6px;
+  background: #ffffff;
+}
+
+.buscador i {
+  color: var(--nb-muted);
+}
+
+.buscador input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--nb-dark);
+  font-size: 0.9rem;
+}
+
+.buscador:focus-within {
+  border-color: var(--nb-primary);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.chip {
+  padding: 0.45rem 0.8rem;
+  border: 1px solid var(--nb-border);
+  border-radius: 6px;
+  background: #ffffff;
+  color: var(--nb-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.chip:hover {
+  border-color: var(--nb-primary);
+  color: var(--nb-primary);
+}
+
+.chip.activo {
+  border-color: var(--nb-primary);
+  background: var(--nb-primary);
+  color: #ffffff;
+}
+
+.resultados {
+  color: var(--nb-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.btn-limpiar {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--nb-primary);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.btn-limpiar:hover {
+  color: var(--nb-primary-dark);
+}

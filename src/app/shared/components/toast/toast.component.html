@@ -1,0 +1,18 @@
+@if (notificaciones.notificacion(); as notificacion) {
+  <div class="toast-nb" [class]="'toast-nb ' + notificacion.tipo" role="status">
+    <i
+      [class]="
+        'bi ' +
+        (notificacion.tipo === 'error'
+          ? 'bi-exclamation-circle-fill'
+          : notificacion.tipo === 'info'
+            ? 'bi-info-circle-fill'
+            : 'bi-check-circle-fill')
+      "
+    ></i>
+    <span>{{ notificacion.texto }}</span>
+    <button type="button" aria-label="Cerrar notificación" (click)="notificaciones.cerrar()">
+      <i class="bi bi-x-lg"></i>
+    </button>
+  </div>
+}

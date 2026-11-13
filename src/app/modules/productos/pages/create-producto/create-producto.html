@@ -1,0 +1,177 @@
+<section class="page-header">
+  <div class="container">
+    <div class="d-flex flex-wrap justify-content-between align-items-end gap-3">
+      <div>
+        <span class="eyebrow">Nuevo producto</span>
+        <h1>Publicá un producto</h1>
+        <p>Completá los datos y mirá en vivo cómo va a verse en el catálogo.</p>
+      </div>
+      <a routerLink="/productos" class="btn btn-nb-outline">
+        <i class="bi bi-arrow-left"></i> Volver al catálogo
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-lg-7">
+        <div class="form-card">
+          <h2>Datos del producto</h2>
+          <p class="texto-muted mb-4">
+            Los campos marcados con <span class="text-danger">*</span> son obligatorios.
+          </p>
+
+          <form [formGroup]="form" (ngSubmit)="guardar()" novalidate>
+            <div class="mb-3">
+              <label class="form-label" for="nombre">Nombre <span class="text-danger">*</span></label>
+              <input
+                id="nombre"
+                type="text"
+                class="form-control"
+                formControlName="nombre"
+                placeholder="Ej: Auriculares Nova Pro"
+                [class.is-invalid]="form.get('nombre')?.invalid && form.get('nombre')?.touched"
+              />
+              @if (form.get('nombre')?.touched && form.get('nombre')?.hasError('required')) {
+                <div class="invalid-feedback">El nombre es obligatorio.</div>
+              }
+              @if (form.get('nombre')?.touched && form.get('nombre')?.hasError('minlength')) {
+                <div class="invalid-feedback">El nombre debe tener al menos 3 caracteres.</div>
+              }
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label" for="descripcion"
+                >Descripción <span class="text-danger">*</span></label
+              >
+              <textarea
+                id="descripcion"
+                rows="4"
+                class="form-control"
+                formControlName="descripcion"
+                placeholder="Contá brevemente las características del producto..."
+                [class.is-invalid]="
+                  form.get('descripcion')?.invalid && form.get('descripcion')?.touched
+                "
+              ></textarea>
+              @if (
+                form.get('descripcion')?.touched && form.get('descripcion')?.hasError('required')
+              ) {
+                <div class="invalid-feedback">La descripción es obligatoria.</div>
+              }
+              @if (
+                form.get('descripcion')?.touched && form.get('descripcion')?.hasError('minlength')
+              ) {
+                <div class="invalid-feedback">
+                  La descripción debe tener al menos 15 caracteres.
+                </div>
+              }
+            </div>
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label" for="clasificacion"
+                  >Clasificación <span class="text-danger">*</span></label
+                >
+                <select id="clasificacion" class="form-select" formControlName="clasificacion">
+                  @for (clasificacion of clasificaciones; track clasificacion) {
+                    <option [value]="clasificacion">{{ clasificacion }}</option>
+                  }
+                </select>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label" for="precio"
+                  >Precio (ARS) <span class="text-danger">*</span></label
+                >
+                <input
+                  id="precio"
+                  type="number"
+                  min="1"
+                  step="1"
+                  class="form-control"
+                  formControlName="precio"
+                  placeholder="0"
+                  [class.is-invalid]="form.get('precio')?.invalid && form.get('precio')?.touched"
+                />
+                @if (form.get('precio')?.touched && form.get('precio')?.hasError('required')) {
+                  <div class="invalid-feedback">El precio es obligatorio.</div>
+                }
+                @if (form.get('precio')?.touched && form.get('precio')?.hasError('min')) {
+                  <div class="invalid-feedback">El precio debe ser mayor a cero.</div>
+                }
+              </div>
+            </div>
+
+            <div class="mt-3">
+              <label class="form-label" for="imagen"
+                >URL de la imagen <span class="text-danger">*</span></label
+              >
+              <input
+                id="imagen"
+                type="url"
+                class="form-control"
+                formControlName="imagen"
+                placeholder="https://..."
+                [class.is-invalid]="form.get('imagen')?.invalid && form.get('imagen')?.touched"
+              />
+              @if (form.get('imagen')?.touched && form.get('imagen')?.hasError('required')) {
+                <div class="invalid-feedback">La imagen es obligatoria.</div>
+              }
+              @if (form.get('imagen')?.touched && form.get('imagen')?.hasError('pattern')) {
+                <div class="invalid-feedback">Ingresá una URL válida que empiece con http.</div>
+              }
+            </div>
+
+            <div class="d-flex flex-wrap gap-2 mt-4">
+              <button type="submit" class="btn btn-nb" [disabled]="form.invalid">
+                <i class="bi bi-cloud-arrow-up"></i> Publicar producto
+              </button>
+              <a routerLink="/productos" class="btn btn-nb-outline">Cancelar</a>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="col-lg-5">
+        <div class="preview-card">
+          <span class="eyebrow mb-3">Vista previa</span>
+
+          <div class="preview-imagen">
+            @if (vistaPrevia().imagen) {
+              <img
+                [src]="vistaPrevia().imagen"
+                alt="Vista previa del producto"
+                appImagenFallback
+              />
+            } @else {
+              <div class="preview-placeholder">
+                <i class="bi bi-image"></i>
+                <span>La imagen aparecerá acá</span>
+              </div>
+            }
+          </div>
+
+          <div class="preview-info">
+            <span class="badge-clasificacion">
+              <i [class]="'bi ' + (vistaPrevia().clasificacion | clasificacionIcono)"></i>
+              {{ vistaPrevia().clasificacion }}
+            </span>
+            <h3>{{ vistaPrevia().nombre || 'Nombre del producto' }}</h3>
+            <p>
+              {{
+                vistaPrevia().descripcion ||
+                  'La descripción del producto se va a mostrar en este espacio.'
+              }}
+            </p>
+            <strong class="preview-precio">
+              {{ (vistaPrevia().precio || 0) | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}
+            </strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
