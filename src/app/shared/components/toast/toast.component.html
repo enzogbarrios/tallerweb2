@@ -1,6 +1,17 @@
 @if (notificaciones.notificacion(); as notificacion) {
-  <div class="toast-nb" [class]="'toast-nb ' + notificacion.tipo" role="status">
+  <div
+    role="status"
+    class="fixed right-6 bottom-6 z-[1090] flex max-w-[min(420px,calc(100vw-2rem))] items-center gap-[0.7rem] rounded-md border px-4 py-[0.85rem] text-[0.9rem] font-medium"
+    [class]="
+      notificacion.tipo === 'error'
+        ? 'border-red-200 bg-red-50 text-red-700'
+        : notificacion.tipo === 'info'
+          ? 'border-blue-200 bg-blue-50 text-blue-700'
+          : 'border-emerald-200 bg-green-50 text-green-800'
+    "
+  >
     <i
+      class="text-[1.1rem]"
       [class]="
         'bi ' +
         (notificacion.tipo === 'error'
@@ -11,7 +22,12 @@
       "
     ></i>
     <span>{{ notificacion.texto }}</span>
-    <button type="button" aria-label="Cerrar notificación" (click)="notificaciones.cerrar()">
+    <button
+      type="button"
+      class="ml-auto cursor-pointer p-[0.15rem] leading-none opacity-70 hover:opacity-100"
+      aria-label="Cerrar notificación"
+      (click)="notificaciones.cerrar()"
+    >
       <i class="bi bi-x-lg"></i>
     </button>
   </div>

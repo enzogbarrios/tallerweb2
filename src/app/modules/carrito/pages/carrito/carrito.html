@@ -6,45 +6,60 @@
   </div>
 </section>
 
-<section class="py-5">
+<section class="py-12">
   <div class="container">
     @if (carrito.items().length === 0) {
       <div class="estado-vacio">
         <div class="icono"><i class="bi bi-bag"></i></div>
         <h2>Tu carrito está vacío</h2>
         <p>Todavía no agregaste ningún producto. Explorá el catálogo y encontrá algo que te guste.</p>
-        <a routerLink="/productos" class="btn btn-nb">
-          <i class="bi bi-grid"></i> Ver productos
-        </a>
+        <a routerLink="/productos" class="btn-nb"> <i class="bi bi-grid"></i> Ver productos </a>
       </div>
     } @else {
-      <div class="row g-4">
-        <div class="col-lg-8">
-          <div class="carrito-lista">
+      <div class="grid items-start gap-6 lg:grid-cols-3">
+        <div class="lg:col-span-2">
+          <div class="overflow-hidden rounded-lg border border-line bg-white">
             @for (item of carrito.items(); track item.producto.id) {
-              <article class="carrito-item">
-                <a [routerLink]="['/productos', item.producto.id]" class="carrito-imagen">
+              <article
+                class="grid grid-cols-[76px_minmax(0,1fr)_auto] items-center gap-3 border-b border-line px-[1.15rem] py-4 last:border-b-0 md:grid-cols-[96px_minmax(0,1fr)_auto_auto_auto] md:gap-4"
+              >
+                <a
+                  [routerLink]="['/productos', item.producto.id]"
+                  class="block overflow-hidden rounded-md bg-gray-200"
+                >
                   <img
+                    class="block h-[70px] w-[76px] object-cover md:h-20 md:w-24"
                     [src]="item.producto.imagen"
                     [alt]="item.producto.nombre"
                     appImagenFallback
                   />
                 </a>
 
-                <div class="carrito-info">
-                  <span class="clasificacion-mini">{{ item.producto.clasificacion }}</span>
-                  <h2>
-                    <a [routerLink]="['/productos', item.producto.id]">
+                <div>
+                  <span class="text-[0.7rem] font-bold tracking-[0.06em] text-primary uppercase">{{
+                    item.producto.clasificacion
+                  }}</span>
+                  <h2 class="mt-[0.15rem] mb-1 text-base">
+                    <a class="text-ink hover:text-primary" [routerLink]="['/productos', item.producto.id]">
                       {{ item.producto.nombre }}
                     </a>
                   </h2>
-                  <span class="precio-unitario">
+                  <span class="text-[0.78rem] text-muted">
                     {{ item.producto.precio | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}
                     c/u
                   </span>
                 </div>
 
-                <div class="carrito-cantidad">
+                <button
+                  type="button"
+                  class="col-start-3 row-start-1 grid size-[34px] cursor-pointer place-items-center rounded-md border border-line bg-white text-gray-500 transition-colors hover:border-red-600 hover:bg-red-50 hover:text-red-600 md:order-last md:col-auto md:row-auto"
+                  aria-label="Quitar producto"
+                  (click)="quitar(item.producto.id, item.producto.nombre)"
+                >
+                  <i class="bi bi-trash3"></i>
+                </button>
+
+                <div class="col-start-2 md:col-auto">
                   <div class="selector-cantidad">
                     <button
                       type="button"
@@ -64,69 +79,59 @@
                   </div>
                 </div>
 
-                <div class="carrito-subtotal">
+                <div class="col-start-2 font-bold md:col-auto md:min-w-[100px] md:text-right">
                   {{
                     (item.producto.precio * item.cantidad)
                       | currency: 'ARS' : 'symbol-narrow' : '1.0-0'
                   }}
                 </div>
-
-                <button
-                  type="button"
-                  class="btn-quitar"
-                  aria-label="Quitar producto"
-                  (click)="quitar(item.producto.id, item.producto.nombre)"
-                >
-                  <i class="bi bi-trash3"></i>
-                </button>
               </article>
             }
           </div>
 
-          <a routerLink="/productos" class="link-seguir">
+          <a
+            routerLink="/productos"
+            class="mt-[1.2rem] inline-flex items-center gap-[0.4rem] text-[0.88rem] font-semibold text-primary hover:text-primary-dark"
+          >
             <i class="bi bi-arrow-left"></i> Seguir comprando
           </a>
         </div>
 
-        <div class="col-lg-4">
-          <aside class="resumen-compra">
-            <h2>Resumen del pedido</h2>
+        <aside class="resumen-compra">
+          <h2>Resumen del pedido</h2>
 
-            <div class="fila">
-              <span>Productos ({{ carrito.cantidadTotal() }})</span>
-              <span>{{
-                carrito.subtotal() | currency: 'ARS' : 'symbol-narrow' : '1.0-0'
-              }}</span>
-            </div>
+          <div class="fila">
+            <span>Productos ({{ carrito.cantidadTotal() }})</span>
+            <span>{{ carrito.subtotal() | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</span>
+          </div>
 
-            <div class="fila">
-              <span>Envío</span>
-              <span>
-                @if (carrito.envio() === 0) {
-                  <span class="text-success fw-semibold">Gratis</span>
-                } @else {
-                  {{ carrito.envio() | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}
-                }
-              </span>
-            </div>
+          <div class="fila">
+            <span>Envío</span>
+            <span>
+              @if (carrito.envio() === 0) {
+                <span class="font-semibold text-green-700">Gratis</span>
+              } @else {
+                {{ carrito.envio() | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}
+              }
+            </span>
+          </div>
 
-            <hr />
+          <hr />
 
-            <div class="fila total">
-              <span>Total</span>
-              <span>{{ carrito.total() | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</span>
-            </div>
+          <div class="fila total">
+            <span>Total</span>
+            <span>{{ carrito.total() | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</span>
+          </div>
 
-            <button type="button" class="btn btn-nb w-100" (click)="realizarPedido()">
-              <i class="bi bi-check2-circle"></i> Realizar pedido
-            </button>
+          <button type="button" class="btn-nb w-full" (click)="realizarPedido()">
+            <i class="bi bi-check2-circle"></i> Realizar pedido
+          </button>
 
-            <p class="nota-pago">
-              <i class="bi bi-info-circle me-1"></i>
-              Pago simulado: no se realizará ningún cobro real.
-            </p>
-          </aside>
-        </div>
+          <p class="mt-4 text-center text-xs leading-normal text-muted">
+            <i class="bi bi-info-circle mr-1"></i>
+            Pago simulado: no se realizará ningún cobro real.
+          </p>
+        </aside>
       </div>
     }
   </div>

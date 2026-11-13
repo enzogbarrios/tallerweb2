@@ -1,77 +1,110 @@
-<nav class="navbar navbar-expand-lg navbar-dark nb-navbar sticky-top">
-  <div class="container">
-    <a class="navbar-brand" routerLink="/">
-      <span class="brand-mark"><i class="bi bi-stars"></i></span>
-      <span>Nébula <span class="brand-store">store</span></span>
+<nav class="sticky top-0 z-50 bg-ink py-3">
+  <div class="container flex flex-wrap items-center justify-between lg:flex-nowrap">
+    <a routerLink="/" class="flex items-center gap-[0.6rem] text-[1.3rem] font-bold tracking-tight text-white">
+      <span class="grid size-9 place-items-center rounded-md bg-primary text-white">
+        <i class="bi bi-stars text-[1.05rem]"></i>
+      </span>
+      <span>Nébula <span class="font-medium text-indigo-300">store</span></span>
     </a>
 
     <button
-      class="navbar-toggler"
+      class="cursor-pointer rounded-md border border-gray-600 px-3 py-2 text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-400 lg:hidden"
       type="button"
-      data-bs-toggle="collapse"
-      data-bs-target="#menuPrincipal"
       aria-controls="menuPrincipal"
-      aria-expanded="false"
+      [attr.aria-expanded]="menuAbierto()"
       aria-label="Abrir menú"
+      (click)="menuAbierto.set(!menuAbierto())"
     >
-      <span class="navbar-toggler-icon"></span>
+      <i class="bi text-xl" [class.bi-list]="!menuAbierto()" [class.bi-x-lg]="menuAbierto()"></i>
     </button>
 
-    <div class="collapse navbar-collapse" id="menuPrincipal">
-      <ul class="navbar-nav mx-auto gap-lg-1 my-3 my-lg-0">
-        <li class="nav-item">
+    <div
+      id="menuPrincipal"
+      class="w-full basis-full pt-3 lg:flex lg:w-auto lg:flex-1 lg:basis-auto lg:items-center lg:pt-0"
+      [class.hidden]="!menuAbierto()"
+    >
+      <ul class="my-3 flex flex-col gap-1 lg:mx-auto lg:my-0 lg:flex-row">
+        <li>
           <a
-            class="nav-link"
+            class="block rounded-md px-[0.85rem] py-2 text-[0.92rem] font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
             routerLink="/"
-            routerLinkActive="active"
+            routerLinkActive="!bg-gray-700 !text-white"
             [routerLinkActiveOptions]="{ exact: true }"
             >Inicio</a
           >
         </li>
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/productos" routerLinkActive="active">Productos</a>
+        <li>
+          <a
+            class="block rounded-md px-[0.85rem] py-2 text-[0.92rem] font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
+            routerLink="/productos"
+            routerLinkActive="!bg-gray-700 !text-white"
+            >Productos</a
+          >
         </li>
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/productos/nuevo" routerLinkActive="active"
+        <li>
+          <a
+            class="block rounded-md px-[0.85rem] py-2 text-[0.92rem] font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
+            routerLink="/productos/nuevo"
+            routerLinkActive="!bg-gray-700 !text-white"
             >Publicar producto</a
           >
         </li>
       </ul>
 
-      <div class="d-flex align-items-center gap-2 flex-wrap">
-        <a routerLink="/carrito" class="btn-carrito" aria-label="Ver carrito">
+      <div class="flex flex-wrap items-center gap-2">
+        <a
+          routerLink="/carrito"
+          aria-label="Ver carrito"
+          class="relative grid size-[42px] place-items-center rounded-md border border-gray-600 bg-gray-700 text-[1.1rem] text-white transition-colors hover:border-primary hover:bg-primary"
+        >
           <i class="bi bi-bag"></i>
           @if (carrito.cantidadTotal() > 0) {
-            <span class="badge-carrito">{{ carrito.cantidadTotal() }}</span>
+            <span
+              class="absolute -top-[5px] -right-[5px] grid h-5 min-w-5 place-items-center rounded-full bg-accent px-[0.3rem] text-[0.7rem] font-extrabold text-white"
+              >{{ carrito.cantidadTotal() }}</span
+            >
           }
         </a>
 
         @if (auth.usuarioActual(); as usuario) {
-          <div class="dropdown">
+          <div class="relative">
             <button
-              class="btn-usuario dropdown-toggle"
+              class="flex cursor-pointer items-center gap-2 rounded-md border border-gray-600 bg-gray-700 py-[0.3rem] pr-[0.65rem] pl-[0.3rem] text-[0.9rem] font-semibold text-white hover:bg-gray-600"
               type="button"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
+              aria-haspopup="menu"
+              [attr.aria-expanded]="usuarioMenuAbierto()"
+              (click)="usuarioMenuAbierto.set(!usuarioMenuAbierto())"
             >
-              <span class="avatar">{{ usuario.nombre.charAt(0) }}</span>
-              <span class="d-none d-xl-inline">{{ usuario.nombre }}</span>
+              <span class="grid size-[30px] place-items-center rounded-full bg-accent font-extrabold text-white">{{
+                usuario.nombre.charAt(0)
+              }}</span>
+              <span class="hidden xl:inline">{{ usuario.nombre }}</span>
+              <i class="bi bi-chevron-down text-[0.7rem]"></i>
             </button>
-            <ul class="dropdown-menu dropdown-menu-end mt-2">
-              <li>
-                <span class="dropdown-item-text small text-muted">{{ usuario.email }}</span>
-              </li>
-              <li><hr class="dropdown-divider" /></li>
-              <li>
-                <button type="button" class="dropdown-item" (click)="cerrarSesion()">
-                  <i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión
-                </button>
-              </li>
-            </ul>
+
+            @if (usuarioMenuAbierto()) {
+              <ul
+                role="menu"
+                class="absolute right-0 z-50 mt-2 min-w-[220px] rounded-md border border-line bg-white py-2"
+              >
+                <li class="px-4 py-1 text-sm text-muted">{{ usuario.email }}</li>
+                <li><hr class="my-2 border-line" /></li>
+                <li>
+                  <button
+                    type="button"
+                    role="menuitem"
+                    class="block w-full cursor-pointer px-4 py-2 text-left text-ink hover:bg-gray-100"
+                    (click)="cerrarSesion()"
+                  >
+                    <i class="bi bi-box-arrow-right mr-2"></i>Cerrar sesión
+                  </button>
+                </li>
+              </ul>
+            }
           </div>
         } @else {
-          <a routerLink="/auth/signin" class="btn btn-nb-outline btn-nb-sm">Ingresar</a>
-          <a routerLink="/auth/signup" class="btn btn-nb btn-nb-sm">Crear cuenta</a>
+          <a routerLink="/auth/signin" class="btn-nb-outline btn-nb-sm">Ingresar</a>
+          <a routerLink="/auth/signup" class="btn-nb btn-nb-sm">Crear cuenta</a>
         }
       </div>
     </div>

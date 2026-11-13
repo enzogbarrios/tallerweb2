@@ -12,7 +12,6 @@ import { Producto } from '../../shared/models/producto.model';
   imports: [RouterLink, ProductoCard, ImagenFallbackDirective],
   templateUrl: './home.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
-  styleUrl: './home.component.css',
 })
 export class HomeComponent {
   private readonly productosService = inject(ProductosService);

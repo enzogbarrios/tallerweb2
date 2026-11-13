@@ -1,31 +1,29 @@
 @if (producto(); as p) {
-  <section class="py-4 py-lg-5">
+  <section class="py-6 lg:py-12">
     <div class="container">
-      <nav class="breadcrumb-nb" aria-label="Migas de pan">
-        <a routerLink="/">Inicio</a>
-        <i class="bi bi-chevron-right"></i>
-        <a routerLink="/productos">Productos</a>
-        <i class="bi bi-chevron-right"></i>
-        <span>{{ p.nombre }}</span>
+      <nav class="mb-6 flex flex-wrap items-center gap-[0.45rem] text-[0.82rem] text-muted" aria-label="Migas de pan">
+        <a routerLink="/" class="hover:text-primary">Inicio</a>
+        <i class="bi bi-chevron-right text-[0.65rem]"></i>
+        <a routerLink="/productos" class="hover:text-primary">Productos</a>
+        <i class="bi bi-chevron-right text-[0.65rem]"></i>
+        <span class="font-semibold text-ink">{{ p.nombre }}</span>
       </nav>
 
-      <div class="row g-5 align-items-start">
-        <div class="col-lg-6">
-          <div class="detalle-imagen">
-            <img [src]="p.imagen" [alt]="p.nombre" appImagenFallback />
-          </div>
+      <div class="grid items-start gap-12 lg:grid-cols-2">
+        <div class="overflow-hidden rounded-lg border border-line bg-white">
+          <img class="block aspect-square w-full object-cover" [src]="p.imagen" [alt]="p.nombre" appImagenFallback />
         </div>
 
-        <div class="col-lg-6">
+        <div>
           <span class="badge-clasificacion">
             <i [class]="'bi ' + (p.clasificacion | clasificacionIcono)"></i>
             {{ p.clasificacion }}
           </span>
 
-          <h1 class="detalle-titulo">{{ p.nombre }}</h1>
+          <h1 class="mt-4 mb-[0.6rem] text-[clamp(2rem,4vw,2.8rem)]">{{ p.nombre }}</h1>
 
-          <div class="detalle-rating">
-            <span class="estrellas">
+          <div class="flex items-center gap-[0.6rem] text-[0.82rem] text-muted">
+            <span class="inline-flex gap-[0.15rem] text-accent">
               <i class="bi bi-star-fill"></i>
               <i class="bi bi-star-fill"></i>
               <i class="bi bi-star-fill"></i>
@@ -35,17 +33,17 @@
             <span>4.8 · 126 opiniones</span>
           </div>
 
-          <p class="detalle-descripcion">{{ p.descripcion }}</p>
+          <p class="my-[1.2rem] leading-[1.7] text-muted">{{ p.descripcion }}</p>
 
-          <div class="detalle-precio">
+          <div class="mb-[0.35rem] text-[clamp(2rem,4vw,2.6rem)] font-bold tracking-[-0.03em]">
             {{ p.precio | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}
           </div>
-          <p class="detalle-cuotas">
+          <p class="mb-[1.6rem] text-[0.88rem] text-muted">
             Hasta 6 cuotas sin interés de
             {{ p.precio / 6 | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}
           </p>
 
-          <div class="detalle-acciones">
+          <div class="flex flex-wrap items-center gap-[0.9rem]">
             <div class="selector-cantidad">
               <button type="button" aria-label="Disminuir cantidad" (click)="disminuir()">
                 <i class="bi bi-dash"></i>
@@ -56,32 +54,41 @@
               </button>
             </div>
 
-            <button type="button" class="btn btn-nb btn-lg" (click)="agregarAlCarrito(p)">
+            <button type="button" class="btn-nb btn-nb-lg" (click)="agregarAlCarrito(p)">
               <i class="bi bi-bag-plus"></i> Agregar al carrito
             </button>
           </div>
 
-          <a routerLink="/carrito" class="link-carrito">
+          <a
+            routerLink="/carrito"
+            class="mt-[0.9rem] inline-flex items-center gap-[0.35rem] text-[0.85rem] font-semibold text-primary hover:text-primary-dark"
+          >
             Ir al carrito <i class="bi bi-arrow-right"></i>
           </a>
 
-          <ul class="detalle-beneficios">
-            <li><i class="bi bi-truck"></i> Envío gratis en compras desde $50.000</li>
-            <li><i class="bi bi-shield-check"></i> Compra protegida y garantía oficial</li>
-            <li><i class="bi bi-arrow-repeat"></i> Cambios sin cargo dentro de los 30 días</li>
+          <ul class="mt-7 grid gap-[0.7rem] border-t border-line pt-[1.35rem] text-[0.9rem] text-muted">
+            <li class="flex items-center gap-[0.65rem]">
+              <i class="bi bi-truck text-primary"></i> Envío gratis en compras desde $50.000
+            </li>
+            <li class="flex items-center gap-[0.65rem]">
+              <i class="bi bi-shield-check text-primary"></i> Compra protegida y garantía oficial
+            </li>
+            <li class="flex items-center gap-[0.65rem]">
+              <i class="bi bi-arrow-repeat text-primary"></i> Cambios sin cargo dentro de los 30 días
+            </li>
           </ul>
         </div>
       </div>
     </div>
   </section>
 } @else {
-  <section class="py-5">
+  <section class="py-12">
     <div class="container">
       <div class="estado-vacio">
         <div class="icono"><i class="bi bi-box-seam"></i></div>
         <h2>Producto no encontrado</h2>
         <p>El producto que buscás no existe o ya no está disponible.</p>
-        <a routerLink="/productos" class="btn btn-nb">Volver al catálogo</a>
+        <a routerLink="/productos" class="btn-nb">Volver al catálogo</a>
       </div>
     </div>
   </section>

@@ -8,7 +8,6 @@ import { AuthService } from '../../../../api/services/auth/auth.service';
   imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './recover-password.html',
   changeDetection: ChangeDetectionStrategy.Eager,
-  styleUrl: './recover-password.css',
 })
 export class RecoverPassword {
   private readonly fb = inject(FormBuilder);

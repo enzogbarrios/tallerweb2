@@ -10,7 +10,6 @@ import { ImagenFallbackDirective } from '../../../../shared/directives/imagen-fa
   imports: [RouterLink, CurrencyPipe, DatePipe, ImagenFallbackDirective],
   templateUrl: './pedido.html',
   changeDetection: ChangeDetectionStrategy.Eager,
-  styleUrl: './pedido.css',
 })
 export class Pedido {
   readonly pedido = inject(PedidosService).ultimoPedido;
