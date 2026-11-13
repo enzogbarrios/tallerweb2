@@ -21,7 +21,6 @@ import { ClasificacionIconoPipe } from '../../../../shared/pipes/clasificacion-i
   ],
   templateUrl: './create-producto.html',
   changeDetection: ChangeDetectionStrategy.Eager,
-  styleUrl: './create-producto.css',
 })
 export class CreateProducto {
   private readonly fb = inject(FormBuilder);

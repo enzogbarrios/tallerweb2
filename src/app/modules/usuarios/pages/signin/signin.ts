@@ -9,7 +9,6 @@ import { NotificacionesService } from '../../../../api/services/notificaciones/n
   imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './signin.html',
   changeDetection: ChangeDetectionStrategy.Eager,
-  styleUrl: './signin.css',
 })
 export class Signin {
   private readonly fb = inject(FormBuilder);

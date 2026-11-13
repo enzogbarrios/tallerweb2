@@ -11,7 +11,6 @@ import { ProductoCard } from '../../components/producto-card/producto-card';
   imports: [RouterLink, ProductoCard],
   templateUrl: './list-productos.html',
   changeDetection: ChangeDetectionStrategy.Eager,
-  styleUrl: './list-productos.css',
 })
 export class ListProductos {
   private readonly productosService = inject(ProductosService);

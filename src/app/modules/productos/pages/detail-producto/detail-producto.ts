@@ -13,7 +13,6 @@ import { ClasificacionIconoPipe } from '../../../../shared/pipes/clasificacion-i
   imports: [RouterLink, CurrencyPipe, ClasificacionIconoPipe, ImagenFallbackDirective],
   templateUrl: './detail-producto.html',
   changeDetection: ChangeDetectionStrategy.Eager,
-  styleUrl: './detail-producto.css',
 })
 export class DetailProducto implements OnInit {
   private readonly route = inject(ActivatedRoute);

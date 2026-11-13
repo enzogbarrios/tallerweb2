@@ -1,52 +1,56 @@
 @if (pedido(); as p) {
-  <section class="pedido-hero">
+  <section class="bg-[#0f3d3e] py-[3.25rem] text-center text-white">
     <div class="container">
-      <div class="icono-exito"><i class="bi bi-check-lg"></i></div>
+      <div
+        class="mx-auto mb-[1.15rem] grid size-[68px] place-items-center rounded-full border border-teal-400 bg-teal-900 text-[1.9rem] text-teal-300"
+      >
+        <i class="bi bi-check-lg"></i>
+      </div>
       <span class="eyebrow eyebrow-light">Pedido confirmado</span>
-      <h1>¡Gracias por tu compra!</h1>
-      <p>
-        Tu pedido <strong>#{{ p.id }}</strong> fue registrado correctamente. Te enviaremos las
-        novedades por email.
+      <h1 class="mt-[0.7rem] mb-2 text-[clamp(2rem,4vw,2.8rem)] text-white">¡Gracias por tu compra!</h1>
+      <p class="mx-auto max-w-[560px] text-teal-100">
+        Tu pedido <strong class="text-white">#{{ p.id }}</strong> fue registrado correctamente. Te
+        enviaremos las novedades por email.
       </p>
     </div>
   </section>
 
-  <section class="py-5">
+  <section class="py-12">
     <div class="container">
-      <div class="row g-4">
-        <div class="col-lg-8">
-          <div class="tabla-pedido">
-            <table class="table align-middle">
+      <div class="grid items-start gap-6 lg:grid-cols-3">
+        <div class="lg:col-span-2">
+          <div class="overflow-x-auto rounded-lg border border-line bg-white">
+            <table class="w-full border-collapse text-left">
               <thead>
-                <tr>
-                  <th scope="col">Producto</th>
-                  <th scope="col" class="text-center">Cantidad</th>
-                  <th scope="col" class="text-end">Precio</th>
-                  <th scope="col" class="text-end">Subtotal</th>
+                <tr class="bg-gray-50 text-[0.76rem] font-bold tracking-[0.06em] text-muted uppercase">
+                  <th scope="col" class="border-b border-line px-4 py-3">Producto</th>
+                  <th scope="col" class="border-b border-line px-4 py-3 text-center">Cantidad</th>
+                  <th scope="col" class="border-b border-line px-4 py-3 text-right">Precio</th>
+                  <th scope="col" class="border-b border-line px-4 py-3 text-right">Subtotal</th>
                 </tr>
               </thead>
               <tbody>
                 @for (item of p.items; track item.producto.id) {
-                  <tr>
-                    <td>
-                      <div class="d-flex align-items-center gap-3">
+                  <tr class="border-b border-line last:border-b-0">
+                    <td class="px-4 py-3 align-middle">
+                      <div class="flex items-center gap-3">
                         <img
-                          class="miniatura"
+                          class="size-14 rounded-md object-cover"
                           [src]="item.producto.imagen"
                           [alt]="item.producto.nombre"
                           appImagenFallback
                         />
                         <div>
-                          <strong class="d-block">{{ item.producto.nombre }}</strong>
-                          <span class="texto-muted small">{{ item.producto.clasificacion }}</span>
+                          <strong class="block">{{ item.producto.nombre }}</strong>
+                          <span class="text-sm text-muted">{{ item.producto.clasificacion }}</span>
                         </div>
                       </div>
                     </td>
-                    <td class="text-center">{{ item.cantidad }}</td>
-                    <td class="text-end">
+                    <td class="px-4 py-3 text-center align-middle">{{ item.cantidad }}</td>
+                    <td class="px-4 py-3 text-right align-middle">
                       {{ item.producto.precio | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}
                     </td>
-                    <td class="text-end fw-semibold">
+                    <td class="px-4 py-3 text-right align-middle font-semibold">
                       {{
                         (item.producto.precio * item.cantidad)
                           | currency: 'ARS' : 'symbol-narrow' : '1.0-0'
@@ -58,81 +62,77 @@
             </table>
           </div>
 
-          <div class="pedido-acciones">
-            <a routerLink="/productos" class="btn btn-nb">
-              <i class="bi bi-bag"></i> Seguir comprando
-            </a>
-            <a routerLink="/" class="btn btn-nb-outline">Volver al inicio</a>
+          <div class="mt-[1.4rem] flex flex-wrap gap-3">
+            <a routerLink="/productos" class="btn-nb"> <i class="bi bi-bag"></i> Seguir comprando </a>
+            <a routerLink="/" class="btn-nb-outline">Volver al inicio</a>
           </div>
         </div>
 
-        <div class="col-lg-4">
-          <aside class="resumen-compra">
-            <h2>Detalle del pedido</h2>
+        <aside class="resumen-compra">
+          <h2>Detalle del pedido</h2>
 
-            <div class="fila">
-              <span>Número</span>
-              <span class="fw-semibold text-dark">#{{ p.id }}</span>
-            </div>
-            <div class="fila">
-              <span>Fecha</span>
-              <span>{{ p.fecha | date: 'dd/MM/yyyy' }}</span>
-            </div>
-            <div class="fila">
-              <span>Estado</span>
-              <span class="badge bg-success-subtle text-success-emphasis">Confirmado</span>
-            </div>
-            <div class="fila">
-              <span>Productos</span>
-              <span>{{ p.items.length }}</span>
-            </div>
-            <div class="fila">
-              <span>Subtotal</span>
-              <span>{{ p.subtotal | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</span>
-            </div>
-            <div class="fila">
-              <span>Envío</span>
-              @if (p.envio === 0) {
-                <span class="text-success fw-semibold">Gratis</span>
-              } @else {
-                <span>{{ p.envio | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</span>
-              }
-            </div>
-
-            @if (auth.usuarioActual()?.direccion; as direccion) {
-              <div class="fila">
-                <span>Dirección</span>
-                <span class="text-end">{{ direccion }}</span>
-              </div>
+          <div class="fila">
+            <span>Número</span>
+            <span class="font-semibold text-ink">#{{ p.id }}</span>
+          </div>
+          <div class="fila">
+            <span>Fecha</span>
+            <span>{{ p.fecha | date: 'dd/MM/yyyy' }}</span>
+          </div>
+          <div class="fila">
+            <span>Estado</span>
+            <span class="rounded-full bg-green-100 px-[0.65em] py-[0.35em] text-xs font-bold text-green-800">Confirmado</span>
+          </div>
+          <div class="fila">
+            <span>Productos</span>
+            <span>{{ p.items.length }}</span>
+          </div>
+          <div class="fila">
+            <span>Subtotal</span>
+            <span>{{ p.subtotal | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</span>
+          </div>
+          <div class="fila">
+            <span>Envío</span>
+            @if (p.envio === 0) {
+              <span class="font-semibold text-green-700">Gratis</span>
+            } @else {
+              <span>{{ p.envio | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</span>
             }
+          </div>
 
-            <hr />
-
-            <div class="fila total">
-              <span>Total</span>
-              <span>{{ p.total | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</span>
+          @if (auth.usuarioActual()?.direccion; as direccion) {
+            <div class="fila">
+              <span>Dirección</span>
+              <span class="text-right">{{ direccion }}</span>
             </div>
+          }
 
-            <div class="aviso-pedido">
-              <i class="bi bi-truck"></i>
-              <div>
-                <strong>Entrega estimada</strong>
-                <span>Entre 24 y 48 horas hábiles.</span>
-              </div>
+          <hr />
+
+          <div class="fila total">
+            <span>Total</span>
+            <span>{{ p.total | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</span>
+          </div>
+
+          <div class="mt-[1.4rem] flex gap-3 rounded-md border border-blue-200 bg-blue-50 p-[0.85rem] text-blue-700">
+            <i class="bi bi-truck text-xl"></i>
+            <div>
+              <strong class="block text-[0.82rem]">Entrega estimada</strong>
+              <span class="text-[0.78rem]">Entre 24 y 48 horas hábiles.</span>
             </div>
-          </aside>
-        </div>
+          </div>
+        </aside>
       </div>
     </div>
   </section>
 } @else {
-  <section class="py-5">
+  <section class="py-12">
     <div class="container">
       <div class="estado-vacio">
         <div class="icono"><i class="bi bi-receipt"></i></div>
         <h2>Todavía no realizaste ningún pedido</h2>
         <p>Cuando confirmes una compra, acá vas a poder ver el detalle completo del pedido.</p>
-        <a routerLink="/productos" class="btn btn-nb">Explorar productos</a>
+        <a routerLink="/productos" class="btn-nb">Explorar productos</a>
       </div>
     </div>
   </section>

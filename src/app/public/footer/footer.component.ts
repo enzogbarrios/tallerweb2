@@ -7,7 +7,6 @@ import { NotificacionesService } from '../../api/services/notificaciones/notific
   imports: [RouterLink],
   templateUrl: './footer.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
-  styleUrl: './footer.component.css',
 })
 export class FooterComponent {
   private readonly notificaciones = inject(NotificacionesService);

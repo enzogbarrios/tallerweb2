@@ -11,7 +11,6 @@ import { ImagenFallbackDirective } from '../../../../shared/directives/imagen-fa
   imports: [RouterLink, CurrencyPipe, ImagenFallbackDirective],
   templateUrl: './carrito.html',
   changeDetection: ChangeDetectionStrategy.Eager,
-  styleUrl: './carrito.css',
 })
 export class Carrito {
   readonly carrito = inject(CarritoService);

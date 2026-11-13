@@ -1,121 +1,128 @@
-<section class="hero">
-  <div class="container position-relative">
-    <div class="row align-items-center g-5">
-      <div class="col-lg-6">
-        <span class="hero-badge">
+<section class="bg-ink py-12 text-white lg:py-16">
+  <div class="container">
+    <div class="grid items-center gap-12 lg:grid-cols-2">
+      <div>
+        <span class="inline-flex items-center gap-[0.45rem] text-[0.8rem] font-semibold text-slate-300">
           <i class="bi bi-truck"></i>
           Envío gratis en compras desde $50.000
         </span>
 
-        <h1 class="hero-title">
-          Tecnología y diseño para <span>tu día a día</span>
+        <h1 class="mt-[1.1rem] mb-4 max-w-[620px] text-[clamp(2.4rem,5vw,4rem)] leading-[1.05] text-white">
+          Tecnología y diseño para <span class="text-amber-400">tu día a día</span>
         </h1>
 
-        <p class="hero-text">
+        <p class="mb-[1.6rem] max-w-[530px] leading-[1.7] text-gray-300">
           Descubrí productos seleccionados, agregalos al carrito y realizá tu pedido en pocos
           pasos. Una experiencia simple, rápida y pensada para vos.
         </p>
 
-        <div class="d-flex flex-wrap gap-3">
-          <a routerLink="/productos" class="btn btn-nb btn-lg">
+        <div class="flex flex-wrap gap-3">
+          <a routerLink="/productos" class="btn-nb btn-nb-lg">
             Ver productos <i class="bi bi-arrow-right"></i>
           </a>
-          <a routerLink="/auth/signup" class="btn btn-nb-ghost btn-lg">Crear cuenta</a>
+          <a routerLink="/auth/signup" class="btn-nb-ghost btn-nb-lg">Crear cuenta</a>
         </div>
 
-        <div class="hero-stats">
+        <div class="mt-10 flex flex-wrap gap-8 border-t border-gray-700 pt-6">
           <div>
-            <strong>{{ totalProductos() }}+</strong>
-            <span>Productos</span>
+            <strong class="block text-[1.35rem] font-bold text-white">{{ totalProductos() }}+</strong>
+            <span class="text-[0.78rem] text-gray-400">Productos</span>
           </div>
           <div>
-            <strong>24/48 hs</strong>
-            <span>Envíos</span>
+            <strong class="block text-[1.35rem] font-bold text-white">24/48 hs</strong>
+            <span class="text-[0.78rem] text-gray-400">Envíos</span>
           </div>
           <div>
-            <strong>6 cuotas</strong>
-            <span>Sin interés</span>
+            <strong class="block text-[1.35rem] font-bold text-white">6 cuotas</strong>
+            <span class="text-[0.78rem] text-gray-400">Sin interés</span>
           </div>
         </div>
       </div>
 
-      <div class="col-lg-6">
-        <div class="hero-visual">
-          <img
-            src="img/hero.jpg"
-            alt="Interior de la tienda Nébula"
-            appImagenFallback
-          />
-        </div>
+      <div class="mx-auto w-full max-w-[520px] lg:max-w-none">
+        <img
+          src="img/hero.jpg"
+          alt="Interior de la tienda Nébula"
+          appImagenFallback
+          class="block aspect-[4/3.6] w-full rounded-lg border border-gray-600 object-cover"
+        />
       </div>
     </div>
   </div>
 </section>
 
-<section class="destacados py-5">
+<section class="py-12">
   <div class="container">
-    <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+    <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
       <div>
         <span class="eyebrow">Destacados</span>
-        <h2 class="mt-2 mb-0">Los más elegidos</h2>
+        <h2 class="mt-2 text-[clamp(1.8rem,3vw,2.3rem)]">Los más elegidos</h2>
       </div>
-      <a routerLink="/productos" class="link-ver-todo">
+      <a routerLink="/productos" class="inline-flex items-center gap-[0.4rem] font-semibold text-ink hover:text-primary">
         Ver todos <i class="bi bi-arrow-right"></i>
       </a>
     </div>
 
-    <div class="row g-4">
+    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
       @for (producto of destacados(); track producto.id) {
-        <div class="col-12 col-sm-6 col-lg-3">
-          <app-producto-card
-            [producto]="producto"
-            (agregar)="agregarAlCarrito($event)"
-          ></app-producto-card>
-        </div>
+        <app-producto-card
+          [producto]="producto"
+          (agregar)="agregarAlCarrito($event)"
+        ></app-producto-card>
       }
     </div>
   </div>
 </section>
 
-<section class="beneficios py-5">
+<section class="border-y border-line bg-white py-12">
   <div class="container">
-    <div class="row g-4">
-      <div class="col-md-4">
-        <div class="beneficio-card">
-          <span class="icono"><i class="bi bi-truck"></i></span>
-          <h3>Envíos rápidos</h3>
-          <p>Despachamos tu pedido en 24/48 hs en todas las provincias.</p>
-        </div>
+    <div class="grid gap-6 md:grid-cols-3">
+      <div class="rounded-lg border border-line bg-white p-[1.6rem] transition-colors hover:border-primary">
+        <span class="mb-[0.9rem] grid size-[46px] place-items-center rounded-md bg-primary-soft text-[1.2rem] text-primary">
+          <i class="bi bi-truck"></i>
+        </span>
+        <h3 class="mb-[0.4rem] text-[1.1rem]">Envíos rápidos</h3>
+        <p class="text-[0.88rem] leading-[1.6] text-muted">
+          Despachamos tu pedido en 24/48 hs en todas las provincias.
+        </p>
       </div>
-      <div class="col-md-4">
-        <div class="beneficio-card">
-          <span class="icono"><i class="bi bi-shield-check"></i></span>
-          <h3>Compra protegida</h3>
-          <p>Tu compra está respaldada por nuestra garantía de satisfacción.</p>
-        </div>
+      <div class="rounded-lg border border-line bg-white p-[1.6rem] transition-colors hover:border-primary">
+        <span class="mb-[0.9rem] grid size-[46px] place-items-center rounded-md bg-primary-soft text-[1.2rem] text-primary">
+          <i class="bi bi-shield-check"></i>
+        </span>
+        <h3 class="mb-[0.4rem] text-[1.1rem]">Compra protegida</h3>
+        <p class="text-[0.88rem] leading-[1.6] text-muted">
+          Tu compra está respaldada por nuestra garantía de satisfacción.
+        </p>
       </div>
-      <div class="col-md-4">
-        <div class="beneficio-card">
-          <span class="icono"><i class="bi bi-arrow-repeat"></i></span>
-          <h3>Cambios simples</h3>
-          <p>Tenés 30 días para cambiar tu producto sin complicaciones.</p>
-        </div>
+      <div class="rounded-lg border border-line bg-white p-[1.6rem] transition-colors hover:border-primary">
+        <span class="mb-[0.9rem] grid size-[46px] place-items-center rounded-md bg-primary-soft text-[1.2rem] text-primary">
+          <i class="bi bi-arrow-repeat"></i>
+        </span>
+        <h3 class="mb-[0.4rem] text-[1.1rem]">Cambios simples</h3>
+        <p class="text-[0.88rem] leading-[1.6] text-muted">
+          Tenés 30 días para cambiar tu producto sin complicaciones.
+        </p>
       </div>
     </div>
   </div>
 </section>
 
-<section class="pb-5">
+<section class="py-12">
   <div class="container">
-    <div class="cta-final">
-      <div class="cta-texto">
+    <div class="flex flex-wrap items-center justify-between gap-8 rounded-lg bg-ink p-10 text-white">
+      <div>
         <span class="eyebrow eyebrow-light">Sumate a Nébula</span>
-        <h2>Creá tu cuenta y comprá en minutos</h2>
-        <p>Guardá tus datos, seguí tus pedidos y accedé a beneficios exclusivos.</p>
+        <h2 class="mt-[0.7rem] mb-2 text-[clamp(1.6rem,3vw,2.1rem)] text-white">
+          Creá tu cuenta y comprá en minutos
+        </h2>
+        <p class="max-w-[520px] text-gray-300">
+          Guardá tus datos, seguí tus pedidos y accedé a beneficios exclusivos.
+        </p>
       </div>
-      <div class="d-flex flex-wrap gap-2">
-        <a routerLink="/auth/signup" class="btn btn-nb-light">Crear cuenta</a>
-        <a routerLink="/productos" class="btn btn-nb-ghost">Ver catálogo</a>
+      <div class="flex flex-wrap gap-2">
+        <a routerLink="/auth/signup" class="btn-nb-light">Crear cuenta</a>
+        <a routerLink="/productos" class="btn-nb-ghost">Ver catálogo</a>
       </div>
     </div>
   </div>

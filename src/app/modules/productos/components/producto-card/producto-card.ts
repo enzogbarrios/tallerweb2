@@ -10,7 +10,6 @@ import { Producto } from '../../../../shared/models/producto.model';
   imports: [RouterLink, CurrencyPipe, ClasificacionIconoPipe, ImagenFallbackDirective],
   templateUrl: './producto-card.html',
   changeDetection: ChangeDetectionStrategy.Eager,
-  styleUrl: './producto-card.css',
 })
 export class ProductoCard {
   readonly producto = input.required<Producto>();
