@@ -13,6 +13,6 @@ export type ResultadoConsulta<T> = {
 
 // Atajo para hacer consultas tipadas:
 // query<Producto>('SELECT * FROM productos WHERE id = $1', [5])
-export function query<T>(texto: string, parametros: unknown[] = []): Promise<ResultadoConsulta<T>> {
-  return pool.query(texto, parametros) as unknown as Promise<ResultadoConsulta<T>>;
+export async function query<T>(texto: string, parametros: unknown[] = []) {
+  return pool.query(texto, parametros) as unknown as ResultadoConsulta<T>;
 }
