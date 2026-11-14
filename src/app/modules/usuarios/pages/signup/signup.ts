@@ -3,7 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../../api/services/auth/auth.service';
 import { NotificacionesService } from '../../../../api/services/notificaciones/notificaciones.service';
-import { emailUnicoValidator } from '../../../../shared/validators/email.validator';
+import { leerError } from '../../../../api/utils/leer-error';
 import {
   passwordComplejaValidator,
   passwordsIgualesValidator,
@@ -31,7 +31,7 @@ export class Signup {
     {
       nombre: ['', [Validators.required, Validators.minLength(2)]],
       apellido: ['', [Validators.required, Validators.minLength(2)]],
-      email: ['', [Validators.required, Validators.email, emailUnicoValidator(this.auth)]],
+      email: ['', [Validators.required, Validators.email]],
       direccion: ['', [Validators.required, Validators.minLength(5)]],
       password: ['', [Validators.required, passwordComplejaValidator]],
       confirmarPassword: ['', [Validators.required]],
@@ -74,20 +74,29 @@ export class Signup {
 
     const valores = this.form.getRawValue();
 
-    const resultado = this.auth.registrar({
-      nombre: valores.nombre,
-      apellido: valores.apellido,
-      email: valores.email,
-      direccion: valores.direccion,
-      password: valores.password,
-    });
+    this.auth
+      .registrar({
+        nombre: valores.nombre,
+        apellido: valores.apellido,
+        email: valores.email,
+        direccion: valores.direccion,
+        password: valores.password,
+      })
+      .subscribe({
+        next: () => {
+          this.notificaciones.mostrar(`¡Bienvenido/a, ${valores.nombre}! Tu cuenta fue creada.`);
+          this.router.navigate(['/']);
+        },
+        error: (error) => {
+          const { codigo, mensaje } = leerError(error);
 
-    if (!resultado.ok) {
-      this.error.set(resultado.error ?? 'No se pudo crear la cuenta.');
-      return;
-    }
-
-    this.notificaciones.mostrar(`¡Bienvenido/a, ${valores.nombre}! Tu cuenta fue creada.`);
-    this.router.navigate(['/']);
+          if (codigo === 'EMAIL_DUPLICADO') {
+            // Marca el campo email con el error (se ve debajo del input).
+            this.form.controls.email.setErrors({ emailDuplicado: true });
+          } else {
+            this.error.set(mensaje);
+          }
+        },
+      });
   }
 }

@@ -2,6 +2,7 @@ import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/cor
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../../api/services/auth/auth.service';
+import { leerError } from '../../../../api/utils/leer-error';
 
 @Component({
   selector: 'app-recover-password',
@@ -31,12 +32,10 @@ export class RecoverPassword {
 
     const email = this.form.getRawValue().email.trim();
 
-    if (this.auth.recuperarPassword(email)) {
-      this.mensaje.set(
-        `Si ${email} está registrado, te enviamos un enlace para restablecer tu contraseña.`,
-      );
-    } else {
-      this.error.set('No encontramos una cuenta registrada con ese email.');
-    }
+    // El servidor responde siempre lo mismo, exista o no el email (no revela qué cuentas hay).
+    this.auth.recuperarPassword(email).subscribe({
+      next: (mensaje) => this.mensaje.set(mensaje),
+      error: (error) => this.error.set(leerError(error).mensaje),
+    });
   }
 }

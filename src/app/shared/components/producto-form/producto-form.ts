@@ -34,8 +34,9 @@ export class ProductoForm implements OnInit {
     descripcion: ['', [Validators.required, Validators.minLength(15)]],
     clasificacion: [CLASIFICACIONES[0] as Clasificacion, [Validators.required]],
     precio: [0, [Validators.required, Validators.min(1)]],
-    // Acepta URLs completas o rutas internas como img/productos/remera.webp
-    imagen: ['', [Validators.required, Validators.pattern(/^(https?:\/\/|img\/).+/)]],
+    // Acepta URLs completas o rutas internas como uploads/productos/remera.webp
+    // (en la Fase 4 esto pasa a ser un input de archivo)
+    imagen: ['', [Validators.required, Validators.pattern(/^(https?:\/\/|img\/|uploads\/).+/)]],
     destacado: [false],
   });
 

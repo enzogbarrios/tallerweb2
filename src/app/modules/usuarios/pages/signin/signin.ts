@@ -2,6 +2,7 @@ import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/cor
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../../api/services/auth/auth.service';
+import { leerError } from '../../../../api/utils/leer-error';
 import { NotificacionesService } from '../../../../api/services/notificaciones/notificaciones.service';
 
 @Component({
@@ -34,15 +35,13 @@ export class Signin {
 
     const { email, password } = this.form.getRawValue();
 
-    if (!this.auth.iniciarSesion(email, password)) {
-      this.error.set(
-        'El email o la contraseña no son correctos.',
-      );
-      return;
-    }
-
-    const usuario = this.auth.usuarioActual();
-    this.notificaciones.mostrar(`¡Hola de nuevo, ${usuario?.nombre ?? ''}!`);
-    this.router.navigate([this.auth.esAdmin() ? '/admin' : '/']);
+    // La llamada a la API se hace al suscribirse. next = salió bien, error = salió mal.
+    this.auth.iniciarSesion(email, password).subscribe({
+      next: (usuario) => {
+        this.notificaciones.mostrar(`¡Hola de nuevo, ${usuario.nombre}!`);
+        this.router.navigate([this.auth.esAdmin() ? '/admin' : '/']);
+      },
+      error: (error) => this.error.set(leerError(error).mensaje),
+    });
   }
 }
