@@ -1,34 +1,31 @@
-<section class="page-header">
-  <div class="container">
-    <span class="eyebrow">Tu compra</span>
-    <h1>Carrito de compras</h1>
-    <p>Revisá los productos, ajustá las cantidades y confirmá tu pedido cuando estés listo.</p>
-  </div>
-</section>
+<section class="bg-white py-8 lg:py-12">
+  <div class="mx-4 sm:mx-10">
+    <h1 class="mt-2 mb-6 text-black uppercase">Carrito</h1>
 
-<section class="py-12">
-  <div class="container">
     @if (carrito.items().length === 0) {
-      <div class="estado-vacio">
-        <div class="icono"><i class="bi bi-bag"></i></div>
-        <h2>Tu carrito está vacío</h2>
-        <p>Todavía no agregaste ningún producto. Explorá el catálogo y encontrá algo que te guste.</p>
-        <a routerLink="/productos" class="btn-nb"> <i class="bi bi-grid"></i> Ver productos </a>
+      <div class="border border-dashed border-gray-300 px-8 py-14 text-center min-h-[30rem]">
+        <h2 class="mb-2 text-[1.3rem] text-black uppercase">Tu carrito está vacío</h2>
+        <p class="mx-auto mb-6 max-w-[430px] text-muted">
+          Todavía no agregaste ningún producto. Explorá el catálogo y encontrá algo que te guste.
+        </p>
+        <a
+          routerLink="/productos"
+          class="inline-flex items-center justify-center gap-2 bg-brand px-6 py-3 text-[0.9rem] text-white uppercase transition-colors hover:bg-brand/70"
+        >
+          Ver productos
+        </a>
       </div>
     } @else {
-      <div class="grid items-start gap-6 lg:grid-cols-3">
+      <div class="grid items-start gap-8 lg:grid-cols-3 min-h-[30rem]">
         <div class="lg:col-span-2">
-          <div class="overflow-hidden rounded-lg border border-line bg-white">
+          <div class="border-t border-gray-200">
             @for (item of carrito.items(); track item.producto.id) {
               <article
-                class="grid grid-cols-[76px_minmax(0,1fr)_auto] items-center gap-3 border-b border-line px-[1.15rem] py-4 last:border-b-0 md:grid-cols-[96px_minmax(0,1fr)_auto_auto_auto] md:gap-4"
+                class="grid grid-cols-[76px_minmax(0,1fr)_auto] items-center gap-3 border-b border-gray-200 py-4 md:grid-cols-[96px_minmax(0,1fr)_auto_auto_auto] md:gap-4"
               >
-                <a
-                  [routerLink]="['/productos', item.producto.id]"
-                  class="block overflow-hidden rounded-md bg-gray-200"
-                >
+                <a [routerLink]="['/productos', item.producto.id]" class="block overflow-hidden bg-gray-200">
                   <img
-                    class="block h-[70px] w-[76px] object-cover md:h-20 md:w-24"
+                    class="block aspect-[2.5/3] w-full object-cover"
                     [src]="item.producto.imagen"
                     [alt]="item.producto.nombre"
                     appImagenFallback
@@ -36,15 +33,15 @@
                 </a>
 
                 <div>
-                  <span class="text-[0.7rem] font-bold tracking-[0.06em] text-primary uppercase">{{
+                  <span class="text-[0.7rem] tracking-[0.06em] text-muted uppercase">{{
                     item.producto.clasificacion
                   }}</span>
                   <h2 class="mt-[0.15rem] mb-1 text-base">
-                    <a class="text-ink hover:text-primary" [routerLink]="['/productos', item.producto.id]">
+                    <a class="text-ink uppercase hover:text-brand" [routerLink]="['/productos', item.producto.id]">
                       {{ item.producto.nombre }}
                     </a>
                   </h2>
-                  <span class="text-[0.78rem] text-muted">
+                  <span class="text-[0.85rem] text-brand">
                     {{ item.producto.precio | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}
                     c/u
                   </span>
@@ -52,7 +49,7 @@
 
                 <button
                   type="button"
-                  class="col-start-3 row-start-1 grid size-[34px] cursor-pointer place-items-center rounded-md border border-line bg-white text-gray-500 transition-colors hover:border-red-600 hover:bg-red-50 hover:text-red-600 md:order-last md:col-auto md:row-auto"
+                  class="col-start-3 row-start-1 grid size-[34px] cursor-pointer place-items-center text-gray-500 transition-colors hover:text-red-600 md:order-last md:col-auto md:row-auto"
                   aria-label="Quitar producto"
                   (click)="quitar(item.producto.id, item.producto.nombre)"
                 >
@@ -60,17 +57,19 @@
                 </button>
 
                 <div class="col-start-2 md:col-auto">
-                  <div class="selector-cantidad">
+                  <div class="inline-flex items-center border border-gray-300 bg-white">
                     <button
                       type="button"
+                      class="size-10 cursor-pointer leading-none text-ink transition-colors hover:text-brand"
                       aria-label="Disminuir cantidad"
                       (click)="carrito.cambiarCantidad(item.producto.id, item.cantidad - 1)"
                     >
                       <i class="bi bi-dash"></i>
                     </button>
-                    <span>{{ item.cantidad }}</span>
+                    <span class="min-w-9 text-center font-bold">{{ item.cantidad }}</span>
                     <button
                       type="button"
+                      class="size-10 cursor-pointer leading-none text-ink transition-colors hover:text-brand"
                       aria-label="Aumentar cantidad"
                       (click)="carrito.cambiarCantidad(item.producto.id, item.cantidad + 1)"
                     >
@@ -79,7 +78,7 @@
                   </div>
                 </div>
 
-                <div class="col-start-2 font-bold md:col-auto md:min-w-[100px] md:text-right">
+                <div class="col-start-2 text-brand md:col-auto md:min-w-[100px] md:text-right">
                   {{
                     (item.producto.precio * item.cantidad)
                       | currency: 'ARS' : 'symbol-narrow' : '1.0-0'
@@ -91,21 +90,21 @@
 
           <a
             routerLink="/productos"
-            class="mt-[1.2rem] inline-flex items-center gap-[0.4rem] text-[0.88rem] font-semibold text-primary hover:text-primary-dark"
+            class="mt-5 inline-flex items-center gap-[0.4rem] text-[0.88rem] font-semibold text-ink hover:text-brand"
           >
             <i class="bi bi-arrow-left"></i> Seguir comprando
           </a>
         </div>
 
-        <aside class="resumen-compra">
-          <h2>Resumen del pedido</h2>
+        <aside class="bg-gray-100 p-6 lg:sticky lg:top-[100px]">
+          <h2 class="mb-5 text-[1.1rem] text-black uppercase">Resumen del pedido</h2>
 
-          <div class="fila">
+          <div class="mb-3 flex justify-between gap-4 text-[0.95rem] text-muted">
             <span>Productos ({{ carrito.cantidadTotal() }})</span>
             <span>{{ carrito.subtotal() | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</span>
           </div>
 
-          <div class="fila">
+          <div class="mb-3 flex justify-between gap-4 text-[0.95rem] text-muted">
             <span>Envío</span>
             <span>
               @if (carrito.envio() === 0) {
@@ -116,21 +115,20 @@
             </span>
           </div>
 
-          <hr />
+          <hr class="my-4 border-gray-300" />
 
-          <div class="fila total">
+          <div class="mb-5 flex justify-between gap-4 text-[1.1rem] font-bold text-ink">
             <span>Total</span>
-            <span>{{ carrito.total() | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</span>
+            <span class="text-brand">{{ carrito.total() | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</span>
           </div>
 
-          <button type="button" class="btn-nb w-full" (click)="realizarPedido()">
-            <i class="bi bi-check2-circle"></i> Realizar pedido
+          <button
+            type="button"
+            class="inline-flex w-full cursor-pointer items-center justify-center gap-2 bg-brand px-6 py-3 text-[0.9rem] text-white uppercase transition-colors hover:bg-brand/70"
+            (click)="realizarPedido()"
+          >
+            Realizar pedido
           </button>
-
-          <p class="mt-4 text-center text-xs leading-normal text-muted">
-            <i class="bi bi-info-circle mr-1"></i>
-            Pago simulado: no se realizará ningún cobro real.
-          </p>
         </aside>
       </div>
     }

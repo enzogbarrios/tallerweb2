@@ -1,56 +1,51 @@
 @if (pedido(); as p) {
-  <section class="bg-[#0f3d3e] py-[3.25rem] text-center text-white">
-    <div class="container">
-      <div
-        class="mx-auto mb-[1.15rem] grid size-[68px] place-items-center rounded-full border border-teal-400 bg-teal-900 text-[1.9rem] text-teal-300"
-      >
-        <i class="bi bi-check-lg"></i>
+  <section class="bg-white py-8 lg:py-12">
+    <div class="mx-4 sm:mx-10">
+      <div class="mb-8 border-b border-gray-200 pb-8 text-center">
+        <i class="bi bi-check-circle mb-3 block text-[2.6rem] text-brand"></i>
+        <h1 class="mb-2 text-[clamp(1.8rem,4vw,2.6rem)] text-black uppercase">¡Gracias por tu compra!</h1>
+        <p class="mx-auto max-w-[560px] text-muted">
+          Tu pedido <strong class="text-ink">#{{ p.id }}</strong> fue registrado correctamente. Te
+          enviaremos las novedades por email.
+        </p>
       </div>
-      <span class="eyebrow eyebrow-light">Pedido confirmado</span>
-      <h1 class="mt-[0.7rem] mb-2 text-[clamp(2rem,4vw,2.8rem)] text-white">¡Gracias por tu compra!</h1>
-      <p class="mx-auto max-w-[560px] text-teal-100">
-        Tu pedido <strong class="text-white">#{{ p.id }}</strong> fue registrado correctamente. Te
-        enviaremos las novedades por email.
-      </p>
-    </div>
-  </section>
 
-  <section class="py-12">
-    <div class="container">
-      <div class="grid items-start gap-6 lg:grid-cols-3">
-        <div class="lg:col-span-2">
-          <div class="overflow-x-auto rounded-lg border border-line bg-white">
+      <div class="grid items-start gap-8 lg:grid-cols-3">
+        <div class="min-w-0 lg:col-span-2">
+          <div class="overflow-x-auto border-t border-gray-200">
             <table class="w-full border-collapse text-left">
               <thead>
-                <tr class="bg-gray-50 text-[0.76rem] font-bold tracking-[0.06em] text-muted uppercase">
-                  <th scope="col" class="border-b border-line px-4 py-3">Producto</th>
-                  <th scope="col" class="border-b border-line px-4 py-3 text-center">Cantidad</th>
-                  <th scope="col" class="border-b border-line px-4 py-3 text-right">Precio</th>
-                  <th scope="col" class="border-b border-line px-4 py-3 text-right">Subtotal</th>
+                <tr class="text-[0.72rem] tracking-[0.06em] text-muted uppercase">
+                  <th scope="col" class="border-b border-gray-200 py-3 pr-4 font-normal">Producto</th>
+                  <th scope="col" class="border-b border-gray-200 px-2 py-3 text-center font-normal sm:px-4">Cantidad</th>
+                  <th scope="col" class="hidden border-b border-gray-200 px-4 py-3 text-right font-normal sm:table-cell">Precio</th>
+                  <th scope="col" class="border-b border-gray-200 py-3 pl-2 text-right font-normal sm:pl-4">Subtotal</th>
                 </tr>
               </thead>
               <tbody>
                 @for (item of p.items; track item.producto.id) {
-                  <tr class="border-b border-line last:border-b-0">
-                    <td class="px-4 py-3 align-middle">
+                  <tr class="border-b border-gray-200">
+                    <td class="py-3 pr-2 align-middle sm:pr-4">
                       <div class="flex items-center gap-3">
                         <img
-                          class="size-14 rounded-md object-cover"
+                          class="aspect-[2.5/3] w-10 flex-none sm:w-14 bg-gray-200 object-cover"
                           [src]="item.producto.imagen"
                           [alt]="item.producto.nombre"
                           appImagenFallback
                         />
                         <div>
-                          <strong class="block">{{ item.producto.nombre }}</strong>
-                          <span class="text-sm text-muted">{{ item.producto.clasificacion }}</span>
+                          <span class="text-[0.7rem] tracking-[0.06em] text-muted uppercase">{{
+                            item.producto.clasificacion
+                          }}</span>
+                          <strong class="block text-ink uppercase">{{ item.producto.nombre }}</strong>
                         </div>
                       </div>
                     </td>
-                    <td class="px-4 py-3 text-center align-middle">{{ item.cantidad }}</td>
-                    <td class="px-4 py-3 text-right align-middle">
+                    <td class="px-2 py-3 text-center align-middle sm:px-4">{{ item.cantidad }}</td>
+                    <td class="hidden px-4 py-3 text-right align-middle sm:table-cell">
                       {{ item.producto.precio | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}
                     </td>
-                    <td class="px-4 py-3 text-right align-middle font-semibold">
+                    <td class="py-3 pl-2 text-right align-middle text-brand sm:pl-4">
                       {{
                         (item.producto.precio * item.cantidad)
                           | currency: 'ARS' : 'symbol-narrow' : '1.0-0'
@@ -62,36 +57,41 @@
             </table>
           </div>
 
-          <div class="mt-[1.4rem] flex flex-wrap gap-3">
-            <a routerLink="/productos" class="btn-nb"> <i class="bi bi-bag"></i> Seguir comprando </a>
-            <a routerLink="/" class="btn-nb-outline">Volver al inicio</a>
+          <div class="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
+            <a
+              routerLink="/productos"
+              class="inline-flex items-center justify-center gap-2 bg-brand px-6 py-3 text-[0.9rem] text-white uppercase transition-colors hover:bg-brand/70"
+            >
+              Seguir comprando
+            </a>
+            <a routerLink="/" class="text-[0.88rem] font-semibold text-ink hover:text-brand">Volver al inicio</a>
           </div>
         </div>
 
-        <aside class="resumen-compra">
-          <h2>Detalle del pedido</h2>
+        <aside class="bg-gray-100 p-6 lg:sticky lg:top-[100px]">
+          <h2 class="mb-5 text-[1.1rem] text-black uppercase">Detalle del pedido</h2>
 
-          <div class="fila">
+          <div class="mb-3 flex justify-between gap-4 text-[0.95rem] text-muted">
             <span>Número</span>
             <span class="font-semibold text-ink">#{{ p.id }}</span>
           </div>
-          <div class="fila">
+          <div class="mb-3 flex justify-between gap-4 text-[0.95rem] text-muted">
             <span>Fecha</span>
             <span>{{ p.fecha | date: 'dd/MM/yyyy' }}</span>
           </div>
-          <div class="fila">
+          <div class="mb-3 flex items-center justify-between gap-4 text-[0.95rem] text-muted">
             <span>Estado</span>
-            <span class="rounded-full bg-green-100 px-[0.65em] py-[0.35em] text-xs font-bold text-green-800">Confirmado</span>
+            <span class="bg-green-100 px-2 py-1 text-xs font-bold text-green-800 uppercase">Confirmado</span>
           </div>
-          <div class="fila">
+          <div class="mb-3 flex justify-between gap-4 text-[0.95rem] text-muted">
             <span>Productos</span>
             <span>{{ p.items.length }}</span>
           </div>
-          <div class="fila">
+          <div class="mb-3 flex justify-between gap-4 text-[0.95rem] text-muted">
             <span>Subtotal</span>
             <span>{{ p.subtotal | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</span>
           </div>
-          <div class="fila">
+          <div class="mb-3 flex justify-between gap-4 text-[0.95rem] text-muted">
             <span>Envío</span>
             @if (p.envio === 0) {
               <span class="font-semibold text-green-700">Gratis</span>
@@ -101,24 +101,24 @@
           </div>
 
           @if (auth.usuarioActual()?.direccion; as direccion) {
-            <div class="fila">
+            <div class="mb-3 flex justify-between gap-4 text-[0.95rem] text-muted">
               <span>Dirección</span>
               <span class="text-right">{{ direccion }}</span>
             </div>
           }
 
-          <hr />
+          <hr class="my-4 border-gray-300" />
 
-          <div class="fila total">
+          <div class="flex justify-between gap-4 text-[1.1rem] font-bold text-ink">
             <span>Total</span>
-            <span>{{ p.total | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</span>
+            <span class="text-brand">{{ p.total | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</span>
           </div>
 
-          <div class="mt-[1.4rem] flex gap-3 rounded-md border border-blue-200 bg-blue-50 p-[0.85rem] text-blue-700">
-            <i class="bi bi-truck text-xl"></i>
+          <div class="mt-6 flex gap-3 border-t border-gray-300 pt-4 text-muted">
+            <i class="bi bi-truck text-xl text-brand"></i>
             <div>
-              <strong class="block text-[0.82rem]">Entrega estimada</strong>
-              <span class="text-[0.78rem]">Entre 24 y 48 horas hábiles.</span>
+              <strong class="block text-[0.82rem] text-ink uppercase">Entrega estimada</strong>
+              <span class="text-[0.8rem]">Entre 24 y 48 horas hábiles.</span>
             </div>
           </div>
         </aside>
@@ -126,13 +126,19 @@
     </div>
   </section>
 } @else {
-  <section class="py-12">
-    <div class="container">
-      <div class="estado-vacio">
-        <div class="icono"><i class="bi bi-receipt"></i></div>
-        <h2>Todavía no realizaste ningún pedido</h2>
-        <p>Cuando confirmes una compra, acá vas a poder ver el detalle completo del pedido.</p>
-        <a routerLink="/productos" class="btn-nb">Explorar productos</a>
+  <section class="bg-white py-8 lg:py-12 lg:min-h-[40rem]">
+    <div class="mx-4 sm:mx-10">
+      <div class="border border-dashed border-gray-300 px-8 py-14 text-center">
+        <h2 class="mb-2 text-[1.3rem] text-black uppercase">Todavía no realizaste ningún pedido</h2>
+        <p class="mx-auto mb-6 max-w-[430px] text-muted">
+          Cuando confirmes una compra, acá vas a poder ver el detalle completo del pedido.
+        </p>
+        <a
+          routerLink="/productos"
+          class="inline-flex items-center justify-center gap-2 bg-brand px-6 py-3 text-[0.9rem] text-white uppercase transition-colors hover:bg-brand/70"
+        >
+          Explorar productos
+        </a>
       </div>
     </div>
   </section>

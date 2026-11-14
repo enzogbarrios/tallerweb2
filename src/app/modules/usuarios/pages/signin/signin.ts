@@ -36,21 +36,13 @@ export class Signin {
 
     if (!this.auth.iniciarSesion(email, password)) {
       this.error.set(
-        'El email o la contraseña no son correctos. Verificá los datos e intentá nuevamente.',
+        'El email o la contraseña no son correctos.',
       );
       return;
     }
 
     const usuario = this.auth.usuarioActual();
     this.notificaciones.mostrar(`¡Hola de nuevo, ${usuario?.nombre ?? ''}!`);
-    this.router.navigate(['/']);
-  }
-
-  usarDemo(): void {
-    this.form.setValue({
-      email: 'demo@nebula.com',
-      password: 'Demo1234!',
-    });
-    this.error.set(null);
+    this.router.navigate([this.auth.esAdmin() ? '/admin' : '/']);
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { computed, Injectable, signal } from '@angular/core';
 import { NuevoUsuario, Usuario } from '../../../shared/models/usuario.model';
 
 @Injectable({
@@ -9,19 +9,30 @@ export class AuthService {
     {
       id: 1,
       nombre: 'Demo',
-      apellido: 'Nébula',
-      email: 'demo@nebula.com',
-      direccion: 'Av. Siempre Viva 123',
-      password: 'Demo1234!',
+      apellido: 'Shaka',
+      email: 'demo@shaka.com',
+      direccion: 'Calle 123',
+      password: 'Shaka1234!',
+      rol: 'cliente',
+    },
+    {
+      id: 2,
+      nombre: 'Admin',
+      apellido: 'Shaka',
+      email: 'admin@shaka.com',
+      direccion: 'Calle 123',
+      password: 'Shaka1234!',
+      rol: 'admin',
     },
   ]);
 
   private readonly usuarioActualState = signal<Usuario | null>(null);
 
-  private siguienteId = 2;
+  private siguienteId = 3;
 
   readonly usuarios = this.usuariosState.asReadonly();
   readonly usuarioActual = this.usuarioActualState.asReadonly();
+  readonly esAdmin = computed(() => this.usuarioActual()?.rol === 'admin');
 
   iniciarSesion(email: string, password: string): boolean {
     const emailNormalizado = email.trim().toLowerCase();
@@ -46,6 +57,7 @@ export class AuthService {
     const nuevoUsuario: Usuario = {
       ...datos,
       id: this.siguienteId++,
+      rol: 'cliente',
       email: datos.email.trim().toLowerCase(),
       nombre: datos.nombre.trim(),
       apellido: datos.apellido.trim(),

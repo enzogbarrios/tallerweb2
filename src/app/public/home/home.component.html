@@ -1,13 +1,12 @@
 <section class="">
-  <img src="img/hero.webp" alt="Imagen hero" class="w-screen h-screen object-cover">
+  <img src="img/hero.webp" alt="Imagen hero" class="block h-screen w-full object-cover">
 </section>
 
-<section class="py-12">
-  <div class="container">
+<section class="py-12 bg-white">
+  <div class="mx-10">
     <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
       <div>
-        <span class="eyebrow">Destacados</span>
-        <h2 class="mt-2 text-[clamp(1.8rem,3vw,2.3rem)]">Los más elegidos</h2>
+        <h2 class="mt-2 text-black">DESTACADOS</h2>
       </div>
       <a routerLink="/productos" class="inline-flex items-center gap-[0.4rem] font-semibold text-ink hover:text-primary">
         Ver todos <i class="bi bi-arrow-right"></i>
@@ -25,55 +24,20 @@
   </div>
 </section>
 
-<section class="border-y border-line bg-white py-12">
+<section class="py-12 bg-white">
   <div class="container">
-    <div class="grid gap-6 md:grid-cols-3">
-      <div class="rounded-lg border border-line bg-white p-[1.6rem] transition-colors hover:border-primary">
-        <span class="mb-[0.9rem] grid size-[46px] place-items-center rounded-md bg-primary-soft text-[1.2rem] text-primary">
-          <i class="bi bi-truck"></i>
-        </span>
-        <h3 class="mb-[0.4rem] text-[1.1rem]">Envíos rápidos</h3>
-        <p class="text-[0.88rem] leading-[1.6] text-muted">
-          Despachamos tu pedido en 24/48 hs en todas las provincias.
-        </p>
-      </div>
-      <div class="rounded-lg border border-line bg-white p-[1.6rem] transition-colors hover:border-primary">
-        <span class="mb-[0.9rem] grid size-[46px] place-items-center rounded-md bg-primary-soft text-[1.2rem] text-primary">
-          <i class="bi bi-shield-check"></i>
-        </span>
-        <h3 class="mb-[0.4rem] text-[1.1rem]">Compra protegida</h3>
-        <p class="text-[0.88rem] leading-[1.6] text-muted">
-          Tu compra está respaldada por nuestra garantía de satisfacción.
-        </p>
-      </div>
-      <div class="rounded-lg border border-line bg-white p-[1.6rem] transition-colors hover:border-primary">
-        <span class="mb-[0.9rem] grid size-[46px] place-items-center rounded-md bg-primary-soft text-[1.2rem] text-primary">
-          <i class="bi bi-arrow-repeat"></i>
-        </span>
-        <h3 class="mb-[0.4rem] text-[1.1rem]">Cambios simples</h3>
-        <p class="text-[0.88rem] leading-[1.6] text-muted">
-          Tenés 30 días para cambiar tu producto sin complicaciones.
-        </p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="py-12">
-  <div class="container">
-    <div class="flex flex-wrap items-center justify-between gap-8 rounded-lg bg-ink p-10 text-white">
+    <div class="flex flex-wrap items-center justify-between gap-8 bg-brand p-10 text-white">
       <div>
-        <span class="eyebrow eyebrow-light">Sumate a Nébula</span>
-        <h2 class="mt-[0.7rem] mb-2 text-[clamp(1.6rem,3vw,2.1rem)] text-white">
-          Creá tu cuenta y comprá en minutos
+        <h2 class="mt-[0.7rem] mb-1 text-[clamp(1.6rem,3vw,2.1rem)] text-white">
+          SUSCRIBITE A NUESTRO NEWSLETTER
         </h2>
-        <p class="max-w-[520px] text-gray-300">
-          Guardá tus datos, seguí tus pedidos y accedé a beneficios exclusivos.
+        <p class="max-w-[520px] text-gray-100">
+          Novedades y descuentos exclusivos
         </p>
       </div>
-      <div class="flex flex-wrap gap-2">
-        <a routerLink="/auth/signup" class="btn-nb-light">Crear cuenta</a>
-        <a routerLink="/productos" class="btn-nb-ghost">Ver catálogo</a>
+      <div class="w-70 bg-transparent border border-white flex items-center">
+        <input type="text" class="py-3 px-3 w-full h-full focus:outline-none placeholder:text-white placeholder:text-sm" placeholder="Email">
+        <a href="#"><i class="bi bi-arrow-right px-2"></i></a>
       </div>
     </div>
   </div>

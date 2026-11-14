@@ -1,51 +1,12 @@
-<section class="py-10">
+<section class="bg-white py-10">
   <div class="container">
-    <div class="grid min-h-0 overflow-hidden rounded-[10px] border border-line bg-white lg:min-h-[600px] lg:grid-cols-12">
-      <div class="hidden flex-col justify-between bg-ink p-10 text-white lg:col-span-5 lg:flex">
-        <div>
-          <span class="eyebrow eyebrow-light">Nébula store</span>
-          <h2 class="mt-4 mb-3 text-[clamp(1.8rem,2.6vw,2.3rem)] text-white">
-            Tu próxima compra empieza acá.
-          </h2>
-          <p class="text-gray-300">
-            Creá tu cuenta para guardar tus datos, agregar productos al carrito y realizar pedidos
-            de forma rápida y segura.
-          </p>
-
-          <div class="beneficio">
-            <span class="icono"><i class="bi bi-bag-check"></i></span>
-            <div>
-              <strong>Compra en pocos pasos</strong>
-              <small>Elegí, agregá al carrito y confirmá tu pedido.</small>
-            </div>
-          </div>
-
-          <div class="beneficio">
-            <span class="icono"><i class="bi bi-shield-check"></i></span>
-            <div>
-              <strong>Datos protegidos</strong>
-              <small>Tu información se mantiene segura durante la demo.</small>
-            </div>
-          </div>
-
-          <div class="beneficio">
-            <span class="icono"><i class="bi bi-truck"></i></span>
-            <div>
-              <strong>Envíos a todo el país</strong>
-              <small>Recibí tu pedido en 24/48 hs.</small>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="flex items-center px-6 py-8 sm:px-[clamp(1.5rem,5vw,3.5rem)] lg:col-span-7 lg:py-10">
+    <div class="flex items-center justify-center">
+      <div class="flex items-center px-6 py-8 sm:px-[clamp(1.5rem,5vw,3.5rem)] lg:py-10">
         <div class="mx-auto w-full max-w-[560px]">
-          <span class="eyebrow">Creá tu cuenta</span>
-          <h1 class="my-2 text-[clamp(1.75rem,3vw,2.3rem)]">Empezá a comprar en Nébula</h1>
-          <p class="mb-[1.6rem] text-muted">Completá tus datos. Todos los campos son obligatorios.</p>
+          <h1 class="my-2 text-3xl">CREAR CUENTA</h1>
 
           @if (error()) {
-            <div class="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-2 text-red-700" role="alert">
+            <div class="mb-4 bg-red-50 px-4 py-2 text-red-700" role="alert">
               <i class="bi bi-exclamation-circle mr-2"></i>{{ error() }}
             </div>
           }
@@ -53,13 +14,12 @@
           <form [formGroup]="form" (ngSubmit)="registrarse()" novalidate>
             <div class="grid gap-4 md:grid-cols-2">
               <div>
-                <label class="field-label" for="nombre">Nombre</label>
+                <label class="block text-sm text-black" for="nombre">NOMBRE</label>
                 <input
                   id="nombre"
                   type="text"
-                  class="field-input"
+                  class="w-full border border-black p-3 placeholder:text-sm placeholder:text-gray-400 focus:outline-none"
                   formControlName="nombre"
-                  placeholder="Tu nombre"
                   [class.is-invalid]="form.get('nombre')?.invalid && form.get('nombre')?.touched"
                 />
                 @if (form.get('nombre')?.touched && form.get('nombre')?.hasError('required')) {
@@ -71,13 +31,12 @@
               </div>
 
               <div>
-                <label class="field-label" for="apellido">Apellido</label>
+                <label class="block text-sm text-black" for="apellido">APELLIDO</label>
                 <input
                   id="apellido"
                   type="text"
-                  class="field-input"
+                  class="w-full border border-black p-3 placeholder:text-sm placeholder:text-gray-400 focus:outline-none"
                   formControlName="apellido"
-                  placeholder="Tu apellido"
                   [class.is-invalid]="
                     form.get('apellido')?.invalid && form.get('apellido')?.touched
                   "
@@ -94,13 +53,12 @@
             </div>
 
             <div class="mt-4">
-              <label class="field-label" for="email">Email</label>
+              <label class="block text-sm text-black" for="email">EMAIL</label>
               <input
                 id="email"
                 type="email"
-                class="field-input"
+                class="w-full border border-black p-3 placeholder:text-sm placeholder:text-gray-400 focus:outline-none"
                 formControlName="email"
-                placeholder="tu@email.com"
                 [class.is-invalid]="form.get('email')?.invalid && form.get('email')?.touched"
               />
               @if (form.get('email')?.touched && form.get('email')?.hasError('required')) {
@@ -115,13 +73,12 @@
             </div>
 
             <div class="mt-4">
-              <label class="field-label" for="direccion">Dirección</label>
+              <label class="block text-sm text-black" for="direccion">DIRECCIÓN</label>
               <input
                 id="direccion"
                 type="text"
-                class="field-input"
+                class="w-full border border-black p-3 placeholder:text-sm placeholder:text-gray-400 focus:outline-none"
                 formControlName="direccion"
-                placeholder="Calle, número, ciudad"
                 [class.is-invalid]="
                   form.get('direccion')?.invalid && form.get('direccion')?.touched
                 "
@@ -137,14 +94,13 @@
             </div>
 
             <div class="mt-4">
-              <label class="field-label" for="password">Contraseña</label>
+              <label class="block text-sm text-black" for="password">CONTRASEÑA</label>
               <div class="flex">
                 <input
                   id="password"
                   [type]="mostrarPassword() ? 'text' : 'password'"
-                  class="field-input rounded-r-none border-r-0"
+                  class="w-full border border-black p-3 placeholder:text-sm placeholder:text-gray-400 focus:outline-none border-r-0"
                   formControlName="password"
-                  placeholder="Creá una contraseña segura"
                   [class.is-invalid]="
                     form.get('password')?.invalid && form.get('password')?.touched
                   "
@@ -152,7 +108,7 @@
                 />
                 <button
                   type="button"
-                  class="input-addon"
+                  class="cursor-pointer border border-black bg-black px-3 text-white"
                   [attr.aria-label]="mostrarPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
                   (click)="mostrarPassword.set(!mostrarPassword())"
                 >
@@ -161,9 +117,9 @@
               </div>
 
               <div class="mt-[0.65rem]">
-                <div class="h-[6px] overflow-hidden rounded-[3px] bg-gray-200">
+                <div class="h-[6px] overflow-hidden bg-gray-200">
                   <span
-                    class="block h-full rounded-[3px] transition-[width,background-color] duration-200"
+                    class="block h-full transition-[width,background-color] duration-200"
                     [style.width.%]="fortaleza() * 20"
                     [class]="
                       fortaleza() === 5
@@ -202,13 +158,12 @@
             </div>
 
             <div class="mt-4">
-              <label class="field-label" for="confirmarPassword">Repetir contraseña</label>
+              <label class="block text-sm text-black" for="confirmarPassword">REPETIR CONTRASEÑA</label>
               <input
                 id="confirmarPassword"
                 [type]="mostrarPassword() ? 'text' : 'password'"
-                class="field-input"
+                class="w-full border border-black p-3 placeholder:text-sm placeholder:text-gray-400 focus:outline-none"
                 formControlName="confirmarPassword"
-                placeholder="Repetí la contraseña"
                 [class.is-invalid]="
                   form.get('confirmarPassword')?.touched && form.hasError('passwordsDistintas')
                 "
@@ -218,14 +173,18 @@
               }
             </div>
 
-            <button type="submit" class="btn-nb mt-6 w-full" [disabled]="form.invalid">
-              <i class="bi bi-person-plus"></i> Crear cuenta
+            <button
+              type="submit"
+              class="mt-6 w-full cursor-pointer bg-black py-3 text-white uppercase disabled:cursor-not-allowed disabled:opacity-50"
+              [disabled]="form.invalid"
+            >
+              Crear cuenta
             </button>
           </form>
 
-          <p class="mt-6 text-center text-muted">
+          <p class="mt-6 text-center text-sm text-muted">
             ¿Ya tenés cuenta?
-            <a routerLink="/auth/signin" class="font-semibold text-primary hover:text-primary-dark">Ingresá</a>
+            <a routerLink="/auth/signin" class="font-semibold text-brand hover:text-brand/80">Ingresá</a>
           </p>
         </div>
       </div>

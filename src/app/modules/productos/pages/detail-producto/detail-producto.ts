@@ -6,11 +6,10 @@ import { NotificacionesService } from '../../../../api/services/notificaciones/n
 import { ProductosService } from '../../../../api/services/productos/productos.service';
 import { Producto } from '../../../../shared/models/producto.model';
 import { ImagenFallbackDirective } from '../../../../shared/directives/imagen-fallback.directive';
-import { ClasificacionIconoPipe } from '../../../../shared/pipes/clasificacion-icono.pipe';
 
 @Component({
   selector: 'app-detail-producto',
-  imports: [RouterLink, CurrencyPipe, ClasificacionIconoPipe, ImagenFallbackDirective],
+  imports: [RouterLink, CurrencyPipe, ImagenFallbackDirective],
   templateUrl: './detail-producto.html',
   changeDetection: ChangeDetectionStrategy.Eager,
 })

@@ -1,0 +1,24 @@
+<section class="bg-white py-8 lg:py-12">
+  <div class="mx-4 sm:mx-10">
+    <a
+      routerLink="/admin"
+      class="mb-4 inline-flex items-center gap-[0.35rem] text-sm text-muted hover:text-brand"
+    >
+      <i class="bi bi-arrow-left"></i> Volver al panel
+    </a>
+
+    @if (producto(); as p) {
+      <h1 class="mt-2 mb-6 text-black uppercase">Editar producto</h1>
+
+      <app-producto-form [producto]="p" textoBoton="Guardar cambios" (guardado)="guardar($event)" />
+    } @else {
+      <div class="border border-dashed border-gray-300 px-8 py-14 text-center">
+        <i class="bi bi-box-seam mb-4 block text-[2.2rem] text-brand"></i>
+        <h2 class="mb-2 text-[1.3rem] text-black uppercase">Producto no encontrado</h2>
+        <p class="mx-auto max-w-[430px] text-muted">
+          El producto que querés editar no existe o ya fue eliminado.
+        </p>
+      </div>
+    }
+  </div>
+</section>

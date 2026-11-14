@@ -1,71 +1,15 @@
-<footer class="bg-[#0b1120] pt-14 pb-7 text-slate-400">
+<footer class="bg-white pt-14 pb-7 text-slate-400">
   <div class="container">
-    <div class="grid grid-cols-2 gap-8 lg:grid-cols-12">
-      <div class="col-span-2 lg:col-span-4">
-        <a routerLink="/" class="mb-4 inline-flex items-center gap-[0.6rem] text-[1.3rem] font-bold text-white">
-          <span class="grid size-9 place-items-center rounded-md bg-primary text-white">
-            <i class="bi bi-stars"></i>
-          </span>
-          <span>Nébula <span class="font-medium text-indigo-300">store</span></span>
-        </a>
-        <p class="max-w-[340px] text-[0.88rem] leading-[1.7]">
-          Tienda demo desarrollada con Angular para el trabajo práctico de la facultad. Productos
-          seleccionados, compra simple y una experiencia pensada para vos.
-        </p>
-      </div>
-
-      <div class="lg:col-span-2">
-        <h4 class="mb-4 text-[0.95rem] text-white">Tienda</h4>
-        <ul class="space-y-[0.55rem] text-[0.88rem]">
-          <li><a routerLink="/productos" class="hover:text-white">Productos</a></li>
-          <li><a routerLink="/productos/nuevo" class="hover:text-white">Publicar producto</a></li>
-          <li><a routerLink="/carrito" class="hover:text-white">Carrito</a></li>
-        </ul>
-      </div>
-
-      <div class="lg:col-span-2">
-        <h4 class="mb-4 text-[0.95rem] text-white">Cuenta</h4>
-        <ul class="space-y-[0.55rem] text-[0.88rem]">
-          <li><a routerLink="/auth/signin" class="hover:text-white">Ingresar</a></li>
-          <li><a routerLink="/auth/signup" class="hover:text-white">Crear cuenta</a></li>
-          <li>
-            <a routerLink="/auth/recuperar" class="hover:text-white">Recuperar contraseña</a>
-          </li>
-        </ul>
-      </div>
-
-      <div class="col-span-2 lg:col-span-4">
-        <h4 class="mb-4 text-[0.95rem] text-white">Newsletter</h4>
-        <p class="mb-3 text-[0.88rem] leading-[1.7]">Recibí novedades y descuentos exclusivos.</p>
-        <div class="flex">
-          <input
-            type="email"
-            class="field-input rounded-r-none border-slate-800 bg-[#111c33] text-white placeholder:text-slate-500"
-            placeholder="tu@email.com"
-            aria-label="Email para newsletter"
-          />
-          <button
-            class="input-addon border-slate-800 bg-slate-800 text-indigo-200 hover:bg-primary hover:text-white"
-            type="button"
-            aria-label="Suscribirse"
-            (click)="suscribirse()"
-          >
-            <i class="bi bi-send"></i>
-          </button>
-        </div>
-      </div>
+    <div class="flex justify-center">
+      <a routerLink="/" class="inline-flex items-center gap-[0.6rem] text-[1.3rem] font-bold text-white">
+        <img src="img/logo.webp" alt="">
+      </a>
     </div>
 
-    <hr class="mt-9 mb-5 border-slate-800" />
+    <hr class="my-5 border-slate-800" />
 
-    <div class="flex flex-wrap justify-between gap-3 text-[0.8rem] text-slate-500">
-      <span>© 2026 Nébula Store — Trabajo práctico de Angular</span>
-      <span class="inline-flex items-center gap-[0.6rem]">
-        <i class="bi bi-credit-card-2-front text-base"></i>
-        <i class="bi bi-bank text-base"></i>
-        <i class="bi bi-wallet2 text-base"></i>
-        Pago simulado
-      </span>
+    <div class="flex justify-center gap-3 text-[0.8rem] text-black">
+      <span>Copyright Shaka Cmmnty - 2026. Todos los derechos reservados.</span>
     </div>
   </div>
 </footer>

@@ -1,94 +1,82 @@
 @if (producto(); as p) {
-  <section class="py-6 lg:py-12">
-    <div class="container">
+  <section class="bg-white py-8 lg:py-12">
+    <div class="mx-4 sm:mx-10">
       <nav class="mb-6 flex flex-wrap items-center gap-[0.45rem] text-[0.82rem] text-muted" aria-label="Migas de pan">
-        <a routerLink="/" class="hover:text-primary">Inicio</a>
+        <a routerLink="/" class="hover:text-brand">Inicio</a>
         <i class="bi bi-chevron-right text-[0.65rem]"></i>
-        <a routerLink="/productos" class="hover:text-primary">Productos</a>
+        <a routerLink="/productos" class="hover:text-brand">Productos</a>
         <i class="bi bi-chevron-right text-[0.65rem]"></i>
         <span class="font-semibold text-ink">{{ p.nombre }}</span>
       </nav>
 
-      <div class="grid items-start gap-12 lg:grid-cols-2">
-        <div class="overflow-hidden rounded-lg border border-line bg-white">
-          <img class="block aspect-square w-full object-cover" [src]="p.imagen" [alt]="p.nombre" appImagenFallback />
+      <div class="grid items-start gap-8 lg:grid-cols-2 lg:gap-12">
+        <div class="overflow-hidden bg-gray-200">
+          <img class="block aspect-[2.5/3] w-full object-cover" [src]="p.imagen" [alt]="p.nombre" appImagenFallback />
         </div>
 
         <div>
-          <span class="badge-clasificacion">
-            <i [class]="'bi ' + (p.clasificacion | clasificacionIcono)"></i>
+          <span class="inline-flex items-center gap-[0.4rem] bg-brand px-[0.55rem] py-1 text-[0.68rem] tracking-[0.02em] text-white uppercase">
             {{ p.clasificacion }}
           </span>
 
-          <h1 class="mt-4 mb-[0.6rem] text-[clamp(2rem,4vw,2.8rem)]">{{ p.nombre }}</h1>
+          <h1 class="mt-4 mb-3 text-[clamp(1.8rem,4vw,2.6rem)] text-black uppercase">{{ p.nombre }}</h1>
 
-          <div class="flex items-center gap-[0.6rem] text-[0.82rem] text-muted">
-            <span class="inline-flex gap-[0.15rem] text-accent">
-              <i class="bi bi-star-fill"></i>
-              <i class="bi bi-star-fill"></i>
-              <i class="bi bi-star-fill"></i>
-              <i class="bi bi-star-fill"></i>
-              <i class="bi bi-star-half"></i>
-            </span>
-            <span>4.8 · 126 opiniones</span>
-          </div>
+          <p class="mb-5 leading-[1.7] text-muted">{{ p.descripcion }}</p>
 
-          <p class="my-[1.2rem] leading-[1.7] text-muted">{{ p.descripcion }}</p>
-
-          <div class="mb-[0.35rem] text-[clamp(2rem,4vw,2.6rem)] font-bold tracking-[-0.03em]">
+          <div class="mb-7 text-[clamp(1.6rem,3vw,2rem)] tracking-tight text-brand">
             {{ p.precio | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}
           </div>
-          <p class="mb-[1.6rem] text-[0.88rem] text-muted">
-            Hasta 6 cuotas sin interés de
-            {{ p.precio / 6 | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}
-          </p>
 
-          <div class="flex flex-wrap items-center gap-[0.9rem]">
-            <div class="selector-cantidad">
-              <button type="button" aria-label="Disminuir cantidad" (click)="disminuir()">
+          <div class="flex flex-wrap items-stretch gap-3">
+            <div class="inline-flex items-center border border-gray-300 bg-white">
+              <button
+                type="button"
+                class="size-11 cursor-pointer text-[1.05rem] leading-none text-ink transition-colors hover:text-brand"
+                aria-label="Disminuir cantidad"
+                (click)="disminuir()"
+              >
                 <i class="bi bi-dash"></i>
               </button>
-              <span>{{ cantidad() }}</span>
-              <button type="button" aria-label="Aumentar cantidad" (click)="aumentar()">
+              <span class="min-w-10 text-center font-bold">{{ cantidad() }}</span>
+              <button
+                type="button"
+                class="size-11 cursor-pointer text-[1.05rem] leading-none text-ink transition-colors hover:text-brand"
+                aria-label="Aumentar cantidad"
+                (click)="aumentar()"
+              >
                 <i class="bi bi-plus"></i>
               </button>
             </div>
 
-            <button type="button" class="btn-nb btn-nb-lg" (click)="agregarAlCarrito(p)">
+            <button
+              type="button"
+              class="inline-flex cursor-pointer items-center justify-center gap-2 bg-brand px-6 py-3 text-[0.9rem] text-white uppercase transition-colors hover:bg-brand/70"
+              (click)="agregarAlCarrito(p)"
+            >
               <i class="bi bi-bag-plus"></i> Agregar al carrito
             </button>
           </div>
 
           <a
             routerLink="/carrito"
-            class="mt-[0.9rem] inline-flex items-center gap-[0.35rem] text-[0.85rem] font-semibold text-primary hover:text-primary-dark"
+            class="mt-4 inline-flex items-center gap-[0.4rem] text-[0.88rem] font-semibold text-ink hover:text-brand"
           >
             Ir al carrito <i class="bi bi-arrow-right"></i>
           </a>
-
-          <ul class="mt-7 grid gap-[0.7rem] border-t border-line pt-[1.35rem] text-[0.9rem] text-muted">
-            <li class="flex items-center gap-[0.65rem]">
-              <i class="bi bi-truck text-primary"></i> Envío gratis en compras desde $50.000
-            </li>
-            <li class="flex items-center gap-[0.65rem]">
-              <i class="bi bi-shield-check text-primary"></i> Compra protegida y garantía oficial
-            </li>
-            <li class="flex items-center gap-[0.65rem]">
-              <i class="bi bi-arrow-repeat text-primary"></i> Cambios sin cargo dentro de los 30 días
-            </li>
-          </ul>
         </div>
       </div>
     </div>
   </section>
 } @else {
-  <section class="py-12">
-    <div class="container">
-      <div class="estado-vacio">
-        <div class="icono"><i class="bi bi-box-seam"></i></div>
-        <h2>Producto no encontrado</h2>
-        <p>El producto que buscás no existe o ya no está disponible.</p>
-        <a routerLink="/productos" class="btn-nb">Volver al catálogo</a>
+  <section class="bg-white py-8 lg:py-12">
+    <div class="mx-4 sm:mx-10">
+      <div class="border border-dashed border-gray-300 px-8 py-14 text-center">
+        <i class="bi bi-box-seam mb-4 block text-[2.2rem] text-brand"></i>
+        <h2 class="mb-2 text-[1.3rem] text-black uppercase">Producto no encontrado</h2>
+        <p class="mx-auto mb-6 max-w-[430px] text-muted">
+          El producto que buscás no existe o ya no está disponible.
+        </p>
+        <a routerLink="/productos" class="inline-flex cursor-pointer items-center justify-center gap-2 bg-brand px-6 py-3 text-[0.9rem] text-white uppercase transition-colors hover:bg-brand/70">Volver al catálogo</a>
       </div>
     </div>
   </section>

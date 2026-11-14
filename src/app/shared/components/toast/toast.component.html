@@ -1,7 +1,7 @@
 @if (notificaciones.notificacion(); as notificacion) {
   <div
     role="status"
-    class="fixed right-6 bottom-6 z-[1090] flex max-w-[min(420px,calc(100vw-2rem))] items-center gap-[0.7rem] rounded-md border px-4 py-[0.85rem] text-[0.9rem] font-medium"
+    class="fixed right-6 bottom-6 z-[1090] flex max-w-[min(420px,calc(100vw-2rem))] items-center gap-[0.7rem] px-4 py-[0.85rem] text-[0.9rem] font-medium"
     [class]="
       notificacion.tipo === 'error'
         ? 'border-red-200 bg-red-50 text-red-700'

@@ -1,5 +1,4 @@
 import { Component, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { CarritoService } from '../../../../api/services/carrito/carrito.service';
 import { NotificacionesService } from '../../../../api/services/notificaciones/notificaciones.service';
 import { ProductosService } from '../../../../api/services/productos/productos.service';
@@ -8,7 +7,7 @@ import { ProductoCard } from '../../components/producto-card/producto-card';
 
 @Component({
   selector: 'app-list-productos',
-  imports: [RouterLink, ProductoCard],
+  imports: [ProductoCard],
   templateUrl: './list-productos.html',
   changeDetection: ChangeDetectionStrategy.Eager,
 })

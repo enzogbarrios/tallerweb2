@@ -1,0 +1,153 @@
+<div class="grid items-start gap-8 lg:grid-cols-12">
+  <div class="lg:col-span-7">
+    <p class="mb-6 text-sm text-muted">
+      Los campos marcados con <span class="text-red-600">*</span> son obligatorios.
+    </p>
+
+    <form [formGroup]="form" (ngSubmit)="guardar()" novalidate>
+      <div class="mb-4">
+        <label class="mb-2 block text-sm text-black uppercase" for="nombre"
+          >Nombre <span class="text-red-600">*</span></label
+        >
+        <input
+          id="nombre"
+          type="text"
+          class="w-full border border-black p-3 placeholder:text-sm placeholder:text-gray-400 focus:outline-none"
+          formControlName="nombre"
+          placeholder="Ej: Remera Ranglan Rosa"
+        />
+        @if (form.get('nombre')?.touched && form.get('nombre')?.hasError('required')) {
+          <div class="field-error">El nombre es obligatorio.</div>
+        }
+        @if (form.get('nombre')?.touched && form.get('nombre')?.hasError('minlength')) {
+          <div class="field-error">El nombre debe tener al menos 3 caracteres.</div>
+        }
+      </div>
+
+      <div class="mb-4">
+        <label class="mb-2 block text-sm text-black uppercase" for="descripcion"
+          >Descripción <span class="text-red-600">*</span></label
+        >
+        <textarea
+          id="descripcion"
+          rows="4"
+          class="w-full border border-black p-3 placeholder:text-sm placeholder:text-gray-400 focus:outline-none"
+          formControlName="descripcion"
+          placeholder="Contá brevemente las características del producto..."
+        ></textarea>
+        @if (form.get('descripcion')?.touched && form.get('descripcion')?.hasError('required')) {
+          <div class="field-error">La descripción es obligatoria.</div>
+        }
+        @if (form.get('descripcion')?.touched && form.get('descripcion')?.hasError('minlength')) {
+          <div class="field-error">La descripción debe tener al menos 15 caracteres.</div>
+        }
+      </div>
+
+      <div class="grid gap-4 md:grid-cols-2">
+        <div>
+          <label class="mb-2 block text-sm text-black uppercase" for="clasificacion"
+            >Clasificación <span class="text-red-600">*</span></label
+          >
+          <select
+            id="clasificacion"
+            class="w-full border border-black bg-white p-3 focus:outline-none"
+            formControlName="clasificacion"
+          >
+            @for (clasificacion of clasificaciones; track clasificacion) {
+              <option [value]="clasificacion">{{ clasificacion }}</option>
+            }
+          </select>
+        </div>
+
+        <div>
+          <label class="mb-2 block text-sm text-black uppercase" for="precio"
+            >Precio (ARS) <span class="text-red-600">*</span></label
+          >
+          <input
+            id="precio"
+            type="number"
+            min="1"
+            step="1"
+            class="w-full border border-black p-3 placeholder:text-sm placeholder:text-gray-400 focus:outline-none"
+            formControlName="precio"
+            placeholder="0"
+          />
+          @if (form.get('precio')?.touched && form.get('precio')?.hasError('required')) {
+            <div class="field-error">El precio es obligatorio.</div>
+          }
+          @if (form.get('precio')?.touched && form.get('precio')?.hasError('min')) {
+            <div class="field-error">El precio debe ser mayor a cero.</div>
+          }
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <label class="mb-2 block text-sm text-black uppercase" for="imagen"
+          >Imagen (URL o ruta) <span class="text-red-600">*</span></label
+        >
+        <input
+          id="imagen"
+          type="text"
+          class="w-full border border-black p-3 placeholder:text-sm placeholder:text-gray-400 focus:outline-none"
+          formControlName="imagen"
+          placeholder="https://... o img/productos/remera.webp"
+        />
+        @if (form.get('imagen')?.touched && form.get('imagen')?.hasError('required')) {
+          <div class="field-error">La imagen es obligatoria.</div>
+        }
+        @if (form.get('imagen')?.touched && form.get('imagen')?.hasError('pattern')) {
+          <div class="field-error">
+            Ingresá una URL que empiece con http o una ruta que empiece con img/.
+          </div>
+        }
+      </div>
+
+      <label class="mt-4 flex cursor-pointer items-center gap-2 text-sm text-black">
+        <input type="checkbox" class="size-4 accent-black" formControlName="destacado" />
+        Mostrar como destacado en el inicio
+      </label>
+
+      <div class="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
+        <button
+          type="submit"
+          class="inline-flex cursor-pointer items-center justify-center bg-black px-6 py-3 text-[0.9rem] text-white uppercase disabled:cursor-not-allowed disabled:opacity-50"
+          [disabled]="form.invalid"
+        >
+          {{ textoBoton() }}
+        </button>
+        <a routerLink="/admin" class="text-[0.88rem] font-semibold text-ink hover:text-brand">Cancelar</a>
+      </div>
+    </form>
+  </div>
+
+  <div class="lg:sticky lg:top-[100px] lg:col-span-5">
+    <span class="mb-3 block text-[0.72rem] tracking-[0.12em] text-muted uppercase">Vista previa</span>
+
+    <div class="overflow-hidden bg-gray-200">
+      @if (vistaPrevia().imagen) {
+        <img
+          class="block aspect-[2.5/3] w-full object-cover"
+          [src]="vistaPrevia().imagen"
+          alt="Vista previa del producto"
+          appImagenFallback
+        />
+      } @else {
+        <div
+          class="flex aspect-[2.5/3] flex-col items-center justify-center gap-2 text-[0.82rem] text-gray-500"
+        >
+          <i class="bi bi-image text-[1.8rem]"></i>
+          <span>La imagen aparecerá acá</span>
+        </div>
+      }
+    </div>
+
+    <div class="pt-4">
+      <h3 class="mb-1 text-base text-ink uppercase">
+        {{ vistaPrevia().nombre || 'Nombre del producto' }}
+      </h3>
+      <span class="text-[0.9rem] tracking-tight text-brand">
+        {{ (vistaPrevia().precio || 0) | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}
+      </span>
+    </div>
+  </div>
+</div>

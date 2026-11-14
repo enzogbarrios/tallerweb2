@@ -1,5 +1,7 @@
 import { Routes } from '@angular/router';
 import { HomeComponent } from './public/home/home.component';
+import { adminGuard } from './shared/guards/admin.guard';
+import { authGuard } from './shared/guards/auth.guard';
 
 export const routes: Routes = [
   {
@@ -15,6 +17,18 @@ export const routes: Routes = [
     path: 'carrito',
     loadChildren: () =>
       import('./modules/carrito/carrito.routes').then((modulo) => modulo.carritoRoutes),
+  },
+  {
+    path: 'mis-pedidos',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./modules/usuarios/pages/mis-pedidos/mis-pedidos').then((modulo) => modulo.MisPedidos),
+  },
+  {
+    path: 'admin',
+    canActivate: [adminGuard],
+    loadChildren: () =>
+      import('./modules/admin/admin.routes').then((modulo) => modulo.adminRoutes),
   },
   {
     path: 'auth',

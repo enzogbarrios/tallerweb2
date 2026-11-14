@@ -1,6 +1,6 @@
 import { computed, Injectable, signal } from '@angular/core';
 import { ItemCarrito } from '../../../shared/models/carrito.model';
-import { Pedido } from '../../../shared/models/pedido.model';
+import { Comprador, Pedido } from '../../../shared/models/pedido.model';
 
 @Injectable({
   providedIn: 'root',
@@ -17,10 +17,16 @@ export class PedidosService {
     return pedidos.length > 0 ? pedidos[pedidos.length - 1] : null;
   });
 
-  crear(items: ItemCarrito[], subtotal: number, envio: number): Pedido {
+  crear(
+    items: ItemCarrito[],
+    subtotal: number,
+    envio: number,
+    comprador: Comprador | null,
+  ): Pedido {
     const pedido: Pedido = {
       id: this.siguienteId++,
       fecha: new Date(),
+      comprador,
       items: items.map((item) => ({ ...item })),
       subtotal,
       envio,

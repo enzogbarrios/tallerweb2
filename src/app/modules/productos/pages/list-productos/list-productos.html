@@ -1,21 +1,12 @@
-<section class="page-header">
-  <div class="container">
-    <div class="flex flex-wrap items-end justify-between gap-3">
-      <div>
-        <span class="eyebrow">Catálogo</span>
-        <h1>Nuestros productos</h1>
-        <p>Explorá por categoría, buscá lo que necesitás y agregalo al carrito en un clic.</p>
-      </div>
-      <a routerLink="/productos/nuevo" class="btn-nb"> <i class="bi bi-plus-lg"></i> Publicar producto </a>
+<section class="bg-white py-8 lg:py-12">
+  <div class="mx-4 sm:mx-10">
+    <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
+      <h1 class="mt-2 text-black uppercase">Productos</h1>
     </div>
-  </div>
-</section>
 
-<section class="py-12">
-  <div class="container">
-    <div class="mb-5 flex flex-wrap items-center justify-between gap-4 rounded-lg border border-line bg-white p-[0.9rem]">
+    <div class="mb-5 flex flex-wrap items-center justify-between gap-4">
       <div
-        class="flex flex-[1_1_300px] items-center gap-[0.6rem] rounded-md border border-line bg-white px-[0.85rem] py-[0.65rem] focus-within:border-primary"
+        class="flex flex-[1_1_300px] items-center gap-[0.6rem] border border-gray-300 bg-white px-[0.85rem] py-[0.65rem] focus-within:border-brand"
       >
         <i class="bi bi-search text-muted"></i>
         <input
@@ -32,11 +23,11 @@
         @for (clasificacion of clasificaciones; track clasificacion) {
           <button
             type="button"
-            class="cursor-pointer rounded-md border px-[0.8rem] py-[0.45rem] text-[0.8rem] font-semibold transition-colors"
+            class="cursor-pointer border px-[0.8rem] py-[0.45rem] text-[0.78rem] uppercase transition-colors"
             [class]="
               clasificacionActiva() === clasificacion
-                ? 'border-primary bg-primary text-white'
-                : 'border-line bg-white text-muted hover:border-primary hover:text-primary'
+                ? 'border-brand bg-brand text-white'
+                : 'border-gray-300 bg-white text-muted hover:border-brand hover:text-brand'
             "
             (click)="filtrar(clasificacion)"
           >
@@ -47,7 +38,7 @@
     </div>
 
     <div class="mb-6 flex flex-wrap items-center justify-between gap-2">
-      <span class="text-[0.85rem] font-semibold text-muted">
+      <span class="text-[0.85rem] text-muted">
         {{ cantidadResultados() }}
         {{ cantidadResultados() === 1 ? 'producto encontrado' : 'productos encontrados' }}
       </span>
@@ -55,7 +46,7 @@
       @if (busqueda() || clasificacionActiva() !== 'Todas') {
         <button
           type="button"
-          class="inline-flex cursor-pointer items-center gap-[0.35rem] text-[0.82rem] font-semibold text-primary hover:text-primary-dark"
+          class="inline-flex cursor-pointer items-center gap-[0.35rem] text-[0.82rem] font-semibold text-ink hover:text-brand"
           (click)="limpiarFiltros()"
         >
           <i class="bi bi-x-circle"></i> Limpiar filtros
@@ -63,18 +54,20 @@
       }
     </div>
 
-    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
       @for (producto of productosFiltrados(); track producto.id) {
         <app-producto-card
           [producto]="producto"
           (agregar)="agregarAlCarrito($event)"
         ></app-producto-card>
       } @empty {
-        <div class="estado-vacio col-span-full">
-          <div class="icono"><i class="bi bi-search"></i></div>
-          <h2>No encontramos productos</h2>
-          <p>Probá con otra búsqueda o quitá los filtros para ver todo el catálogo.</p>
-          <button type="button" class="btn-nb" (click)="limpiarFiltros()">
+        <div class="col-span-full border border-dashed border-gray-300 px-8 py-14 text-center">
+          <i class="bi bi-search mb-4 block text-[2.2rem] text-brand"></i>
+          <h2 class="mb-2 text-[1.3rem] text-black uppercase">No encontramos productos</h2>
+          <p class="mx-auto mb-6 max-w-[430px] text-muted">
+            Probá con otra búsqueda o quitá los filtros para ver todo el catálogo.
+          </p>
+          <button type="button" class="inline-flex cursor-pointer items-center justify-center gap-2 bg-brand px-6 py-3 text-[0.9rem] text-white uppercase transition-colors hover:bg-brand/70" (click)="limpiarFiltros()">
             Ver todos los productos
           </button>
         </div>

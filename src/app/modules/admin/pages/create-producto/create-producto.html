@@ -1,0 +1,13 @@
+<section class="bg-white py-8 lg:py-12">
+  <div class="mx-4 sm:mx-10">
+    <a
+      routerLink="/admin"
+      class="mb-4 inline-flex items-center gap-[0.35rem] text-sm text-muted hover:text-brand"
+    >
+      <i class="bi bi-arrow-left"></i> Volver al panel
+    </a>
+    <h1 class="mt-2 mb-6 text-black uppercase">Agregar producto</h1>
+
+    <app-producto-form textoBoton="Publicar producto" (guardado)="guardar($event)" />
+  </div>
+</section>

@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
-import { CreateProducto } from './pages/create-producto/create-producto';
+import { adminGuard } from '../../shared/guards/admin.guard';
+import { CreateProducto } from '../admin/pages/create-producto/create-producto';
 import { DetailProducto } from './pages/detail-producto/detail-producto';
 import { ListProductos } from './pages/list-productos/list-productos';
 
@@ -11,6 +12,7 @@ export const productosRoutes: Routes = [
   {
     path: 'nuevo',
     component: CreateProducto,
+    canActivate: [adminGuard],
   },
   {
     path: ':id',

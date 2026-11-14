@@ -1,13 +1,12 @@
 import { CurrencyPipe } from '@angular/common';
 import { Component, input, output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { ClasificacionIconoPipe } from '../../../../shared/pipes/clasificacion-icono.pipe';
 import { ImagenFallbackDirective } from '../../../../shared/directives/imagen-fallback.directive';
 import { Producto } from '../../../../shared/models/producto.model';
 
 @Component({
   selector: 'app-producto-card',
-  imports: [RouterLink, CurrencyPipe, ClasificacionIconoPipe, ImagenFallbackDirective],
+  imports: [RouterLink, CurrencyPipe, ImagenFallbackDirective],
   templateUrl: './producto-card.html',
   changeDetection: ChangeDetectionStrategy.Eager,
 })

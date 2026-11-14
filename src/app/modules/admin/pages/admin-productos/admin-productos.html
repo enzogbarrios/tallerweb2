@@ -1,0 +1,114 @@
+<section class="bg-white py-8 lg:py-12">
+  <div class="mx-4 sm:mx-10">
+    <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
+      <div>
+        <h1 class="mt-2 text-black uppercase">Administración</h1>
+        <p class="text-sm text-muted">
+          {{ productos().length }} {{ productos().length === 1 ? 'producto' : 'productos' }} cargados
+        </p>
+      </div>
+
+      <div class="flex flex-wrap gap-3">
+        <a
+          routerLink="/admin/ventas"
+          class="inline-flex items-center justify-center gap-2 border border-black px-6 py-3 text-[0.9rem] text-black uppercase transition-colors hover:bg-black hover:text-white"
+        >
+          Ventas
+        </a>
+        <a
+          routerLink="/productos/nuevo"
+          class="inline-flex items-center justify-center gap-2 bg-brand px-6 py-3 text-[0.9rem] text-white uppercase transition-colors hover:bg-brand/70"
+        >
+          <i class="bi bi-plus-lg"></i> Agregar producto
+        </a>
+      </div>
+    </div>
+
+    @if (productos().length === 0) {
+      <div class="border border-dashed border-gray-300 px-8 py-14 text-center">
+        <i class="bi bi-box-seam mb-4 block text-[2.2rem] text-brand"></i>
+        <h2 class="mb-2 text-[1.3rem] text-black uppercase">No hay productos</h2>
+        <p class="mx-auto max-w-[430px] text-muted">Agregá el primero con el botón "Agregar producto".</p>
+      </div>
+    } @else {
+      <div class="overflow-x-auto border-t border-gray-200">
+        <table class="w-full min-w-[760px] border-collapse text-left">
+          <thead>
+            <tr class="text-[0.72rem] tracking-[0.06em] text-muted uppercase">
+              <th scope="col" class="border-b border-gray-200 py-3 pr-4 font-normal">ID</th>
+              <th scope="col" class="border-b border-gray-200 px-4 py-3 font-normal">Producto</th>
+              <th scope="col" class="border-b border-gray-200 px-4 py-3 font-normal">Clasificación</th>
+              <th scope="col" class="border-b border-gray-200 px-4 py-3 text-right font-normal">Precio</th>
+              <th scope="col" class="border-b border-gray-200 px-4 py-3 text-center font-normal">Destacado</th>
+              <th scope="col" class="border-b border-gray-200 py-3 pl-4 text-right font-normal">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (producto of productos(); track producto.id) {
+              <tr class="border-b border-gray-200">
+                <td class="py-3 pr-4 align-middle text-muted">{{ producto.id }}</td>
+                <td class="px-4 py-3 align-middle">
+                  <div class="flex items-center gap-3">
+                    <img
+                      class="aspect-[2.5/3] w-12 flex-none bg-gray-200 object-cover"
+                      [src]="producto.imagen"
+                      [alt]="producto.nombre"
+                      appImagenFallback
+                    />
+                    <strong class="text-ink uppercase">{{ producto.nombre }}</strong>
+                  </div>
+                </td>
+                <td class="px-4 py-3 align-middle text-muted">{{ producto.clasificacion }}</td>
+                <td class="px-4 py-3 text-right align-middle text-brand">
+                  {{ producto.precio | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}
+                </td>
+                <td class="px-4 py-3 text-center align-middle">
+                  @if (producto.destacado) {
+                    <i class="bi bi-check-lg text-brand" aria-label="Sí"></i>
+                  } @else {
+                    <span class="text-gray-400" aria-label="No">—</span>
+                  }
+                </td>
+                <td class="py-3 pl-4 text-right align-middle">
+                  @if (confirmandoId() === producto.id) {
+                    <span class="mr-2 text-[0.82rem] text-ink">¿Eliminar?</span>
+                    <button
+                      type="button"
+                      class="mr-2 cursor-pointer bg-red-600 px-3 py-1 text-[0.78rem] text-white uppercase hover:bg-red-700"
+                      (click)="eliminar(producto)"
+                    >
+                      Sí
+                    </button>
+                    <button
+                      type="button"
+                      class="cursor-pointer border border-gray-400 px-3 py-1 text-[0.78rem] text-ink uppercase hover:border-black"
+                      (click)="cancelar()"
+                    >
+                      No
+                    </button>
+                  } @else {
+                    <a
+                      [routerLink]="['/admin/productos', producto.id, 'editar']"
+                      class="mr-3 inline-flex items-center gap-1 text-[0.85rem] text-ink hover:text-brand"
+                      [attr.aria-label]="'Editar ' + producto.nombre"
+                    >
+                      <i class="bi bi-pencil"></i> Editar
+                    </a>
+                    <button
+                      type="button"
+                      class="inline-flex cursor-pointer items-center gap-1 text-[0.85rem] text-ink hover:text-red-600"
+                      [attr.aria-label]="'Eliminar ' + producto.nombre"
+                      (click)="pedirConfirmacion(producto.id)"
+                    >
+                      <i class="bi bi-trash3"></i> Eliminar
+                    </button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</section>

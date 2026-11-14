@@ -1,5 +1,5 @@
 <nav class="sticky top-0 z-50 bg-white">
-  <div class="w-screen h-7 bg-brand"></div>
+  <div class="h-7 w-full bg-brand"></div>
   <div class="container flex flex-wrap items-center justify-between lg:flex-nowrap py-3">
     <a routerLink="/" class="flex items-center gap-[0.6rem] text-[1.3rem] font-bold tracking-tight text-white">
       <img
@@ -29,7 +29,7 @@
       <ul class="my-3 flex flex-col gap-1 lg:mx-auto lg:my-0 lg:flex-row">
         <li>
           <a
-            class="block rounded-md px-3 py-1 text-[0.92rem] font-medium text-black hover:bg-gray-200 transition-all"
+            class="block rounded-md px-3 py-1 text-[0.92rem] font-medium text-black hover:text-gray-800 transition-all"
             routerLink="/"
             routerLinkActive=""
             [routerLinkActiveOptions]="{ exact: true }"
@@ -38,11 +38,21 @@
         </li>
         <li>
           <a
-            class="block rounded-md px-3 py-1 text-[0.92rem] font-medium text-black hover:bg-gray-200 transition-all"
+            class="block rounded-md px-3 py-1 text-[0.92rem] font-medium text-black hover:text-gray-800 transition-all"
             routerLink="/productos"
             >PRODUCTOS</a
           >
         </li>
+        @if (auth.esAdmin()) {
+          <li>
+            <a
+              class="block rounded-md px-3 py-1 text-[0.92rem] font-medium text-brand hover:text-brand/70 transition-all"
+              routerLink="/admin"
+              routerLinkActive="underline"
+              >ADMIN</a
+            >
+          </li>
+        }
       </ul>
 
       <div class="flex flex-wrap items-center gap-5">
@@ -82,21 +92,29 @@
                 <li class="px-4 py-1 text-sm break-all text-muted">{{ usuario.email }}</li>
                 <li><hr class="my-2 border-line" /></li>
                 <li>
+                  <a
+                    routerLink="/mis-pedidos"
+                    role="menuitem"
+                    class="block w-full px-4 py-2 text-left text-ink text-sm hover:bg-gray-100"
+                  >
+                    MIS PEDIDOS
+                  </a>
+                </li>
+                <li>
                   <button
                     type="button"
                     role="menuitem"
-                    class="block w-full cursor-pointer px-4 py-2 text-left text-ink hover:bg-gray-100"
+                    class="block w-full cursor-pointer px-4 py-2 text-sm text-left text-ink hover:bg-gray-100"
                     (click)="cerrarSesion()"
                   >
-                    <i class="bi bi-box-arrow-right mr-2"></i>Cerrar sesión
+                    CERRAR SESIÓN
                   </button>
                 </li>
               </ul>
             }
           </div>
         } @else {
-          <a routerLink="/auth/signin" class="btn-nb-outline btn-nb-sm">Ingresar</a>
-          <a routerLink="/auth/signup" class="btn-nb btn-nb-sm">Crear cuenta</a>
+          <a routerLink="/auth/signin" class="text-black hover:text-gray-800 transition-all">INGRESAR</a>
         }
       </div>
     </div>

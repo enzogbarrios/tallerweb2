@@ -1,4 +1,4 @@
-export const CLASIFICACIONES = ['Tecnología', 'Indumentaria', 'Accesorios', 'Hogar'] as const;
+export const CLASIFICACIONES = ['Remeras', 'Jeans', 'Bermudas', 'Shorts', 'Sweaters', 'Camisas', 'Buzos', 'Camperas', 'Accesorios', 'Polos'] as const;
 
 export type Clasificacion = (typeof CLASIFICACIONES)[number];
 

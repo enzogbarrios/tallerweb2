@@ -9,7 +9,7 @@ import { Producto } from '../../shared/models/producto.model';
 
 @Component({
   selector: 'app-home',
-  imports: [RouterLink, ProductoCard, ImagenFallbackDirective],
+  imports: [RouterLink, ProductoCard],
   templateUrl: './home.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
 })
