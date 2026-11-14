@@ -3,6 +3,7 @@
 /* ---------- Design tokens ---------- */
 
 @theme {
+  --font-sans: 'Arimo', ui-sans-serif, system-ui, sans-serif;
   --color-primary: #3b5bdb;
   --color-primary-dark: #2f4bb8;
   --color-primary-soft: #eef2ff;
@@ -11,6 +12,7 @@
   --color-muted: #5b6472;
   --color-canvas: #f3f4f6;
   --color-line: #d1d5db;
+  --color-brand: #3993bb;
 }
 
 @utility container {

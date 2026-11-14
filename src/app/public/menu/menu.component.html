@@ -1,14 +1,17 @@
-<nav class="sticky top-0 z-50 bg-ink py-3">
-  <div class="container flex flex-wrap items-center justify-between lg:flex-nowrap">
+<nav class="sticky top-0 z-50 bg-white">
+  <div class="w-screen h-7 bg-brand"></div>
+  <div class="container flex flex-wrap items-center justify-between lg:flex-nowrap py-3">
     <a routerLink="/" class="flex items-center gap-[0.6rem] text-[1.3rem] font-bold tracking-tight text-white">
-      <span class="grid size-9 place-items-center rounded-md bg-primary text-white">
-        <i class="bi bi-stars text-[1.05rem]"></i>
-      </span>
-      <span>Nébula <span class="font-medium text-indigo-300">store</span></span>
+      <img
+          src="img/logo.webp"
+          alt="Logo de Shaka"
+          appImagenFallback
+          class="block w-40 rounded-lg border object-cover"
+        />
     </a>
 
     <button
-      class="cursor-pointer rounded-md border border-gray-600 px-3 py-2 text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-400 lg:hidden"
+      class="cursor-pointer rounded-md border border-gray-600 px-3 py-2 text-black focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-400 lg:hidden"
       type="button"
       aria-controls="menuPrincipal"
       [attr.aria-expanded]="menuAbierto()"
@@ -26,41 +29,32 @@
       <ul class="my-3 flex flex-col gap-1 lg:mx-auto lg:my-0 lg:flex-row">
         <li>
           <a
-            class="block rounded-md px-[0.85rem] py-2 text-[0.92rem] font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
+            class="block rounded-md px-3 py-1 text-[0.92rem] font-medium text-black hover:bg-gray-200 transition-all"
             routerLink="/"
-            routerLinkActive="!bg-gray-700 !text-white"
+            routerLinkActive=""
             [routerLinkActiveOptions]="{ exact: true }"
-            >Inicio</a
+            >INICIO</a
           >
         </li>
         <li>
           <a
-            class="block rounded-md px-[0.85rem] py-2 text-[0.92rem] font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
+            class="block rounded-md px-3 py-1 text-[0.92rem] font-medium text-black hover:bg-gray-200 transition-all"
             routerLink="/productos"
-            routerLinkActive="!bg-gray-700 !text-white"
-            >Productos</a
-          >
-        </li>
-        <li>
-          <a
-            class="block rounded-md px-[0.85rem] py-2 text-[0.92rem] font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
-            routerLink="/productos/nuevo"
-            routerLinkActive="!bg-gray-700 !text-white"
-            >Publicar producto</a
+            >PRODUCTOS</a
           >
         </li>
       </ul>
 
-      <div class="flex flex-wrap items-center gap-2">
+      <div class="flex flex-wrap items-center gap-5">
         <a
           routerLink="/carrito"
           aria-label="Ver carrito"
-          class="relative grid size-[42px] place-items-center rounded-md border border-gray-600 bg-gray-700 text-[1.1rem] text-white transition-colors hover:border-primary hover:bg-primary"
+          class="relative grid size-[42px] place-items-center rounded-md text-[1.1rem] text-black transition-colors"
         >
-          <i class="bi bi-bag"></i>
+          <i class="bi bi-cart text-black"></i>
           @if (carrito.cantidadTotal() > 0) {
             <span
-              class="absolute -top-[5px] -right-[5px] grid h-5 min-w-5 place-items-center rounded-full bg-accent px-[0.3rem] text-[0.7rem] font-extrabold text-white"
+              class="absolute -top-[1px] -right-[1px] grid h-5 min-w-5 place-items-center rounded-full bg-brand px-[0.3rem] text-[0.7rem] font-extrabold text-white"
               >{{ carrito.cantidadTotal() }}</span
             >
           }
@@ -69,15 +63,13 @@
         @if (auth.usuarioActual(); as usuario) {
           <div class="relative">
             <button
-              class="flex cursor-pointer items-center gap-2 rounded-md border border-gray-600 bg-gray-700 py-[0.3rem] pr-[0.65rem] pl-[0.3rem] text-[0.9rem] font-semibold text-white hover:bg-gray-600"
+              class="flex cursor-pointer items-center gap-2 py-[0.3rem] pr-[0.65rem] pl-[0.3rem] text-[0.9rem] text-black"
               type="button"
               aria-haspopup="menu"
               [attr.aria-expanded]="usuarioMenuAbierto()"
               (click)="usuarioMenuAbierto.set(!usuarioMenuAbierto())"
             >
-              <span class="grid size-[30px] place-items-center rounded-full bg-accent font-extrabold text-white">{{
-                usuario.nombre.charAt(0)
-              }}</span>
+             <i class="bi bi-person text-black text-[1.1rem]"></i>
               <span class="hidden xl:inline">{{ usuario.nombre }}</span>
               <i class="bi bi-chevron-down text-[0.7rem]"></i>
             </button>
@@ -85,9 +77,9 @@
             @if (usuarioMenuAbierto()) {
               <ul
                 role="menu"
-                class="absolute right-0 z-50 mt-2 min-w-[220px] rounded-md border border-line bg-white py-2"
+                class="absolute left-0 z-50 mt-2 min-w-[220px] max-w-[calc(100vw-2rem)] rounded-md border border-line bg-white py-2 lg:right-0 lg:left-auto"
               >
-                <li class="px-4 py-1 text-sm text-muted">{{ usuario.email }}</li>
+                <li class="px-4 py-1 text-sm break-all text-muted">{{ usuario.email }}</li>
                 <li><hr class="my-2 border-line" /></li>
                 <li>
                   <button
