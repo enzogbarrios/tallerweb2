@@ -64,7 +64,7 @@ const productos: ProductoSeed[] = [
   { nombre: 'Cinto Negro', descripcion: 'Cinto negro con hebilla metálica, resistente y fácil de combinar.', clasificacion: 'Accesorios', precio: 90000, archivo: 'cinto-negro.webp', destacado: false },
 ];
 
-async function cargarDatos(): Promise<void> {
+async function cargarDatos() {
   // 1. Vaciamos las tablas y reiniciamos los ids (CASCADE también vacía las que dependen de estas).
   await query('TRUNCATE usuarios, productos, carrito_items, pedidos, pedido_items RESTART IDENTITY CASCADE');
 

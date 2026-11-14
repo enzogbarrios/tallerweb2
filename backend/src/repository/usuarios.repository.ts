@@ -6,7 +6,7 @@ import type { NuevoUsuario, Usuario, UsuarioConPassword } from '../models/usuari
 const COLUMNAS_PUBLICAS = 'id, email, nombre, apellido, direccion, rol';
 
 export class UsuariosRepository {
-  async crear({ email, passwordHash, nombre, apellido, direccion }: NuevoUsuario): Promise<Usuario> {
+  async crear({ email, passwordHash, nombre, apellido, direccion }: NuevoUsuario) {
     const resultado = await query<Usuario>(
       `INSERT INTO usuarios (email, password_hash, nombre, apellido, direccion)
        VALUES ($1, $2, $3, $4, $5)
@@ -20,7 +20,7 @@ export class UsuariosRepository {
   }
 
   // Devuelve también password_hash porque se necesita para comparar al iniciar sesión.
-  async buscarPorEmail(email: string): Promise<UsuarioConPassword | undefined> {
+  async buscarPorEmail(email: string) {
     const resultado = await query<UsuarioConPassword>(
       `SELECT ${COLUMNAS_PUBLICAS}, password_hash FROM usuarios WHERE lower(email) = lower($1)`,
       [email],
@@ -29,7 +29,7 @@ export class UsuariosRepository {
     return resultado.rows[0];
   }
 
-  async buscarPorId(id: number): Promise<Usuario | undefined> {
+  async buscarPorId(id: number) {
     const resultado = await query<Usuario>(`SELECT ${COLUMNAS_PUBLICAS} FROM usuarios WHERE id = $1`, [id]);
     return resultado.rows[0];
   }

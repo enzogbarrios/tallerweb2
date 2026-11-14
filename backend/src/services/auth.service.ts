@@ -1,15 +1,10 @@
 // Lógica de negocio de autenticación: hashear contraseñas, validar credenciales
 // y emitir el token. El controller solo traduce eso a una respuesta HTTP.
 import bcrypt from 'bcryptjs';
-import type { DatosRegistro, Usuario } from '../models/usuario.model.js';
+import type { DatosRegistro } from '../models/usuario.model.js';
 import type { UsuariosRepository } from '../repository/usuarios.repository.js';
 import { codigoDeError, ErrorApi } from '../utils/errores.js';
 import { firmarToken } from '../utils/jwt.js';
-
-export type ResultadoAuth = {
-  token: string;
-  usuario: Usuario;
-};
 
 export class AuthService {
   private readonly usuarios: UsuariosRepository;
@@ -18,7 +13,7 @@ export class AuthService {
     this.usuarios = usuarios;
   }
 
-  async registrar(datos: DatosRegistro): Promise<ResultadoAuth> {
+  async registrar(datos: DatosRegistro) {
     const { password, ...resto } = datos;
     const passwordHash = await bcrypt.hash(password, 10);
 
@@ -36,7 +31,7 @@ export class AuthService {
     }
   }
 
-  async iniciarSesion(email: string, password: string): Promise<ResultadoAuth> {
+  async iniciarSesion(email: string, password: string) {
     const encontrado = await this.usuarios.buscarPorEmail(email);
     const coincide = encontrado !== undefined && (await bcrypt.compare(password, encontrado.password_hash));
 
@@ -50,7 +45,7 @@ export class AuthService {
   }
 
   // Devuelve el usuario dueño del token. El front lo usa al recargar la página.
-  async obtenerPorId(id: number): Promise<Usuario> {
+  async obtenerPorId(id: number) {
     const usuario = await this.usuarios.buscarPorId(id);
     if (!usuario) {
       throw new ErrorApi(401, 'TOKEN_INVALIDO', 'La sesión no es válida o venció.');

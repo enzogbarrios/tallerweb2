@@ -7,7 +7,7 @@ import { pool, query } from './pool.js';
 // Se resuelve desde backend/ (process.cwd()), así funciona tanto con tsx como con la build en dist/.
 const carpeta = join(process.cwd(), 'src', 'db', 'migrations');
 
-async function migrar(): Promise<void> {
+async function migrar() {
   // Tabla donde anotamos qué migraciones ya se aplicaron.
   await query(`
     CREATE TABLE IF NOT EXISTS migraciones (
