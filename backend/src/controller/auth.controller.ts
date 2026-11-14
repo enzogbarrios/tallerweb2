@@ -26,6 +26,6 @@ export class AuthController {
 
   // Respuesta siempre igual, exista o no el email (todavía no mandamos mails).
   public recuperar = (_req: Request, res: Response) => {
-    return res.json({ mensaje: 'Si el email existe, te enviamos las instrucciones para recuperar tu contraseña.' });
+    return res.json({ mensaje: 'Te enviamos las instrucciones para recuperar tu contraseña.' });
   };
 }
