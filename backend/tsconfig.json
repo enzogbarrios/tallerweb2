@@ -1,0 +1,31 @@
+{
+  // Opciones tomadas del backend de referencia (crud-empleados-back).
+  "compilerOptions": {
+    // Archivos de entrada y salida
+    "rootDir": "./src",
+    "outDir": "./dist",
+
+    // Entorno: Node con ESM
+    "module": "nodenext",
+    "target": "esnext",
+    "lib": ["esnext"],
+    "types": ["node"],
+
+    // Salidas extra
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+
+    // Chequeo estricto
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "strict": true,
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "noUncheckedSideEffectImports": true,
+    "moduleDetection": "force",
+    "skipLibCheck": true
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
+}

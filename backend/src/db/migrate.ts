@@ -1,27 +1,30 @@
 // Corre los archivos .sql de la carpeta migrations, en orden, una sola vez cada uno.
 // Se usa con: npm run migrate
 import { readdir, readFile } from 'node:fs/promises';
-import { fileURLToPath } from 'node:url';
-import { pool } from './pool.js';
+import { join } from 'node:path';
+import { pool, query } from './pool.js';
 
-const carpeta = fileURLToPath(new URL('./migrations/', import.meta.url));
+// Se resuelve desde backend/ (process.cwd()), así funciona tanto con tsx como con la build en dist/.
+const carpeta = join(process.cwd(), 'src', 'db', 'migrations');
 
-async function migrar() {
+async function migrar(): Promise<void> {
   // Tabla donde anotamos qué migraciones ya se aplicaron.
-  await pool.query(`
+  await query(`
     CREATE TABLE IF NOT EXISTS migraciones (
       nombre TEXT PRIMARY KEY,
       aplicada_en TIMESTAMPTZ NOT NULL DEFAULT now()
     )
   `);
 
-  const aplicadas = (await pool.query('SELECT nombre FROM migraciones')).rows.map((fila) => fila.nombre);
+  const aplicadas = (await query<{ nombre: string }>('SELECT nombre FROM migraciones')).rows.map(
+    (fila) => fila.nombre,
+  );
   const archivos = (await readdir(carpeta)).filter((nombre) => nombre.endsWith('.sql')).sort();
 
   for (const archivo of archivos) {
     if (aplicadas.includes(archivo)) continue;
 
-    const sql = await readFile(carpeta + archivo, 'utf8');
+    const sql = await readFile(join(carpeta, archivo), 'utf8');
     const cliente = await pool.connect();
     try {
       // Si algo falla, el ROLLBACK deshace todo y no queda la migración a medias.
@@ -42,8 +45,8 @@ async function migrar() {
 }
 
 migrar()
-  .catch((error) => {
-    console.error('Error al migrar:', error.message);
+  .catch((error: unknown) => {
+    console.error('Error al migrar:', error instanceof Error ? error.message : error);
     process.exitCode = 1;
   })
   .finally(() => pool.end());

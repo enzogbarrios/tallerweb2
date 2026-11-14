@@ -1,4 +1,4 @@
-// Arma la aplicación Express: middlewares y rutas. No arranca el servidor (eso lo hace server.js).
+// Arma la aplicación Express: middlewares y rutas. No arranca el servidor (eso lo hace server.ts).
 import { fileURLToPath } from 'node:url';
 import express from 'express';
 import helmet from 'helmet';
@@ -13,11 +13,11 @@ app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } })); // c
 app.use(express.json({ limit: '100kb' })); // permite leer el body en formato JSON
 
 // Ruta de prueba: confirma que el servidor y la base de datos andan.
-app.get('/api/health', async (req, res) => {
+app.get('/api/health', async (_req, res) => {
   try {
     await query('SELECT 1');
     res.json({ status: 'ok', db: 'connected' });
-  } catch (error) {
+  } catch {
     res.status(500).json({ status: 'error', db: 'disconnected' });
   }
 });

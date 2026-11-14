@@ -2,23 +2,43 @@
 // Se usa con: npm run seed
 // OJO: borra lo que haya en las tablas y vuelve a cargar todo desde cero (solo para desarrollo).
 import { copyFile, mkdir, rm } from 'node:fs/promises';
-import { extname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { extname, join } from 'node:path';
 import bcrypt from 'bcryptjs';
-import { pool } from './pool.js';
+import type { Clasificacion } from '../models/producto.model.js';
+import type { Rol } from '../models/usuario.model.js';
 import { nombreDeImagen } from '../utils/imagenes.js';
+import { pool, query } from './pool.js';
 
+// Las rutas se resuelven desde backend/ (process.cwd()), igual con tsx que con la build.
 // Las imágenes originales están en el front; las copiamos al backend.
-const carpetaOrigen = fileURLToPath(new URL('../../../public/img/productos/', import.meta.url));
-const carpetaDestino = fileURLToPath(new URL('../../uploads/productos/', import.meta.url));
+const carpetaOrigen = join(process.cwd(), '..', 'public', 'img', 'productos');
+const carpetaDestino = join(process.cwd(), 'uploads', 'productos');
 
-const usuarios = [
+type UsuarioSeed = {
+  email: string;
+  password: string;
+  nombre: string;
+  apellido: string;
+  direccion: string;
+  rol: Rol;
+};
+
+type ProductoSeed = {
+  nombre: string;
+  descripcion: string;
+  clasificacion: Clasificacion;
+  precio: number;
+  archivo: string;
+  destacado: boolean;
+};
+
+const usuarios: UsuarioSeed[] = [
   { email: 'demo@shaka.com', password: 'Shaka1234!', nombre: 'Demo', apellido: 'Shaka', direccion: 'Calle 123', rol: 'cliente' },
   { email: 'admin@shaka.com', password: 'Shaka1234!', nombre: 'Admin', apellido: 'Shaka', direccion: 'Calle 123', rol: 'admin' },
 ];
 
 // "archivo" es el nombre de la imagen original en public/img/productos.
-const productos = [
+const productos: ProductoSeed[] = [
   { nombre: 'Remera Ranglan Rosa', descripcion: 'Remera ranglan de algodón en color rosa, calce relajado y cuello redondo.', clasificacion: 'Remeras', precio: 70000, archivo: 'remera-ranglan-rosa.webp', destacado: true },
   { nombre: 'Remera Easy Negra', descripcion: 'Remera básica negra de algodón, calce clásico para el uso diario.', clasificacion: 'Remeras', precio: 63000, archivo: 'remera-negra.webp', destacado: true },
   { nombre: 'Remera Gris Topo', descripcion: 'Remera de algodón en gris topo con calce amplio y costuras reforzadas.', clasificacion: 'Remeras', precio: 70000, archivo: 'remera-gris-topo.webp', destacado: false },
@@ -44,14 +64,14 @@ const productos = [
   { nombre: 'Cinto Negro', descripcion: 'Cinto negro con hebilla metálica, resistente y fácil de combinar.', clasificacion: 'Accesorios', precio: 90000, archivo: 'cinto-negro.webp', destacado: false },
 ];
 
-async function cargarDatos() {
+async function cargarDatos(): Promise<void> {
   // 1. Vaciamos las tablas y reiniciamos los ids (CASCADE también vacía las que dependen de estas).
-  await pool.query('TRUNCATE usuarios, productos, carrito_items, pedidos, pedido_items RESTART IDENTITY CASCADE');
+  await query('TRUNCATE usuarios, productos, carrito_items, pedidos, pedido_items RESTART IDENTITY CASCADE');
 
   // 2. Usuarios: guardamos la contraseña hasheada, nunca en texto plano.
   for (const usuario of usuarios) {
     const hash = await bcrypt.hash(usuario.password, 10);
-    await pool.query(
+    await query(
       'INSERT INTO usuarios (email, password_hash, nombre, apellido, direccion, rol) VALUES ($1, $2, $3, $4, $5, $6)',
       [usuario.email, hash, usuario.nombre, usuario.apellido, usuario.direccion, usuario.rol],
     );
@@ -63,11 +83,18 @@ async function cargarDatos() {
 
   for (const producto of productos) {
     const nombreNuevo = nombreDeImagen(producto.nombre, extname(producto.archivo));
-    await copyFile(carpetaOrigen + producto.archivo, carpetaDestino + nombreNuevo);
+    await copyFile(join(carpetaOrigen, producto.archivo), join(carpetaDestino, nombreNuevo));
 
-    await pool.query(
+    await query(
       'INSERT INTO productos (nombre, descripcion, clasificacion, precio, imagen, destacado) VALUES ($1, $2, $3, $4, $5, $6)',
-      [producto.nombre, producto.descripcion, producto.clasificacion, producto.precio, `uploads/productos/${nombreNuevo}`, producto.destacado],
+      [
+        producto.nombre,
+        producto.descripcion,
+        producto.clasificacion,
+        producto.precio,
+        `uploads/productos/${nombreNuevo}`,
+        producto.destacado,
+      ],
     );
   }
 
@@ -75,8 +102,8 @@ async function cargarDatos() {
 }
 
 cargarDatos()
-  .catch((error) => {
-    console.error('Error en el seed:', error.message);
+  .catch((error: unknown) => {
+    console.error('Error en el seed:', error instanceof Error ? error.message : error);
     process.exitCode = 1;
   })
   .finally(() => pool.end());
