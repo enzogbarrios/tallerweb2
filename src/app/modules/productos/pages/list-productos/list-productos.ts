@@ -2,9 +2,10 @@ import { Component, computed, inject, signal, ChangeDetectionStrategy } from '@a
 import { Router } from '@angular/router';
 import { AuthService } from '../../../../api/services/auth/auth.service';
 import { CarritoService } from '../../../../api/services/carrito/carrito.service';
+import { CategoriasService } from '../../../../api/services/categorias/categorias.service';
 import { NotificacionesService } from '../../../../api/services/notificaciones/notificaciones.service';
 import { ProductosService } from '../../../../api/services/productos/productos.service';
-import { CLASIFICACIONES, Clasificacion, Producto } from '../../../../shared/models/producto.model';
+import { Clasificacion, Producto } from '../../../../shared/models/producto.model';
 import { agregarAlCarrito } from '../../../../shared/utils/agregar-al-carrito';
 import { ProductoCard } from '../../components/producto-card/producto-card';
 
@@ -16,12 +17,16 @@ import { ProductoCard } from '../../components/producto-card/producto-card';
 })
 export class ListProductos {
   private readonly productosService = inject(ProductosService);
+  private readonly categoriasService = inject(CategoriasService);
   private readonly carrito = inject(CarritoService);
   private readonly auth = inject(AuthService);
   private readonly notificaciones = inject(NotificacionesService);
   private readonly router = inject(Router);
 
-  readonly clasificaciones: Array<Clasificacion | 'Todas'> = ['Todas', ...CLASIFICACIONES];
+  readonly clasificaciones = computed<Array<Clasificacion | 'Todas'>>(() => [
+    'Todas',
+    ...this.categoriasService.categorias().map((categoria) => categoria.nombre),
+  ]);
 
   readonly busqueda = signal('');
   readonly clasificacionActiva = signal<Clasificacion | 'Todas'>('Todas');

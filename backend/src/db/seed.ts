@@ -1,10 +1,10 @@
-// Carga datos iniciales: 2 usuarios y 23 productos (copiando sus imágenes a backend/uploads).
+// Carga datos iniciales: 2 usuarios, 10 categorías y 23 productos (copiando sus imágenes a backend/uploads).
 // Se usa con: npm run seed
 // OJO: borra lo que haya en las tablas y vuelve a cargar todo desde cero (solo para desarrollo).
 import { copyFile, mkdir, rm } from 'node:fs/promises';
 import { extname, join } from 'node:path';
 import bcrypt from 'bcryptjs';
-import type { Clasificacion } from '../models/producto.model.js';
+import type { NuevaCategoria } from '../models/categoria.model.js';
 import type { Rol } from '../models/usuario.model.js';
 import { nombreDeImagen } from '../utils/imagenes.js';
 import { pool, query } from './pool.js';
@@ -26,7 +26,7 @@ type UsuarioSeed = {
 type ProductoSeed = {
   nombre: string;
   descripcion: string;
-  clasificacion: Clasificacion;
+  clasificacion: string;
   precio: number;
   archivo: string;
   destacado: boolean;
@@ -35,6 +35,19 @@ type ProductoSeed = {
 const usuarios: UsuarioSeed[] = [
   { email: 'demo@shaka.com', password: 'Shaka1234!', nombre: 'Demo', apellido: 'Shaka', direccion: 'Calle 123', rol: 'cliente' },
   { email: 'admin@shaka.com', password: 'Shaka1234!', nombre: 'Admin', apellido: 'Shaka', direccion: 'Calle 123', rol: 'admin' },
+];
+
+const categorias: NuevaCategoria[] = [
+  { nombre: 'Remeras', descripcion: 'Remeras de algodón de manga corta y larga.' },
+  { nombre: 'Jeans', descripcion: 'Jeans de calce amplio en distintos lavados.' },
+  { nombre: 'Bermudas', descripcion: 'Bermudas largas de denim y algodón.' },
+  { nombre: 'Shorts', descripcion: 'Shorts y boardshorts livianos para el verano.' },
+  { nombre: 'Sweaters', descripcion: 'Sweaters tejidos de punto grueso.' },
+  { nombre: 'Camisas', descripcion: 'Camisas de manga corta y larga.' },
+  { nombre: 'Buzos', descripcion: 'Buzos con y sin cierre, con interior suave.' },
+  { nombre: 'Camperas', descripcion: 'Camperas de canvas y abrigos de estilo workwear.' },
+  { nombre: 'Accesorios', descripcion: 'Gorras, cintos y otros complementos.' },
+  { nombre: 'Polos', descripcion: 'Polos de punto con cuello clásico.' },
 ];
 
 // "archivo" es el nombre de la imagen original en public/img/productos.
@@ -66,7 +79,9 @@ const productos: ProductoSeed[] = [
 
 async function cargarDatos() {
   // 1. Vaciamos las tablas y reiniciamos los ids (CASCADE también vacía las que dependen de estas).
-  await query('TRUNCATE usuarios, productos, carrito_items, pedidos, pedido_items RESTART IDENTITY CASCADE');
+  await query(
+    'TRUNCATE usuarios, categorias, productos, carrito_items, pedidos, pedido_items RESTART IDENTITY CASCADE',
+  );
 
   // 2. Usuarios: guardamos la contraseña hasheada, nunca en texto plano.
   for (const usuario of usuarios) {
@@ -77,20 +92,35 @@ async function cargarDatos() {
     );
   }
 
+  const idPorCategoria = new Map<string, number>();
+  for (const categoria of categorias) {
+    const resultado = await query<{ id: number }>(
+      'INSERT INTO categorias (nombre, descripcion) VALUES ($1, $2) RETURNING id',
+      [categoria.nombre, categoria.descripcion],
+    );
+    const fila = resultado.rows[0];
+    if (fila) idPorCategoria.set(categoria.nombre, fila.id);
+  }
+
   // 3. Imágenes: recreamos la carpeta de destino y copiamos cada archivo con su nombre nuevo.
   await rm(carpetaDestino, { recursive: true, force: true });
   await mkdir(carpetaDestino, { recursive: true });
 
   for (const producto of productos) {
+    const categoriaId = idPorCategoria.get(producto.clasificacion);
+    if (categoriaId === undefined) {
+      throw new Error(`La categoría "${producto.clasificacion}" no está en la lista del seed`);
+    }
+
     const nombreNuevo = nombreDeImagen(producto.nombre, extname(producto.archivo));
     await copyFile(join(carpetaOrigen, producto.archivo), join(carpetaDestino, nombreNuevo));
 
     await query(
-      'INSERT INTO productos (nombre, descripcion, clasificacion, precio, imagen, destacado) VALUES ($1, $2, $3, $4, $5, $6)',
+      'INSERT INTO productos (nombre, descripcion, categoria_id, precio, imagen, destacado) VALUES ($1, $2, $3, $4, $5, $6)',
       [
         producto.nombre,
         producto.descripcion,
-        producto.clasificacion,
+        categoriaId,
         producto.precio,
         `uploads/productos/${nombreNuevo}`,
         producto.destacado,
@@ -98,7 +128,9 @@ async function cargarDatos() {
     );
   }
 
-  console.log(`Seed listo: ${usuarios.length} usuarios y ${productos.length} productos.`);
+  console.log(
+    `Seed listo: ${usuarios.length} usuarios, ${categorias.length} categorías y ${productos.length} productos.`,
+  );
 }
 
 cargarDatos()

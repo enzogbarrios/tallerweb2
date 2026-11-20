@@ -6,6 +6,7 @@ import { query } from './db/pool.js';
 import { errorHandler, rutaNoEncontrada } from './middlewares/errorHandler.js';
 import { authRoutes } from './routes/auth.routes.js';
 import { carritoRoutes } from './routes/carrito.routes.js';
+import { categoriasRoutes } from './routes/categorias.routes.js';
 import { pedidosRoutes } from './routes/pedidos.routes.js';
 import { productosRoutes } from './routes/productos.routes.js';
 
@@ -29,6 +30,7 @@ app.use('/uploads', express.static(fileURLToPath(new URL('../uploads', import.me
 
 app.use('/api/auth', authRoutes);
 app.use('/api/carrito', carritoRoutes);
+app.use('/api/categorias', categoriasRoutes);
 app.use('/api/pedidos', pedidosRoutes);
 app.use('/api/productos', productosRoutes);
 

@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { CLASIFICACIONES } from '../models/producto.model.js';
 
 // el formulario de productos llega como multipart, asi que los campos de texto
 // son strings y el precio/destacado hay que convertirlos
@@ -19,7 +18,10 @@ export const esquemaProducto = z.object({
     .trim()
     .min(15, 'La descripción debe tener al menos 15 caracteres.')
     .max(1000, 'La descripción no puede superar los 1000 caracteres.'),
-  clasificacion: z.enum(CLASIFICACIONES, 'La clasificación no es válida.'),
+  categoria_id: z.coerce
+    .number('La categoría es obligatoria.')
+    .int('La categoría no es válida.')
+    .positive('Elegí una categoría.'),
   precio: z.coerce
     .number('El precio es obligatorio.')
     .int('El precio debe ser un número entero.')

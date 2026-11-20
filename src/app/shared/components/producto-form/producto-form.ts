@@ -14,12 +14,8 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { map } from 'rxjs';
 import { ImagenFallbackDirective } from '../../directives/imagen-fallback.directive';
-import {
-  CLASIFICACIONES,
-  Clasificacion,
-  NuevoProducto,
-  Producto,
-} from '../../models/producto.model';
+import { CategoriasService } from '../../../api/services/categorias/categorias.service';
+import { NuevoProducto, Producto } from '../../models/producto.model';
 
 const TIPOS_IMAGEN = ['image/jpeg', 'image/png', 'image/webp'];
 const MAXIMO_IMAGEN = 2 * 1024 * 1024;
@@ -39,7 +35,7 @@ export class ProductoForm implements OnInit, OnDestroy {
   readonly textoBoton = input('Guardar');
   readonly guardado = output<NuevoProducto>();
 
-  readonly clasificaciones = CLASIFICACIONES;
+  readonly categorias = inject(CategoriasService).categorias;
   readonly archivo = signal<File | null>(null);
   readonly nombreArchivo = signal('');
   readonly imagenPrevia = signal<string | null>(null);
@@ -48,7 +44,7 @@ export class ProductoForm implements OnInit, OnDestroy {
   readonly form = this.fb.nonNullable.group({
     nombre: ['', [Validators.required, Validators.minLength(3)]],
     descripcion: ['', [Validators.required, Validators.minLength(15)]],
-    clasificacion: [CLASIFICACIONES[0] as Clasificacion, [Validators.required]],
+    categoria_id: [null as number | null, [Validators.required]],
     precio: [0, [Validators.required, Validators.min(1)]],
     destacado: [false],
   });
@@ -69,7 +65,7 @@ export class ProductoForm implements OnInit, OnDestroy {
     this.form.patchValue({
       nombre: producto.nombre,
       descripcion: producto.descripcion,
-      clasificacion: producto.clasificacion,
+      categoria_id: producto.categoria_id,
       precio: producto.precio,
       destacado: producto.destacado,
     });
@@ -114,16 +110,16 @@ export class ProductoForm implements OnInit, OnDestroy {
     const faltaImagen = !this.archivo() && !this.producto();
     this.errorImagen.set(faltaImagen ? 'La imagen es obligatoria.' : null);
 
-    if (this.form.invalid || faltaImagen) {
+    const valores = this.form.getRawValue();
+
+    if (this.form.invalid || faltaImagen || valores.categoria_id === null) {
       return;
     }
-
-    const valores = this.form.getRawValue();
 
     this.guardado.emit({
       nombre: valores.nombre.trim(),
       descripcion: valores.descripcion.trim(),
-      clasificacion: valores.clasificacion,
+      categoria_id: valores.categoria_id,
       precio: Number(valores.precio),
       destacado: valores.destacado,
       imagen: this.archivo(),

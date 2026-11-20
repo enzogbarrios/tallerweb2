@@ -4,10 +4,11 @@ import type { ItemCarritoFila } from '../models/carrito.model.js';
 export class CarritoRepository {
   async listar(usuarioId: number) {
     const resultado = await query<ItemCarritoFila>(
-      `SELECT p.id, p.nombre, p.descripcion, p.clasificacion, p.precio, p.imagen, p.destacado, p.creado_en,
-              ci.cantidad
+      `SELECT p.id, p.nombre, p.descripcion, p.categoria_id, c.nombre AS clasificacion,
+              p.precio, p.imagen, p.destacado, p.creado_en, ci.cantidad
        FROM carrito_items ci
        JOIN productos p ON p.id = ci.producto_id
+       JOIN categorias c ON c.id = p.categoria_id
        WHERE ci.usuario_id = $1
        ORDER BY p.id`,
       [usuarioId],

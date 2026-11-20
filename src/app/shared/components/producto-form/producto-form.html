@@ -45,18 +45,30 @@
 
       <div class="grid gap-4 md:grid-cols-2">
         <div>
-          <label class="mb-2 block text-sm text-black uppercase" for="clasificacion"
-            >Clasificación <span class="text-red-600">*</span></label
+          <label class="mb-2 block text-sm text-black uppercase" for="categoria"
+            >Categoría <span class="text-red-600">*</span></label
           >
           <select
-            id="clasificacion"
+            id="categoria"
             class="w-full border border-black bg-white p-3 focus:outline-none"
-            formControlName="clasificacion"
+            formControlName="categoria_id"
           >
-            @for (clasificacion of clasificaciones; track clasificacion) {
-              <option [value]="clasificacion">{{ clasificacion }}</option>
+            <option [ngValue]="null" disabled>Elegí una categoría</option>
+            @for (categoria of categorias(); track categoria.id) {
+              <option [ngValue]="categoria.id">{{ categoria.nombre }}</option>
             }
           </select>
+          @if (form.get('categoria_id')?.touched && form.get('categoria_id')?.hasError('required')) {
+            <div class="field-error">La categoría es obligatoria.</div>
+          }
+          @if (categorias().length === 0) {
+            <p class="mt-1 text-[0.78rem] text-muted">
+              Todavía no hay categorías.
+              <a routerLink="/admin/categorias" class="font-semibold text-ink hover:text-brand"
+                >Creá una acá</a
+              >.
+            </p>
+          }
         </div>
 
         <div>

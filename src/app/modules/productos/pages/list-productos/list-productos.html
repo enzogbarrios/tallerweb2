@@ -20,7 +20,7 @@
       </div>
 
       <div class="flex flex-wrap gap-[0.4rem]">
-        @for (clasificacion of clasificaciones; track clasificacion) {
+        @for (clasificacion of clasificaciones(); track clasificacion) {
           <button
             type="button"
             class="cursor-pointer border px-[0.8rem] py-[0.45rem] text-[0.78rem] uppercase transition-colors"

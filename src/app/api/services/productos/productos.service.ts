@@ -65,7 +65,7 @@ export class ProductosService {
 
     formData.append('nombre', datos.nombre);
     formData.append('descripcion', datos.descripcion);
-    formData.append('clasificacion', datos.clasificacion);
+    formData.append('categoria_id', String(datos.categoria_id));
     formData.append('precio', String(datos.precio));
     formData.append('destacado', String(datos.destacado));
 

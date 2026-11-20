@@ -1,23 +1,9 @@
-export const CLASIFICACIONES = [
-  'Remeras',
-  'Jeans',
-  'Bermudas',
-  'Shorts',
-  'Sweaters',
-  'Camisas',
-  'Buzos',
-  'Camperas',
-  'Accesorios',
-  'Polos',
-] as const;
-
-export type Clasificacion = (typeof CLASIFICACIONES)[number];
-
 export class Producto {
   id!: number;
   nombre!: string;
   descripcion!: string;
-  clasificacion!: Clasificacion;
+  categoria_id!: number;
+  clasificacion!: string;
   precio!: number;
   imagen!: string;
   destacado!: boolean;
@@ -26,5 +12,5 @@ export class Producto {
 
 export type NuevoProducto = Pick<
   Producto,
-  'nombre' | 'descripcion' | 'clasificacion' | 'precio' | 'imagen' | 'destacado'
+  'nombre' | 'descripcion' | 'categoria_id' | 'precio' | 'imagen' | 'destacado'
 >;

@@ -1,0 +1,302 @@
+<section class="bg-white py-8 lg:py-12">
+  <div class="mx-4 sm:mx-10">
+    <a
+      routerLink="/admin"
+      class="mb-4 inline-flex items-center gap-[0.35rem] text-sm text-muted hover:text-brand"
+    >
+      <i class="bi bi-arrow-left"></i> Volver al panel
+    </a>
+
+    <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
+      <div>
+        <h1 class="mt-2 text-black uppercase">Categorías</h1>
+        @if (resultado(); as r) {
+          <p class="text-sm text-muted">
+            {{ r.total }}
+            {{ r.total === 1 ? 'categoría' : 'categorías' }}
+            {{ filtros().q ? 'encontradas' : 'cargadas' }}
+          </p>
+        }
+      </div>
+    </div>
+
+    <div class="grid items-start gap-8 lg:grid-cols-12">
+      <div #formulario class="scroll-mt-[100px] lg:sticky lg:top-[100px] lg:col-span-4">
+        <span class="mb-3 block text-[0.72rem] tracking-[0.12em] text-muted uppercase">
+          {{ editando() ? 'Editar categoría' : 'Nueva categoría' }}
+        </span>
+
+        <form [formGroup]="form" (ngSubmit)="guardar()" novalidate>
+          <div class="mb-4">
+            <label class="mb-2 block text-sm text-black uppercase" for="nombre"
+              >Nombre <span class="text-red-600">*</span></label
+            >
+            <input
+              id="nombre"
+              type="text"
+              class="w-full border border-black p-3 placeholder:text-sm placeholder:text-gray-400 focus:outline-none"
+              formControlName="nombre"
+              placeholder="Ej: Remeras"
+              [class.is-invalid]="form.get('nombre')?.invalid && form.get('nombre')?.touched"
+            />
+            @if (form.get('nombre')?.touched && form.get('nombre')?.hasError('required')) {
+              <div class="field-error">El nombre es obligatorio.</div>
+            }
+            @if (form.get('nombre')?.touched && form.get('nombre')?.hasError('minlength')) {
+              <div class="field-error">El nombre debe tener al menos 2 caracteres.</div>
+            }
+            @if (form.get('nombre')?.hasError('maxlength')) {
+              <div class="field-error">El nombre no puede superar los 60 caracteres.</div>
+            }
+            @if (form.get('nombre')?.getError('servidor'); as error) {
+              <div class="field-error">{{ error }}</div>
+            }
+          </div>
+
+          <div class="mb-4">
+            <label class="mb-2 block text-sm text-black uppercase" for="descripcion"
+              >Descripción</label
+            >
+            <textarea
+              id="descripcion"
+              rows="3"
+              class="w-full border border-black p-3 placeholder:text-sm placeholder:text-gray-400 focus:outline-none"
+              formControlName="descripcion"
+              placeholder="Opcional: qué tipo de productos agrupa..."
+              [class.is-invalid]="
+                form.get('descripcion')?.invalid && form.get('descripcion')?.touched
+              "
+            ></textarea>
+            @if (form.get('descripcion')?.hasError('maxlength')) {
+              <div class="field-error">La descripción no puede superar los 300 caracteres.</div>
+            }
+            @if (form.get('descripcion')?.getError('servidor'); as error) {
+              <div class="field-error">{{ error }}</div>
+            }
+          </div>
+
+          <div class="flex flex-wrap items-center gap-x-6 gap-y-3">
+            <button
+              type="submit"
+              class="inline-flex cursor-pointer items-center justify-center gap-2 bg-brand px-6 py-3 text-[0.9rem] text-white uppercase transition-colors hover:bg-brand/70 disabled:cursor-not-allowed disabled:opacity-50"
+              [disabled]="form.invalid || guardando()"
+            >
+              @if (editando()) {
+                {{ guardando() ? 'Guardando…' : 'Guardar cambios' }}
+              } @else {
+                <i class="bi bi-plus-lg"></i> {{ guardando() ? 'Creando…' : 'Agregar categoría' }}
+              }
+            </button>
+            @if (editando()) {
+              <button
+                type="button"
+                class="cursor-pointer text-[0.88rem] font-semibold text-ink hover:text-brand"
+                (click)="cancelarEdicion()"
+              >
+                Cancelar
+              </button>
+            }
+          </div>
+        </form>
+      </div>
+
+      <div class="lg:col-span-8">
+        <div class="mb-5 flex flex-wrap items-center justify-between gap-4">
+          <div
+            class="flex flex-[1_1_260px] items-center gap-[0.6rem] border border-gray-300 bg-white px-[0.85rem] py-[0.65rem] focus-within:border-brand"
+          >
+            <i class="bi bi-search text-muted"></i>
+            <input
+              class="w-full bg-transparent text-[0.9rem] text-ink outline-none"
+              type="search"
+              placeholder="Buscar por nombre o descripción..."
+              aria-label="Buscar categorías"
+              [value]="textoBusqueda()"
+              (input)="buscar($event)"
+            />
+          </div>
+
+          <label class="flex items-center gap-2 text-[0.78rem] text-muted uppercase">
+            Ordenar
+            <select
+              class="border border-gray-300 bg-white px-[0.8rem] py-[0.6rem] text-[0.85rem] text-ink normal-case focus:border-brand focus:outline-none"
+              aria-label="Ordenar categorías"
+              (change)="ordenar($event)"
+            >
+              @for (orden of ordenes; track orden.valor) {
+                <option [value]="orden.valor" [selected]="filtros().orden === orden.valor">
+                  {{ orden.texto }}
+                </option>
+              }
+            </select>
+          </label>
+        </div>
+
+        @if (errorListado(); as error) {
+          <div class="border border-dashed border-gray-300 px-8 py-14 text-center">
+            <i class="bi bi-exclamation-triangle mb-4 block text-[2.2rem] text-red-600"></i>
+            <h2 class="mb-2 text-[1.3rem] text-black uppercase">No se pudo cargar el listado</h2>
+            <p class="mx-auto max-w-[430px] text-muted">{{ error }}</p>
+          </div>
+        } @else if (resultado(); as r) {
+          @if (r.items.length === 0) {
+            <div class="border border-dashed border-gray-300 px-8 py-14 text-center">
+              <i class="bi bi-tags mb-4 block text-[2.2rem] text-brand"></i>
+              @if (filtros().q) {
+                <h2 class="mb-2 text-[1.3rem] text-black uppercase">No encontramos categorías</h2>
+                <p class="mx-auto mb-6 max-w-[430px] text-muted">
+                  Ninguna categoría coincide con "{{ filtros().q }}".
+                </p>
+                <button
+                  type="button"
+                  class="inline-flex cursor-pointer items-center justify-center gap-2 bg-brand px-6 py-3 text-[0.9rem] text-white uppercase transition-colors hover:bg-brand/70"
+                  (click)="limpiarBusqueda()"
+                >
+                  Ver todas las categorías
+                </button>
+              } @else {
+                <h2 class="mb-2 text-[1.3rem] text-black uppercase">No hay categorías</h2>
+                <p class="mx-auto max-w-[430px] text-muted">Creá la primera con el formulario.</p>
+              }
+            </div>
+          } @else {
+            <div
+              class="overflow-x-auto border-t border-gray-200 transition-opacity"
+              [class.opacity-50]="cargando()"
+            >
+              <table class="w-full min-w-[640px] border-collapse text-left">
+                <thead>
+                  <tr class="text-[0.72rem] tracking-[0.06em] text-muted uppercase">
+                    <th scope="col" class="border-b border-gray-200 py-3 pr-4 font-normal">ID</th>
+                    <th scope="col" class="border-b border-gray-200 px-4 py-3 font-normal">
+                      Categoría
+                    </th>
+                    <th scope="col" class="border-b border-gray-200 px-4 py-3 font-normal">
+                      Descripción
+                    </th>
+                    <th
+                      scope="col"
+                      class="border-b border-gray-200 px-4 py-3 text-center font-normal"
+                    >
+                      Productos
+                    </th>
+                    <th
+                      scope="col"
+                      class="border-b border-gray-200 py-3 pl-4 text-right font-normal"
+                    >
+                      Acciones
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (categoria of r.items; track categoria.id) {
+                    <tr
+                      class="border-b border-gray-200"
+                      [class.bg-gray-50]="editando()?.id === categoria.id"
+                    >
+                      <td class="py-3 pr-4 align-middle text-muted">{{ categoria.id }}</td>
+                      <td class="px-4 py-3 align-middle">
+                        <strong class="text-ink uppercase">{{ categoria.nombre }}</strong>
+                      </td>
+                      <td class="px-4 py-3 align-middle text-[0.88rem] text-muted">
+                        {{ categoria.descripcion || '—' }}
+                      </td>
+                      <td class="px-4 py-3 text-center align-middle text-ink">
+                        {{ categoria.cantidad_productos }}
+                      </td>
+                      <td class="py-3 pl-4 text-right align-middle whitespace-nowrap">
+                        @if (confirmandoId() === categoria.id) {
+                          <span class="mr-2 text-[0.82rem] text-ink">¿Eliminar?</span>
+                          <button
+                            type="button"
+                            class="mr-2 cursor-pointer bg-red-600 px-3 py-1 text-[0.78rem] text-white uppercase hover:bg-red-700"
+                            (click)="eliminar(categoria)"
+                          >
+                            Sí
+                          </button>
+                          <button
+                            type="button"
+                            class="cursor-pointer border border-gray-400 px-3 py-1 text-[0.78rem] text-ink uppercase hover:border-black"
+                            (click)="cancelar()"
+                          >
+                            No
+                          </button>
+                        } @else {
+                          <button
+                            type="button"
+                            class="mr-3 inline-flex cursor-pointer items-center gap-1 text-[0.85rem] text-ink hover:text-brand"
+                            [attr.aria-label]="'Editar ' + categoria.nombre"
+                            (click)="editar(categoria)"
+                          >
+                            <i class="bi bi-pencil"></i> Editar
+                          </button>
+                          <button
+                            type="button"
+                            class="inline-flex cursor-pointer items-center gap-1 text-[0.85rem] text-ink hover:text-red-600"
+                            [attr.aria-label]="'Eliminar ' + categoria.nombre"
+                            (click)="pedirConfirmacion(categoria.id)"
+                          >
+                            <i class="bi bi-trash3"></i> Eliminar
+                          </button>
+                        }
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+
+            @if (r.paginas > 1) {
+              <nav
+                class="mt-6 flex flex-wrap items-center justify-between gap-3"
+                aria-label="Paginación de categorías"
+              >
+                <span class="text-[0.85rem] text-muted">
+                  Página {{ r.pagina }} de {{ r.paginas }}
+                </span>
+
+                <div class="flex flex-wrap items-center gap-[0.4rem]">
+                  <button
+                    type="button"
+                    class="cursor-pointer border border-gray-300 bg-white px-[0.8rem] py-[0.45rem] text-[0.78rem] text-ink uppercase transition-colors hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-gray-300 disabled:hover:text-ink"
+                    [disabled]="r.pagina === 1"
+                    (click)="irAPagina(r.pagina - 1)"
+                  >
+                    <i class="bi bi-chevron-left"></i> Anterior
+                  </button>
+
+                  @for (numero of numerosPagina(); track numero) {
+                    <button
+                      type="button"
+                      class="min-w-9 cursor-pointer border px-[0.8rem] py-[0.45rem] text-[0.78rem] transition-colors"
+                      [class]="
+                        numero === r.pagina
+                          ? 'border-brand bg-brand text-white'
+                          : 'border-gray-300 bg-white text-muted hover:border-brand hover:text-brand'
+                      "
+                      [attr.aria-current]="numero === r.pagina ? 'page' : null"
+                      (click)="irAPagina(numero)"
+                    >
+                      {{ numero }}
+                    </button>
+                  }
+
+                  <button
+                    type="button"
+                    class="cursor-pointer border border-gray-300 bg-white px-[0.8rem] py-[0.45rem] text-[0.78rem] text-ink uppercase transition-colors hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-gray-300 disabled:hover:text-ink"
+                    [disabled]="r.pagina === r.paginas"
+                    (click)="irAPagina(r.pagina + 1)"
+                  >
+                    Siguiente <i class="bi bi-chevron-right"></i>
+                  </button>
+                </div>
+              </nav>
+            }
+          }
+        } @else if (cargando()) {
+          <p class="py-10 text-center text-[0.9rem] text-muted">Cargando categorías…</p>
+        }
+      </div>
+    </div>
+  </div>
+</section>

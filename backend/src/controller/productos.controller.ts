@@ -1,11 +1,15 @@
 import type { Request, Response } from 'express';
+import { CategoriasRepository } from '../repository/categorias.repository.js';
 import { ProductosRepository } from '../repository/productos.repository.js';
 import type { ProductoDto } from '../schemas/productos.schemas.js';
 import { ProductosService } from '../services/productos.service.js';
 import { ErrorApi } from '../utils/errores.js';
 import { idNumerico } from '../utils/validarId.js';
 
-const productosService = new ProductosService(new ProductosRepository());
+const productosService = new ProductosService(
+  new ProductosRepository(),
+  new CategoriasRepository(),
+);
 
 export class ProductosController {
   public listar = async (_req: Request, res: Response) => {

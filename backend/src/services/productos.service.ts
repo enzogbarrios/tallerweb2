@@ -1,3 +1,4 @@
+import type { CategoriasRepository } from '../repository/categorias.repository.js';
 import type { ProductoDto } from '../schemas/productos.schemas.js';
 import type { ProductosRepository } from '../repository/productos.repository.js';
 import { ErrorApi } from '../utils/errores.js';
@@ -5,9 +6,21 @@ import { type ArchivoImagen, borrarImagen, guardarImagen } from '../utils/imagen
 
 export class ProductosService {
   private readonly productos: ProductosRepository;
+  private readonly categorias: CategoriasRepository;
 
-  constructor(productos: ProductosRepository) {
+  constructor(productos: ProductosRepository, categorias: CategoriasRepository) {
     this.productos = productos;
+    this.categorias = categorias;
+  }
+
+  private async validarCategoria(categoriaId: number) {
+    const categoria = await this.categorias.buscarPorId(categoriaId);
+
+    if (!categoria) {
+      throw new ErrorApi(400, 'DATOS_INVALIDOS', 'Hay datos incorrectos.', {
+        categoria_id: 'La categoría elegida no existe.',
+      });
+    }
   }
 
   async listar() {
@@ -24,6 +37,7 @@ export class ProductosService {
   }
 
   async crear(datos: ProductoDto, archivo: ArchivoImagen) {
+    await this.validarCategoria(datos.categoria_id);
     const imagen = await guardarImagen(datos.nombre, archivo);
 
     try {
@@ -42,6 +56,7 @@ export class ProductosService {
 
   async actualizar(id: number, datos: ProductoDto, archivo?: ArchivoImagen) {
     const actual = await this.obtener(id);
+    await this.validarCategoria(datos.categoria_id);
     const imagen = archivo ? await guardarImagen(datos.nombre, archivo) : actual.imagen;
 
     try {
