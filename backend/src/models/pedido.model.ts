@@ -75,6 +75,9 @@ export class PedidoItem {
   id!: number;
   pedido_id!: number;
   producto_id!: number | null;
+  variante_id!: number | null;
+  talle!: string;
+  color!: string;
   nombre!: string;
   clasificacion!: string;
   imagen!: string;
@@ -120,6 +123,8 @@ export type ItemPedidoApi = {
     imagen: string;
     precio: number;
   };
+  talle: string;
+  color: string;
   cantidad: number;
 };
 

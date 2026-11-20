@@ -1,9 +1,18 @@
 import type { CategoriasRepository } from '../repository/categorias.repository.js';
 import type { FiltrosProductos, ProductoDto } from '../schemas/productos.schemas.js';
 import type { ProductosRepository } from '../repository/productos.repository.js';
-import { ErrorApi } from '../utils/errores.js';
+import { codigoDeError, ErrorApi } from '../utils/errores.js';
 import { armarPagina } from '../utils/paginacion.js';
 import { type ArchivoImagen, borrarImagen, guardarImagen } from '../utils/imagenes.js';
+
+function errorDeVariantes(error: unknown) {
+  if (codigoDeError(error) === '23505') {
+    return new ErrorApi(409, 'VARIANTE_DUPLICADA', 'Hay variantes repetidas (mismo talle y color).', {
+      variantes: 'Hay variantes repetidas (mismo talle y color).',
+    });
+  }
+  return error;
+}
 
 export class ProductosService {
   private readonly productos: ProductosRepository;
@@ -56,7 +65,7 @@ export class ProductosService {
     } catch (error) {
       // si fallo la base no dejamos la imagen en disco
       await borrarImagen(imagen);
-      throw error;
+      throw errorDeVariantes(error);
     }
   }
 
@@ -81,7 +90,7 @@ export class ProductosService {
       if (archivo && imagen !== actual.imagen) {
         await borrarImagen(imagen);
       }
-      throw error;
+      throw errorDeVariantes(error);
     }
   }
 

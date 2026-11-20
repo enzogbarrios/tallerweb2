@@ -10,10 +10,10 @@ const carritoController = new CarritoController();
 
 carritoRoutes.get('/', autenticar, carritoController.listar);
 carritoRoutes.put(
-  '/items/:productoId',
+  '/items/:varianteId',
   autenticar,
   validar(esquemaCantidad),
   carritoController.actualizarItem,
 );
-carritoRoutes.delete('/items/:productoId', autenticar, carritoController.quitarItem);
+carritoRoutes.delete('/items/:varianteId', autenticar, carritoController.quitarItem);
 carritoRoutes.delete('/', autenticar, carritoController.vaciar);

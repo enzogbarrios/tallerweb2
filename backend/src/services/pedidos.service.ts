@@ -52,6 +52,20 @@ export class PedidosService {
       throw new ErrorApi(400, 'CARRITO_VACIO', 'Tu carrito está vacío.');
     }
 
+    const sinStock = carrito.items.find((item) => item.cantidad > item.variante.stock);
+    if (sinStock) {
+      const variante = [sinStock.variante.talle, sinStock.variante.color].filter(Boolean).join(' / ');
+      const disponible =
+        sinStock.variante.stock === 0
+          ? 'ya no tiene stock'
+          : `solo tiene ${sinStock.variante.stock} disponibles`;
+      throw new ErrorApi(
+        409,
+        'SIN_STOCK',
+        `${sinStock.producto.nombre}${variante ? ` (${variante})` : ''} ${disponible}. Ajustá tu carrito.`,
+      );
+    }
+
     const pago = this.pagos.simular(datos.tarjeta.numero);
 
     if (pago.estado === 'rechazado') {
@@ -80,6 +94,9 @@ export class PedidosService {
       direccion: datos.direccion,
       items: carrito.items.map((item) => ({
         productoId: item.producto.id,
+        varianteId: item.variante.id,
+        talle: item.variante.talle,
+        color: item.variante.color,
         nombre: item.producto.nombre,
         clasificacion: item.producto.clasificacion,
         imagen: item.producto.imagen,
@@ -154,7 +171,10 @@ export class PedidosService {
       );
     }
 
-    const actualizado = await this.pedidos.actualizarEstado(pedidoId, estado);
+    const actualizado =
+      estado === 'Cancelado'
+        ? await this.pedidos.cancelarDevolviendoStock(pedidoId)
+        : await this.pedidos.actualizarEstado(pedidoId, estado);
 
     if (!actualizado) {
       throw new ErrorApi(404, 'PEDIDO_NO_ENCONTRADO', 'El pedido no existe.');
@@ -209,6 +229,8 @@ export class PedidosService {
           imagen: item.imagen,
           precio: item.precio_unitario,
         },
+        talle: item.talle,
+        color: item.color,
         cantidad: item.cantidad,
       })),
       comprador,

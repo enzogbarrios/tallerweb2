@@ -1,12 +1,29 @@
-import type { Producto } from './producto.model.js';
+import type { Variante } from './producto.model.js';
+
+export type ProductoCarrito = {
+  id: number;
+  nombre: string;
+  descripcion: string;
+  categoria_id: number;
+  clasificacion: string;
+  precio: number;
+  imagen: string;
+  destacado: boolean;
+};
 
 export class ItemCarrito {
-  producto!: Producto;
+  producto!: ProductoCarrito;
+  variante!: Variante;
   cantidad!: number;
 }
 
-// fila que devuelve el JOIN entre carrito_items y productos
-export type ItemCarritoFila = Producto & { cantidad: number };
+export type ItemCarritoFila = ProductoCarrito & {
+  variante_id: number;
+  talle: string;
+  color: string;
+  stock: number;
+  cantidad: number;
+};
 
 export class CarritoResumen {
   items!: ItemCarrito[];

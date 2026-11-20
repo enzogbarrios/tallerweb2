@@ -50,6 +50,21 @@ const categorias: NuevaCategoria[] = [
   { nombre: 'Polos', descripcion: 'Polos de punto con cuello clásico.' },
 ];
 
+const TALLES_ROPA = ['S', 'M', 'L', 'XL'];
+const TALLES_PANTALON = ['38', '40', '42', '44'];
+
+const TALLES_POR_CATEGORIA: Record<string, string[]> = {
+  Remeras: TALLES_ROPA,
+  Sweaters: TALLES_ROPA,
+  Camisas: TALLES_ROPA,
+  Buzos: TALLES_ROPA,
+  Camperas: TALLES_ROPA,
+  Polos: TALLES_ROPA,
+  Jeans: TALLES_PANTALON,
+  Bermudas: TALLES_PANTALON,
+  Shorts: ['S', 'M', 'L'],
+};
+
 // "archivo" es el nombre de la imagen original en public/img/productos.
 const productos: ProductoSeed[] = [
   { nombre: 'Remera Ranglan Rosa', descripcion: 'Remera ranglan de algodón en color rosa, calce relajado y cuello redondo.', clasificacion: 'Remeras', precio: 70000, archivo: 'remera-ranglan-rosa.webp', destacado: true },
@@ -106,7 +121,9 @@ async function cargarDatos() {
   await rm(carpetaDestino, { recursive: true, force: true });
   await mkdir(carpetaDestino, { recursive: true });
 
-  for (const producto of productos) {
+  let variantesCargadas = 0;
+
+  for (const [indice, producto] of productos.entries()) {
     const categoriaId = idPorCategoria.get(producto.clasificacion);
     if (categoriaId === undefined) {
       throw new Error(`La categoría "${producto.clasificacion}" no está en la lista del seed`);
@@ -115,8 +132,8 @@ async function cargarDatos() {
     const nombreNuevo = nombreDeImagen(producto.nombre, extname(producto.archivo));
     await copyFile(join(carpetaOrigen, producto.archivo), join(carpetaDestino, nombreNuevo));
 
-    await query(
-      'INSERT INTO productos (nombre, descripcion, categoria_id, precio, imagen, destacado) VALUES ($1, $2, $3, $4, $5, $6)',
+    const insertado = await query<{ id: number }>(
+      'INSERT INTO productos (nombre, descripcion, categoria_id, precio, imagen, destacado) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
       [
         producto.nombre,
         producto.descripcion,
@@ -126,10 +143,22 @@ async function cargarDatos() {
         producto.destacado,
       ],
     );
+    const productoId = insertado.rows[0]?.id;
+    if (productoId === undefined) throw new Error(`No se pudo crear "${producto.nombre}"`);
+
+    const talles = TALLES_POR_CATEGORIA[producto.clasificacion] ?? [''];
+    for (const [indiceTalle, talle] of talles.entries()) {
+      const stock = talle === '' ? 8 : (indice * 5 + indiceTalle * 3) % 9;
+      await query(
+        'INSERT INTO producto_variantes (producto_id, talle, color, stock) VALUES ($1, $2, $3, $4)',
+        [productoId, talle, '', stock],
+      );
+      variantesCargadas++;
+    }
   }
 
   console.log(
-    `Seed listo: ${usuarios.length} usuarios, ${categorias.length} categorías y ${productos.length} productos.`,
+    `Seed listo: ${usuarios.length} usuarios, ${categorias.length} categorías, ${productos.length} productos y ${variantesCargadas} variantes.`,
   );
 }
 

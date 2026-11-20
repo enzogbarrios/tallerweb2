@@ -24,19 +24,29 @@ export class CarritoService {
     return this.armar(await this.carrito.listar(usuarioId));
   }
 
-  async actualizarItem(usuarioId: number, productoId: number, cantidad: number) {
-    const producto = await this.productos.buscarPorId(productoId);
+  async actualizarItem(usuarioId: number, varianteId: number, cantidad: number) {
+    const variante = await this.productos.buscarVariante(varianteId);
 
-    if (!producto) {
-      throw new ErrorApi(404, 'PRODUCTO_NO_ENCONTRADO', 'El producto no existe.');
+    if (!variante) {
+      throw new ErrorApi(404, 'VARIANTE_NO_ENCONTRADA', 'El producto no existe.');
     }
 
-    await this.carrito.guardar(usuarioId, productoId, cantidad);
+    if (variante.stock === 0) {
+      throw new ErrorApi(409, 'SIN_STOCK', 'Este producto no tiene stock.');
+    }
+
+    const cantidadActual = await this.carrito.cantidadDe(usuarioId, varianteId);
+    if (cantidad > variante.stock && cantidad > cantidadActual) {
+      const unidades = variante.stock === 1 ? 'unidad' : 'unidades';
+      throw new ErrorApi(409, 'SIN_STOCK', `Solo hay ${variante.stock} ${unidades} disponibles.`);
+    }
+
+    await this.carrito.guardar(usuarioId, variante.producto_id, varianteId, cantidad);
     return await this.obtener(usuarioId);
   }
 
-  async quitarItem(usuarioId: number, productoId: number) {
-    await this.carrito.eliminar(usuarioId, productoId);
+  async quitarItem(usuarioId: number, varianteId: number) {
+    await this.carrito.eliminar(usuarioId, varianteId);
     return await this.obtener(usuarioId);
   }
 
@@ -48,8 +58,8 @@ export class CarritoService {
   // convierte las filas del join en el resumen que usa el front
   armar(filas: ItemCarritoFila[]): CarritoResumen {
     const items = filas.map((fila) => {
-      const { cantidad, ...producto } = fila;
-      return { producto, cantidad };
+      const { cantidad, variante_id, talle, color, stock, ...producto } = fila;
+      return { producto, variante: { id: variante_id, talle, color, stock }, cantidad };
     });
 
     const cantidadTotal = items.reduce((total, item) => total + item.cantidad, 0);

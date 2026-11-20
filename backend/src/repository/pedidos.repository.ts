@@ -14,6 +14,7 @@ import type {
   FiltrosVentas,
   OrdenVentas,
 } from '../schemas/pedidos.schemas.js';
+import { ErrorApi } from '../utils/errores.js';
 import { calcularOffset } from '../utils/paginacion.js';
 
 const ZONA_HORARIA = 'America/Argentina/Buenos_Aires';
@@ -94,6 +95,9 @@ function armarFiltrosVentas(filtros: FiltrosVentas, usuarioId?: number) {
 
 export type ItemNuevoPedido = {
   productoId: number;
+  varianteId: number;
+  talle: string;
+  color: string;
   nombre: string;
   clasificacion: string;
   imagen: string;
@@ -159,13 +163,32 @@ export class PedidosRepository {
       if (!fila) throw new Error('No se pudo crear el pedido');
 
       for (const item of datos.items) {
+        const descontado = await cliente.query(
+          `UPDATE producto_variantes SET stock = stock - $1
+           WHERE id = $2 AND stock >= $1`,
+          [item.cantidad, item.varianteId],
+        );
+
+        if (descontado.rowCount === 0) {
+          const variante = [item.talle, item.color].filter(Boolean).join(' / ');
+          throw new ErrorApi(
+            409,
+            'SIN_STOCK',
+            `No hay stock suficiente de ${item.nombre}${variante ? ` (${variante})` : ''}.`,
+          );
+        }
+
         await cliente.query(
           `INSERT INTO pedido_items
-             (pedido_id, producto_id, nombre, clasificacion, imagen, precio_unitario, cantidad)
-           VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+             (pedido_id, producto_id, variante_id, talle, color, nombre, clasificacion, imagen,
+              precio_unitario, cantidad)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
           [
             fila.id,
             item.productoId,
+            item.varianteId,
+            item.talle,
+            item.color,
             item.nombre,
             item.clasificacion,
             item.imagen,
@@ -195,6 +218,28 @@ export class PedidosRepository {
       [estado, id],
     );
     return resultado.rows[0];
+  }
+
+  async cancelarDevolviendoStock(id: number) {
+    return await enTransaccion(async (cliente) => {
+      const resultado = await cliente.query(
+        `UPDATE pedidos
+         SET estado = 'Cancelado', actualizado_en = now()
+         WHERE id = $1
+         RETURNING *`,
+        [id],
+      );
+
+      await cliente.query(
+        `UPDATE producto_variantes v
+         SET stock = v.stock + pi.cantidad
+         FROM pedido_items pi
+         WHERE pi.pedido_id = $1 AND pi.variante_id = v.id`,
+        [id],
+      );
+
+      return resultado.rows[0] as Pedido | undefined;
+    });
   }
 
   async itemsDePedido(pedidoId: number) {

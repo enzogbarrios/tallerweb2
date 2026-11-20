@@ -14,16 +14,16 @@ export class CarritoController {
   };
 
   public actualizarItem = async (req: Request, res: Response) => {
-    const productoId = idNumerico(req.params.productoId);
+    const varianteId = idNumerico(req.params.varianteId);
     const { cantidad } = req.body as CantidadDto;
 
-    const carrito = await carritoService.actualizarItem(req.usuario!.id, productoId, cantidad);
+    const carrito = await carritoService.actualizarItem(req.usuario!.id, varianteId, cantidad);
     return res.json(carrito);
   };
 
   public quitarItem = async (req: Request, res: Response) => {
-    const productoId = idNumerico(req.params.productoId);
-    const carrito = await carritoService.quitarItem(req.usuario!.id, productoId);
+    const varianteId = idNumerico(req.params.varianteId);
+    const carrito = await carritoService.quitarItem(req.usuario!.id, varianteId);
     return res.json(carrito);
   };
 
