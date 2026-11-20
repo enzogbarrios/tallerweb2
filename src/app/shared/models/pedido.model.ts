@@ -124,6 +124,8 @@ export interface FiltrosVentas {
   orden: OrdenVentas;
 }
 
+export type FiltrosMisPedidos = FiltrosVentas;
+
 export interface ResumenVentas {
   cantidad: number;
   facturado: number;

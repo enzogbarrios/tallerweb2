@@ -7,6 +7,7 @@ import { CarritoService } from '../../../../api/services/carrito/carrito.service
 import { NotificacionesService } from '../../../../api/services/notificaciones/notificaciones.service';
 import { PedidosService } from '../../../../api/services/pedidos/pedidos.service';
 import { leerError } from '../../../../api/utils/leer-error';
+import { SoloNumerosDirective } from '../../../../shared/directives/solo-numeros.directive';
 import { MarcaTarjeta, PROVINCIAS } from '../../../../shared/models/pedido.model';
 import {
   detectarMarca,
@@ -33,7 +34,7 @@ function separarDireccion(direccion: string) {
 
 @Component({
   selector: 'app-checkout',
-  imports: [ReactiveFormsModule, RouterLink, CurrencyPipe],
+  imports: [ReactiveFormsModule, RouterLink, CurrencyPipe, SoloNumerosDirective],
   templateUrl: './checkout.html',
   changeDetection: ChangeDetectionStrategy.Eager,
 })
@@ -67,8 +68,8 @@ export class Checkout {
     nombre: [this.usuario?.nombre ?? '', [Validators.required, Validators.maxLength(60)]],
     apellido: [this.usuario?.apellido ?? '', [Validators.required, Validators.maxLength(60)]],
     email: [this.usuario?.email ?? '', [Validators.required, Validators.email]],
-    telefono: ['', [Validators.required, Validators.pattern(/^\+?[\d\s()-]{8,20}$/)]],
-    dni: ['', [Validators.required, Validators.pattern(/^(\d{7,8}|\d{1,2}\.\d{3}\.\d{3})$/)]],
+    telefono: ['', [Validators.required, Validators.pattern(/^\d{8,15}$/)]],
+    dni: ['', [Validators.required, Validators.pattern(/^\d{7,8}$/)]],
   });
 
   readonly formDireccion = this.fb.nonNullable.group({

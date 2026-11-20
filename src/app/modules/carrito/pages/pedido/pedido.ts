@@ -4,11 +4,12 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PedidosService } from '../../../../api/services/pedidos/pedidos.service';
 import { Pedido as PedidoModel } from '../../../../shared/models/pedido.model';
 import { ImagenFallbackDirective } from '../../../../shared/directives/imagen-fallback.directive';
+import { EstadoPedidoBadge } from '../../../../shared/components/estado-pedido/estado-pedido';
 import { NOMBRES_MARCA } from '../../../../shared/utils/tarjeta';
 
 @Component({
   selector: 'app-pedido',
-  imports: [RouterLink, CurrencyPipe, DatePipe, ImagenFallbackDirective],
+  imports: [RouterLink, CurrencyPipe, DatePipe, ImagenFallbackDirective, EstadoPedidoBadge],
   templateUrl: './pedido.html',
   changeDetection: ChangeDetectionStrategy.Eager,
 })

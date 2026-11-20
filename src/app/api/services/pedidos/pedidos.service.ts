@@ -1,9 +1,11 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { inject, Injectable, signal } from '@angular/core';
-import { Observable, tap } from 'rxjs';
+import { inject, Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { Pagina } from '../../../shared/models/pagina.model';
 import {
   DatosPedido,
   EstadoPedido,
+  FiltrosMisPedidos,
   FiltrosVentas,
   PaginaVentas,
   Pedido,
@@ -15,24 +17,30 @@ import {
 export class PedidosService {
   private readonly http = inject(HttpClient);
 
-  // pedidos del usuario logueado (Mis pedidos)
-  private readonly pedidosState = signal<Pedido[]>([]);
-
-  readonly pedidos = this.pedidosState.asReadonly();
-
   crear(datos: DatosPedido): Observable<Pedido> {
-    return this.http
-      .post<Pedido>('/api/pedidos', datos)
-      .pipe(tap((pedido) => this.pedidosState.update((pedidos) => [pedido, ...pedidos])));
+    return this.http.post<Pedido>('/api/pedidos', datos);
   }
 
-  listar(): Observable<Pedido[]> {
-    return this.http
-      .get<Pedido[]>('/api/pedidos')
-      .pipe(tap((pedidos) => this.pedidosState.set(pedidos)));
+  listar(filtros: FiltrosMisPedidos): Observable<Pagina<Pedido>> {
+    return this.http.get<Pagina<Pedido>>('/api/pedidos', { params: this.armarParams(filtros) });
   }
 
   listarTodos(filtros: FiltrosVentas): Observable<PaginaVentas> {
+    return this.http.get<PaginaVentas>('/api/pedidos/todos', {
+      params: this.armarParams(filtros),
+    });
+  }
+
+  obtener(id: number): Observable<Pedido> {
+    return this.http.get<Pedido>(`/api/pedidos/${id}`);
+  }
+
+  // solo admin. el back responde con el pedido sin comprador
+  cambiarEstado(id: number, estado: EstadoPedido): Observable<Pedido> {
+    return this.http.patch<Pedido>(`/api/pedidos/${id}/estado`, { estado });
+  }
+
+  private armarParams(filtros: FiltrosVentas): HttpParams {
     let params = new HttpParams()
       .set('pagina', filtros.pagina)
       .set('limite', filtros.limite)
@@ -43,24 +51,6 @@ export class PedidosService {
     if (filtros.desde) params = params.set('desde', filtros.desde);
     if (filtros.hasta) params = params.set('hasta', filtros.hasta);
 
-    return this.http.get<PaginaVentas>('/api/pedidos/todos', { params });
-  }
-
-  obtener(id: number): Observable<Pedido> {
-    return this.http.get<Pedido>(`/api/pedidos/${id}`);
-  }
-
-  // solo admin. el back responde con el pedido sin comprador, asi que en la
-  // lista ya cargada actualizamos solamente el estado
-  cambiarEstado(id: number, estado: EstadoPedido): Observable<Pedido> {
-    return this.http.patch<Pedido>(`/api/pedidos/${id}/estado`, { estado }).pipe(
-      tap((pedido) => {
-        this.pedidosState.update((pedidos) =>
-          pedidos.map((actual) =>
-            actual.id === id ? { ...actual, estado: pedido.estado } : actual,
-          ),
-        );
-      }),
-    );
+    return params;
   }
 }

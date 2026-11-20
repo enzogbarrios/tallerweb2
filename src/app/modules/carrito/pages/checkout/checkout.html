@@ -82,7 +82,7 @@
                       id="nombre"
                       type="text"
                       autocomplete="given-name"
-                      class="h-full w-full border border-black p-3 focus:outline-none"
+                      class="w-full border border-black p-3 focus:outline-none"
                       formControlName="nombre"
                       [class.is-invalid]="
                         formComprador.get('nombre')?.invalid && formComprador.get('nombre')?.touched
@@ -101,7 +101,7 @@
                       id="apellido"
                       type="text"
                       autocomplete="family-name"
-                      class="h-full w-full border border-black p-3 focus:outline-none"
+                      class="w-full border border-black p-3 focus:outline-none"
                       formControlName="apellido"
                       [class.is-invalid]="
                         formComprador.get('apellido')?.invalid &&
@@ -123,7 +123,7 @@
                     id="email"
                     type="email"
                     autocomplete="email"
-                    class="h-full w-full border border-black p-3 focus:outline-none"
+                    class="w-full border border-black p-3 focus:outline-none"
                     formControlName="email"
                     placeholder="nombre@mail.com"
                     [class.is-invalid]="
@@ -150,10 +150,13 @@
                     <input
                       id="telefono"
                       type="tel"
+                      inputmode="numeric"
                       autocomplete="tel"
-                      class="h-full w-full border border-black p-3 focus:outline-none"
+                      maxlength="15"
+                      appSoloNumeros
+                      class="w-full border border-black p-3 focus:outline-none"
                       formControlName="telefono"
-                      placeholder="11 2345 6789"
+                      placeholder="1123456789"
                       [class.is-invalid]="
                         formComprador.get('telefono')?.invalid &&
                         formComprador.get('telefono')?.touched
@@ -170,7 +173,7 @@
                       formComprador.get('telefono')?.hasError('pattern')
                     ) {
                       <div class="field-error">
-                        Ingresá un teléfono válido (al menos 8 dígitos).
+                        Ingresá un teléfono válido (entre 8 y 15 números).
                       </div>
                     }
                   </div>
@@ -181,7 +184,9 @@
                       id="dni"
                       type="text"
                       inputmode="numeric"
-                      class="h-full w-full border border-black p-3 focus:outline-none"
+                      maxlength="8"
+                      appSoloNumeros
+                      class="w-full border border-black p-3 focus:outline-none"
                       formControlName="dni"
                       placeholder="12345678"
                       [class.is-invalid]="
@@ -225,7 +230,7 @@
                       id="calle"
                       type="text"
                       autocomplete="address-line1"
-                      class="h-full w-full border border-black p-3 focus:outline-none"
+                      class="w-full border border-black p-3 focus:outline-none"
                       formControlName="calle"
                       placeholder="Av. Corrientes"
                       [class.is-invalid]="
@@ -244,7 +249,7 @@
                     <input
                       id="numero_calle"
                       type="text"
-                      class="h-full w-full border border-black p-3 focus:outline-none"
+                      class="w-full border border-black p-3 focus:outline-none"
                       formControlName="numero"
                       placeholder="1234"
                       [class.is-invalid]="
@@ -275,7 +280,7 @@
                       id="piso_depto"
                       type="text"
                       autocomplete="address-line2"
-                      class="h-full w-full border border-black p-3 focus:outline-none"
+                      class="w-full border border-black p-3 focus:outline-none"
                       formControlName="piso_depto"
                       placeholder="5° B"
                     />
@@ -287,7 +292,7 @@
                       id="ciudad"
                       type="text"
                       autocomplete="address-level2"
-                      class="h-full w-full border border-black p-3 focus:outline-none"
+                      class="w-full border border-black p-3 focus:outline-none"
                       formControlName="ciudad"
                       [class.is-invalid]="
                         formDireccion.get('ciudad')?.invalid && formDireccion.get('ciudad')?.touched
@@ -334,7 +339,7 @@
                       id="codigo_postal"
                       type="text"
                       autocomplete="postal-code"
-                      class="h-full w-full border border-black p-3 uppercase focus:outline-none"
+                      class="w-full border border-black p-3 uppercase focus:outline-none"
                       formControlName="codigo_postal"
                       placeholder="1425"
                       [class.is-invalid]="
@@ -409,7 +414,7 @@
                       inputmode="numeric"
                       autocomplete="cc-number"
                       maxlength="23"
-                      class="h-full w-full border border-black p-3 pr-40 focus:outline-none"
+                      class="w-full border border-black p-3 pr-40 focus:outline-none"
                       formControlName="numero"
                       placeholder="4242 4242 4242 4242"
                       (input)="onNumeroTarjeta($event)"
@@ -438,7 +443,7 @@
                     id="titular"
                     type="text"
                     autocomplete="cc-name"
-                    class="h-full w-full border border-black p-3 focus:outline-none"
+                    class="w-full border border-black p-3 focus:outline-none"
                     formControlName="titular"
                     placeholder="Como figura en la tarjeta"
                     [class.is-invalid]="
@@ -461,7 +466,7 @@
                       inputmode="numeric"
                       autocomplete="cc-exp"
                       maxlength="5"
-                      class="h-full w-full border border-black p-3 focus:outline-none"
+                      class="w-full border border-black p-3 focus:outline-none"
                       formControlName="vencimiento"
                       placeholder="MM/AA"
                       (input)="onVencimiento($event)"
@@ -486,7 +491,7 @@
                       inputmode="numeric"
                       autocomplete="cc-csc"
                       maxlength="4"
-                      class="h-full w-full border border-black p-3 focus:outline-none"
+                      class="w-full border border-black p-3 focus:outline-none"
                       formControlName="cvv"
                       [placeholder]="marca() === 'amex' ? '1234' : '123'"
                       [class.is-invalid]="
