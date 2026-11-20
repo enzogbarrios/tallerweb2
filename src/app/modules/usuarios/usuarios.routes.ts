@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { RecoverPassword } from './pages/recover-password/recover-password';
+import { ResetPassword } from './pages/reset-password/reset-password';
 import { Signin } from './pages/signin/signin';
 import { Signup } from './pages/signup/signup';
 
@@ -15,6 +16,10 @@ export const usuariosRoutes: Routes = [
   {
     path: 'recuperar',
     component: RecoverPassword,
+  },
+  {
+    path: 'restablecer',
+    component: ResetPassword,
   },
   {
     path: '',

@@ -49,6 +49,18 @@ export class AuthService {
       .pipe(map((respuesta) => respuesta.mensaje));
   }
 
+  validarTokenRecuperacion(token: string): Observable<void> {
+    return this.http
+      .get<{ valido: boolean }>(`/api/auth/restablecer/${encodeURIComponent(token)}`)
+      .pipe(map(() => undefined));
+  }
+
+  restablecerPassword(token: string, password: string): Observable<string> {
+    return this.http
+      .post<{ mensaje: string }>('/api/auth/restablecer', { token, password })
+      .pipe(map((respuesta) => respuesta.mensaje));
+  }
+
   // Se llama una vez al arrancar la app: si hay un token guardado, le pide el usuario al servidor.
   restaurarSesion(): Observable<unknown> {
     if (!this.obtenerToken()) {
