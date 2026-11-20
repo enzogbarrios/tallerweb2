@@ -2,10 +2,15 @@ import type { Request, Response } from 'express';
 import { CarritoRepository } from '../repository/carrito.repository.js';
 import { PedidosRepository } from '../repository/pedidos.repository.js';
 import { ProductosRepository } from '../repository/productos.repository.js';
-import type { EstadoPedidoDto, PedidoDto } from '../schemas/pedidos.schemas.js';
+import {
+  esquemaFiltrosVentas,
+  type EstadoPedidoDto,
+  type PedidoDto,
+} from '../schemas/pedidos.schemas.js';
 import { CarritoService } from '../services/carrito.service.js';
 import { PagosService } from '../services/pagos.service.js';
 import { PedidosService } from '../services/pedidos.service.js';
+import { leerQuery } from '../utils/paginacion.js';
 import { idNumerico } from '../utils/validarId.js';
 
 const carritoService = new CarritoService(new CarritoRepository(), new ProductosRepository());
@@ -27,8 +32,9 @@ export class PedidosController {
     return res.json(pedidos);
   };
 
-  public listarTodos = async (_req: Request, res: Response) => {
-    return res.json(await pedidosService.listarTodos());
+  public listarTodos = async (req: Request, res: Response) => {
+    const filtros = leerQuery(esquemaFiltrosVentas, req.query);
+    return res.json(await pedidosService.listarTodos(filtros));
   };
 
   public obtener = async (req: Request, res: Response) => {

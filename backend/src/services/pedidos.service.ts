@@ -7,7 +7,9 @@ import type {
 } from '../models/pedido.model.js';
 import type { Rol } from '../models/usuario.model.js';
 import type { PedidosRepository } from '../repository/pedidos.repository.js';
+import type { FiltrosVentas } from '../schemas/pedidos.schemas.js';
 import { ErrorApi } from '../utils/errores.js';
+import { armarPagina } from '../utils/paginacion.js';
 import type { CarritoService } from './carrito.service.js';
 import type { PagosService } from './pagos.service.js';
 
@@ -99,14 +101,22 @@ export class PedidosService {
     return pedidos.map((pedido) => this.armar(pedido, itemsPorPedido.get(pedido.id) ?? []));
   }
 
-  async listarTodos() {
-    const filas = await this.pedidos.listarTodos();
+  async listarTodos(filtros: FiltrosVentas) {
+    const [filas, resumen] = await Promise.all([
+      this.pedidos.listarTodos(filtros),
+      this.pedidos.resumenVentas(filtros),
+    ]);
     const items = await this.pedidos.itemsDePedidos(filas.map((fila) => fila.pedido.id));
     const itemsPorPedido = this.agruparItems(items);
 
-    return filas.map((fila) =>
+    const ventas = filas.map((fila) =>
       this.armar(fila.pedido, itemsPorPedido.get(fila.pedido.id) ?? [], fila.comprador),
     );
+
+    return {
+      ...armarPagina(ventas, resumen.total, filtros.pagina, filtros.limite),
+      resumen: { cantidad: resumen.cantidad, facturado: resumen.facturado },
+    };
   }
 
   async cambiarEstado(pedidoId: number, estado: EstadoPedido) {

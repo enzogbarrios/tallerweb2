@@ -1,7 +1,16 @@
+import { Pagina } from './pagina.model';
 import { Clasificacion } from './producto.model';
 import { Usuario } from './usuario.model';
 
-export type EstadoPedido = 'Confirmado' | 'En preparación' | 'Enviado' | 'Entregado' | 'Cancelado';
+export const ESTADOS_PEDIDO = [
+  'Confirmado',
+  'En preparación',
+  'Enviado',
+  'Entregado',
+  'Cancelado',
+] as const;
+
+export type EstadoPedido = (typeof ESTADOS_PEDIDO)[number];
 
 export type EstadoPago = 'pendiente' | 'aprobado' | 'rechazado';
 
@@ -43,4 +52,27 @@ export interface TarjetaPago {
 export interface DatosPedido {
   direccion_envio: string;
   tarjeta: TarjetaPago;
+}
+
+export const ORDENES_VENTAS = ['recientes', 'antiguos', 'total_desc', 'total_asc'] as const;
+
+export type OrdenVentas = (typeof ORDENES_VENTAS)[number];
+
+export interface FiltrosVentas {
+  pagina: number;
+  limite: number;
+  estado: EstadoPedido | null;
+  q: string;
+  desde: string;
+  hasta: string;
+  orden: OrdenVentas;
+}
+
+export interface ResumenVentas {
+  cantidad: number;
+  facturado: number;
+}
+
+export interface PaginaVentas extends Pagina<Pedido> {
+  resumen: ResumenVentas;
 }

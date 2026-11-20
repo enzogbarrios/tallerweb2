@@ -11,8 +11,9 @@
       <div>
         <h1 class="mt-2 text-black uppercase">Ventas</h1>
         <p class="text-sm text-muted">
-          {{ ventas().length }}
-          {{ ventas().length === 1 ? 'venta registrada' : 'ventas registradas' }}
+          {{ resumen().cantidad }}
+          {{ resumen().cantidad === 1 ? 'venta' : 'ventas' }}
+          {{ hayFiltros() ? 'con estos filtros' : 'registradas' }} (sin contar canceladas)
         </p>
       </div>
       <div class="text-right">
@@ -20,12 +21,165 @@
           >Total facturado</span
         >
         <span class="text-[1.4rem] text-brand">
-          {{ totalFacturado() | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}
+          {{ resumen().facturado | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}
         </span>
       </div>
     </div>
 
-    @if (ventas().length === 0) {
+    <div class="mb-4 flex flex-wrap items-center justify-between gap-4">
+      <div
+        class="flex flex-[1_1_300px] items-center gap-[0.6rem] border border-gray-300 bg-white px-[0.85rem] py-[0.65rem] focus-within:border-brand"
+      >
+        <i class="bi bi-search text-muted"></i>
+        <input
+          class="w-full bg-transparent text-[0.9rem] text-ink outline-none"
+          type="search"
+          placeholder="Buscar por n° de pedido, nombre o email del comprador..."
+          aria-label="Buscar ventas"
+          [value]="textoBusqueda()"
+          (input)="buscar($event)"
+        />
+      </div>
+
+      <div class="flex flex-wrap gap-[0.4rem]">
+        @for (estado of estados; track estado) {
+          <button
+            type="button"
+            class="cursor-pointer border px-[0.8rem] py-[0.45rem] text-[0.78rem] uppercase transition-colors"
+            [class]="
+              (estadoActivo() ?? 'Todos') === estado
+                ? 'border-brand bg-brand text-white'
+                : 'border-gray-300 bg-white text-muted hover:border-brand hover:text-brand'
+            "
+            (click)="filtrarEstado(estado)"
+          >
+            {{ estado }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <div class="mb-5 flex flex-wrap items-end gap-4">
+      <div>
+        <label
+          class="mb-1 block text-[0.72rem] tracking-[0.06em] text-muted uppercase"
+          for="ventas-desde"
+          >Desde</label
+        >
+        <input
+          id="ventas-desde"
+          type="date"
+          class="border border-gray-300 bg-white px-[0.85rem] py-[0.55rem] text-[0.85rem] text-ink outline-none focus:border-brand"
+          [value]="desde()"
+          [max]="hasta() || null"
+          (change)="cambiarDesde($event)"
+        />
+      </div>
+      <div>
+        <label
+          class="mb-1 block text-[0.72rem] tracking-[0.06em] text-muted uppercase"
+          for="ventas-hasta"
+          >Hasta</label
+        >
+        <input
+          id="ventas-hasta"
+          type="date"
+          class="border border-gray-300 bg-white px-[0.85rem] py-[0.55rem] text-[0.85rem] text-ink outline-none focus:border-brand"
+          [value]="hasta()"
+          [min]="desde() || null"
+          (change)="cambiarHasta($event)"
+        />
+      </div>
+      <div>
+        <label
+          class="mb-1 block text-[0.72rem] tracking-[0.06em] text-muted uppercase"
+          for="ventas-orden"
+          >Ordenar por</label
+        >
+        <select
+          id="ventas-orden"
+          class="border border-gray-300 bg-white px-[0.85rem] py-[0.6rem] text-[0.85rem] text-ink outline-none focus:border-brand"
+          (change)="cambiarOrden($event)"
+        >
+          @for (opcion of ordenes; track opcion.valor) {
+            <option [value]="opcion.valor" [selected]="opcion.valor === orden()">
+              {{ opcion.texto }}
+            </option>
+          }
+        </select>
+      </div>
+      <div>
+        <label
+          class="mb-1 block text-[0.72rem] tracking-[0.06em] text-muted uppercase"
+          for="ventas-limite"
+          >Por página</label
+        >
+        <select
+          id="ventas-limite"
+          class="border border-gray-300 bg-white px-[0.85rem] py-[0.6rem] text-[0.85rem] text-ink outline-none focus:border-brand"
+          (change)="cambiarLimite($event)"
+        >
+          @for (opcion of limites; track opcion) {
+            <option [value]="opcion" [selected]="opcion === limite()">{{ opcion }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <div class="mb-6 flex flex-wrap items-center justify-between gap-2">
+      <span class="text-[0.85rem] text-muted">
+        @if (cargando()) {
+          Cargando ventas…
+        } @else if (total() > 0) {
+          Mostrando {{ desdeItem() }}–{{ hastaItem() }} de {{ total() }}
+          {{ total() === 1 ? 'pedido' : 'pedidos' }}
+        } @else {
+          0 pedidos encontrados
+        }
+      </span>
+
+      @if (hayFiltros()) {
+        <button
+          type="button"
+          class="inline-flex cursor-pointer items-center gap-[0.35rem] text-[0.82rem] font-semibold text-ink hover:text-brand"
+          (click)="limpiarFiltros()"
+        >
+          <i class="bi bi-x-circle"></i> Limpiar filtros
+        </button>
+      }
+    </div>
+
+    @if (error(); as mensaje) {
+      <div class="border border-dashed border-gray-300 px-8 py-14 text-center">
+        <i class="bi bi-exclamation-triangle mb-4 block text-[2.2rem] text-brand"></i>
+        <h2 class="mb-2 text-[1.3rem] text-black uppercase">No pudimos cargar las ventas</h2>
+        <p class="mx-auto mb-6 max-w-[430px] text-muted">{{ mensaje }}</p>
+        <button
+          type="button"
+          class="inline-flex cursor-pointer items-center justify-center gap-2 bg-brand px-6 py-3 text-[0.9rem] text-white uppercase transition-colors hover:bg-brand/70"
+          (click)="reintentar()"
+        >
+          Reintentar
+        </button>
+      </div>
+    } @else if (!resultado()) {
+      <p class="py-14 text-center text-muted">Cargando ventas…</p>
+    } @else if (ventas().length === 0 && hayFiltros()) {
+      <div class="border border-dashed border-gray-300 px-8 py-14 text-center">
+        <i class="bi bi-search mb-4 block text-[2.2rem] text-brand"></i>
+        <h2 class="mb-2 text-[1.3rem] text-black uppercase">No encontramos ventas</h2>
+        <p class="mx-auto mb-6 max-w-[430px] text-muted">
+          Probá con otra búsqueda o quitá los filtros para ver todas las ventas.
+        </p>
+        <button
+          type="button"
+          class="inline-flex cursor-pointer items-center justify-center gap-2 bg-brand px-6 py-3 text-[0.9rem] text-white uppercase transition-colors hover:bg-brand/70"
+          (click)="limpiarFiltros()"
+        >
+          Ver todas las ventas
+        </button>
+      </div>
+    } @else if (ventas().length === 0) {
       <div class="border border-dashed border-gray-300 px-8 py-14 text-center">
         <i class="bi bi-receipt mb-4 block text-[2.2rem] text-brand"></i>
         <h2 class="mb-2 text-[1.3rem] text-black uppercase">Todavía no hay ventas</h2>
@@ -34,7 +188,10 @@
         </p>
       </div>
     } @else {
-      <div class="overflow-x-auto border-t border-gray-200">
+      <div
+        class="overflow-x-auto border-t border-gray-200 transition-opacity"
+        [class.opacity-50]="cargando()"
+      >
         <table class="w-full min-w-[980px] border-collapse text-left">
           <thead>
             <tr class="text-[0.72rem] tracking-[0.06em] text-muted uppercase">
@@ -166,6 +323,52 @@
           </tbody>
         </table>
       </div>
+
+      @if (paginas() > 1) {
+        <nav
+          class="mt-6 flex flex-wrap items-center justify-center gap-[0.4rem]"
+          aria-label="Paginación de ventas"
+        >
+          <button
+            type="button"
+            class="inline-flex cursor-pointer items-center gap-1 border border-gray-300 bg-white px-[0.8rem] py-[0.45rem] text-[0.78rem] text-muted uppercase transition-colors hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-gray-300 disabled:hover:text-muted"
+            [disabled]="pagina() === 1 || cargando()"
+            (click)="irAPagina(pagina() - 1)"
+          >
+            <i class="bi bi-chevron-left"></i> Anterior
+          </button>
+
+          @for (numero of numerosPagina(); track $index) {
+            @if (numero === null) {
+              <span class="px-1 text-muted">…</span>
+            } @else {
+              <button
+                type="button"
+                class="min-w-9 cursor-pointer border px-[0.6rem] py-[0.45rem] text-[0.78rem] transition-colors"
+                [class]="
+                  numero === pagina()
+                    ? 'border-brand bg-brand text-white'
+                    : 'border-gray-300 bg-white text-muted hover:border-brand hover:text-brand'
+                "
+                [attr.aria-current]="numero === pagina() ? 'page' : null"
+                [disabled]="cargando()"
+                (click)="irAPagina(numero)"
+              >
+                {{ numero }}
+              </button>
+            }
+          }
+
+          <button
+            type="button"
+            class="inline-flex cursor-pointer items-center gap-1 border border-gray-300 bg-white px-[0.8rem] py-[0.45rem] text-[0.78rem] text-muted uppercase transition-colors hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-gray-300 disabled:hover:text-muted"
+            [disabled]="pagina() === paginas() || cargando()"
+            (click)="irAPagina(pagina() + 1)"
+          >
+            Siguiente <i class="bi bi-chevron-right"></i>
+          </button>
+        </nav>
+      }
     }
   </div>
 </section>
