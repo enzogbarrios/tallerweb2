@@ -1,5 +1,4 @@
-// Arma la aplicación Express: middlewares y rutas. No arranca el servidor (eso lo hace server.ts).
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
 import express from 'express';
 import helmet from 'helmet';
 import { query } from './db/pool.js';
@@ -9,6 +8,7 @@ import { carritoRoutes } from './routes/carrito.routes.js';
 import { categoriasRoutes } from './routes/categorias.routes.js';
 import { pedidosRoutes } from './routes/pedidos.routes.js';
 import { productosRoutes } from './routes/productos.routes.js';
+import { RAIZ_BACKEND } from './utils/rutas.js';
 
 export const app = express();
 
@@ -26,7 +26,7 @@ app.get('/api/health', async (_req, res) => {
 });
 
 // Las imágenes de productos se sirven como archivos estáticos: /uploads/productos/xxx.webp
-app.use('/uploads', express.static(fileURLToPath(new URL('../uploads', import.meta.url))));
+app.use('/uploads', express.static(join(RAIZ_BACKEND, 'uploads')));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/carrito', carritoRoutes);

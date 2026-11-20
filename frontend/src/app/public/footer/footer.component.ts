@@ -12,6 +12,6 @@ export class FooterComponent {
   private readonly notificaciones = inject(NotificacionesService);
 
   suscribirse(): void {
-    this.notificaciones.mostrar('¡Gracias por suscribirte al newsletter de Nébula!');
+    this.notificaciones.mostrar('¡Gracias por suscribirte al newsletter de Shaka!');
   }
 }

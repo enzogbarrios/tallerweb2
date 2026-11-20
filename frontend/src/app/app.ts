@@ -1,4 +1,4 @@
-import { Component, signal, ChangeDetectionStrategy, inject, DestroyRef } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter, map, pairwise, startWith } from 'rxjs';
@@ -18,8 +18,6 @@ function rutaSinQuery(url: string): string {
   styleUrl: './app.css',
 })
 export class App {
-  protected readonly title = signal('Nébula Store');
-
   constructor() {
     const router = inject(Router);
 

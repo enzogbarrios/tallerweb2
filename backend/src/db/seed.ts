@@ -7,12 +7,12 @@ import bcrypt from 'bcryptjs';
 import type { NuevaCategoria } from '../models/categoria.model.js';
 import type { Rol } from '../models/usuario.model.js';
 import { nombreDeImagen } from '../utils/imagenes.js';
+import { RAIZ_BACKEND } from '../utils/rutas.js';
 import { pool, query } from './pool.js';
 
-// Las rutas se resuelven desde backend/ (process.cwd()), igual con tsx que con la build.
 // Las imágenes originales están en el front; las copiamos al backend.
-const carpetaOrigen = join(process.cwd(), '..', 'frontend', 'public', 'img', 'productos');
-const carpetaDestino = join(process.cwd(), 'uploads', 'productos');
+const carpetaOrigen = join(RAIZ_BACKEND, '..', 'frontend', 'public', 'img', 'productos');
+const carpetaDestino = join(RAIZ_BACKEND, 'uploads', 'productos');
 
 type UsuarioSeed = {
   email: string;

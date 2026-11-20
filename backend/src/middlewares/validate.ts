@@ -11,10 +11,9 @@ export function validar(esquema: ZodType) {
     if (!resultado.success) {
       const campos: Record<string, string> = {};
       for (const problema of resultado.error.issues) {
-        const campo = problema.path[0];
-        // Nos quedamos con el primer mensaje de cada campo.
-        if (campo === undefined) continue;
-        const clave = String(campo);
+        // Los campos anidados se mandan como "comprador.email" o "tarjeta.cvv".
+        if (problema.path.length === 0) continue;
+        const clave = problema.path.map(String).join('.');
         if (!campos[clave]) campos[clave] = problema.message;
       }
       throw new ErrorApi(400, 'DATOS_INVALIDOS', 'Hay datos incorrectos.', campos);

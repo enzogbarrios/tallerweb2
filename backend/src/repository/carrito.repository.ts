@@ -19,14 +19,6 @@ export class CarritoRepository {
     return resultado.rows;
   }
 
-  async cantidadDe(usuarioId: number, varianteId: number) {
-    const resultado = await query<{ cantidad: number }>(
-      'SELECT cantidad FROM carrito_items WHERE usuario_id = $1 AND variante_id = $2',
-      [usuarioId, varianteId],
-    );
-    return resultado.rows[0]?.cantidad ?? 0;
-  }
-
   async guardar(usuarioId: number, productoId: number, varianteId: number, cantidad: number) {
     await query(
       `INSERT INTO carrito_items (usuario_id, producto_id, variante_id, cantidad)

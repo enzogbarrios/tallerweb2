@@ -130,7 +130,7 @@ export type ItemPedidoApi = {
 
 export type PedidoApi = {
   id: number;
-  fecha: Date;
+  fecha: string;
   direccion_envio: string;
   subtotal: number;
   envio: number;

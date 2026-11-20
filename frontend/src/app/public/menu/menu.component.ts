@@ -5,10 +5,11 @@ import { filter } from 'rxjs';
 import { AuthService } from '../../api/services/auth/auth.service';
 import { CarritoService } from '../../api/services/carrito/carrito.service';
 import { NotificacionesService } from '../../api/services/notificaciones/notificaciones.service';
+import { ImagenFallbackDirective } from '../../shared/directives/imagen-fallback.directive';
 
 @Component({
   selector: 'app-menu',
-  imports: [RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive, ImagenFallbackDirective],
   templateUrl: './menu.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   host: { '(document:click)': 'cerrarDropdownSiClickAfuera($event)' },

@@ -21,6 +21,12 @@ export function errorHandler(error: unknown, _req: Request, res: Response, _next
     return;
   }
 
+  // Body mas grande del limite de express.json (100kb).
+  if (typeof error === 'object' && error !== null && 'type' in error && error.type === 'entity.too.large') {
+    res.status(413).json({ error: { codigo: 'SOLICITUD_GRANDE', mensaje: 'El cuerpo de la solicitud es demasiado grande.' } });
+    return;
+  }
+
   // Cualquier otro error es nuestro: lo mostramos en consola y no filtramos detalles al cliente.
   console.error(error);
   res.status(500).json({ error: { codigo: 'ERROR_INTERNO', mensaje: 'Ocurrió un error en el servidor.' } });

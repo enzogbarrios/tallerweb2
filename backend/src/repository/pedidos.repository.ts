@@ -135,26 +135,33 @@ export class PedidosRepository {
     return resultado.rows[0];
   }
 
-  async actualizarEstado(id: number, estado: EstadoPedido) {
+  async actualizarEstado(id: number, estado: EstadoPedido, estadoEsperado: EstadoPedido) {
     const resultado = await query<Pedido>(
       `UPDATE pedidos
        SET estado = $1, actualizado_en = now()
-       WHERE id = $2
+       WHERE id = $2 AND estado = $3
        RETURNING *`,
-      [estado, id],
+      [estado, id, estadoEsperado],
     );
     return resultado.rows[0];
   }
 
-  async cancelarDevolviendoStock(id: number) {
+  async cancelarDevolviendoStock(id: number, estadoEsperado: EstadoPedido) {
     return await enTransaccion(async (cliente) => {
-      const resultado = await cliente.query(
+      // La propia UPDATE toma el lock y vuelve a chequear el estado: si otro
+      // request ya lo cambio, no afecta filas y no se toca el stock.
+      const resultado = await cliente.query<Pedido>(
         `UPDATE pedidos
          SET estado = 'Cancelado', actualizado_en = now()
-         WHERE id = $1
+         WHERE id = $1 AND estado = $2
          RETURNING *`,
-        [id],
+        [id, estadoEsperado],
       );
+
+      const pedido = resultado.rows[0];
+      if (!pedido) {
+        return undefined;
+      }
 
       await cliente.query(
         `UPDATE producto_variantes v
@@ -164,7 +171,7 @@ export class PedidosRepository {
         [id],
       );
 
-      return resultado.rows[0] as Pedido | undefined;
+      return pedido;
     });
   }
 

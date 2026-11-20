@@ -1,13 +1,17 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable, signal } from '@angular/core';
+import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { catchError, Observable, of, tap } from 'rxjs';
 import { DatosPedido, EstadoPedido, Pedido } from '../../../shared/models/pedido.model';
+import { AuthService } from '../auth/auth.service';
+import { ProductosService } from '../productos/productos.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PedidosService {
   private readonly http = inject(HttpClient);
+  private readonly auth = inject(AuthService);
+  private readonly productos = inject(ProductosService);
 
   private readonly pedidosState = signal<Pedido[]>([]);
   private readonly cargadosPara = signal<number | null>(null);
@@ -15,12 +19,39 @@ export class PedidosService {
   private readonly ventasState = signal<Pedido[]>([]);
   private readonly ventasCargadasPara = signal<number | null>(null);
 
-  readonly pedidos = this.pedidosState.asReadonly();
-  readonly ventas = this.ventasState.asReadonly();
+  private readonly sesionCache = signal<number | null>(null);
+
+  // Ademas de limpiar la cache al cambiar de sesion, mostramos [] mientras el id
+  // cacheado no coincide con el del usuario actual: asi nunca se ven pedidos ajenos.
+  readonly pedidos = computed(() =>
+    this.cargadosPara() === (this.auth.usuarioActual()?.id ?? null) ? this.pedidosState() : [],
+  );
+  readonly ventas = computed(() =>
+    this.ventasCargadasPara() === (this.auth.usuarioActual()?.id ?? null) ? this.ventasState() : [],
+  );
+
+  constructor() {
+    // Al iniciar, cerrar o cambiar de sesion se descarta todo lo cacheado.
+    effect(() => {
+      const usuarioId = this.auth.usuarioActual()?.id ?? null;
+      if (this.sesionCache() === usuarioId) {
+        return;
+      }
+      this.sesionCache.set(usuarioId);
+      this.pedidosState.set([]);
+      this.ventasState.set([]);
+      this.cargadosPara.set(null);
+      this.ventasCargadasPara.set(null);
+    });
+  }
 
   crear(datos: DatosPedido): Observable<Pedido> {
     return this.http.post<Pedido>('/api/pedidos', datos).pipe(
-      tap((pedido) => this.pedidosState.update((pedidos) => [pedido, ...pedidos])),
+      tap((pedido) => {
+        this.pedidosState.update((pedidos) => [pedido, ...pedidos]);
+        // El listado de ventas se recarga al abrir Ventas: asi trae el comprador.
+        this.ventasCargadasPara.set(null);
+      }),
     );
   }
 
@@ -75,6 +106,11 @@ export class PedidosService {
             venta.id === id ? { ...venta, ...actualizado, comprador: venta.comprador } : venta,
           ),
         );
+
+        if (estado === 'Cancelado') {
+          // El back devuelve el stock: refrescamos el catálogo para que no quede viejo.
+          this.productos.cargar().subscribe();
+        }
       }),
     );
   }

@@ -1,5 +1,3 @@
-// Los esquemas de zod viven acá y no en el controller: así el controller
-// solo se ocupa de HTTP y los tipos se reutilizan en services y routes.
 import { z } from 'zod';
 
 const password = z

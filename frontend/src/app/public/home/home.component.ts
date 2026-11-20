@@ -5,7 +5,6 @@ import { CarritoService } from '../../api/services/carrito/carrito.service';
 import { NotificacionesService } from '../../api/services/notificaciones/notificaciones.service';
 import { ProductosService } from '../../api/services/productos/productos.service';
 import { ProductoCard } from '../../modules/productos/components/producto-card/producto-card';
-import { ImagenFallbackDirective } from '../../shared/directives/imagen-fallback.directive';
 import { Producto } from '../../shared/models/producto.model';
 import { agregarAlCarrito as agregarProductoAlCarrito } from '../../shared/utils/agregar-al-carrito';
 

@@ -160,13 +160,19 @@ export class PedidosService {
       );
     }
 
+    // El estado leido arriba se pasa a la UPDATE: si otro cambio gano la carrera,
+    // la condicion no se cumple y no se devuelve el stock dos veces.
     const actualizado =
       estado === 'Cancelado'
-        ? await this.pedidos.cancelarDevolviendoStock(pedidoId)
-        : await this.pedidos.actualizarEstado(pedidoId, estado);
+        ? await this.pedidos.cancelarDevolviendoStock(pedidoId, pedido.estado)
+        : await this.pedidos.actualizarEstado(pedidoId, estado, pedido.estado);
 
     if (!actualizado) {
-      throw new ErrorApi(404, 'PEDIDO_NO_ENCONTRADO', 'El pedido no existe.');
+      throw new ErrorApi(
+        409,
+        'ESTADO_INVALIDO',
+        `El pedido ya no está "${pedido.estado}" y no se pudo actualizar.`,
+      );
     }
 
     const items = await this.pedidos.itemsDePedido(pedidoId);
@@ -203,7 +209,7 @@ export class PedidosService {
   ): PedidoApi {
     return {
       id: pedido.id,
-      fecha: pedido.creado_en,
+      fecha: pedido.creado_en.toISOString(),
       direccion_envio: pedido.direccion_envio,
       subtotal: pedido.subtotal,
       envio: pedido.envio,

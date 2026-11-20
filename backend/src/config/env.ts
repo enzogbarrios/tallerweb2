@@ -1,5 +1,3 @@
-// Lee las variables del archivo .env y las deja tipadas para el resto del backend.
-// Si falta alguna variable obligatoria, el servidor no arranca y avisa cuál es.
 import 'dotenv/config';
 import env from 'env-var';
 

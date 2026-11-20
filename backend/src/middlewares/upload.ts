@@ -27,11 +27,11 @@ export function recibirImagen(req: Request, res: Response, next: NextFunction): 
     }
 
     if (error instanceof multer.MulterError) {
-      const mensaje =
-        error.code === 'LIMIT_FILE_SIZE'
-          ? 'La imagen no puede superar los 2 MB.'
-          : 'No se pudo subir la imagen.';
-      next(new ErrorApi(400, 'ARCHIVO_INVALIDO', mensaje));
+      if (error.code === 'LIMIT_FILE_SIZE') {
+        next(new ErrorApi(413, 'ARCHIVO_GRANDE', 'La imagen no puede superar los 2 MB.'));
+        return;
+      }
+      next(new ErrorApi(400, 'ARCHIVO_INVALIDO', 'No se pudo subir la imagen.'));
       return;
     }
 

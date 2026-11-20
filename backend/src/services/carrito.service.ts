@@ -35,8 +35,7 @@ export class CarritoService {
       throw new ErrorApi(409, 'SIN_STOCK', 'Este producto no tiene stock.');
     }
 
-    const cantidadActual = await this.carrito.cantidadDe(usuarioId, varianteId);
-    if (cantidad > variante.stock && cantidad > cantidadActual) {
+    if (cantidad > variante.stock) {
       const unidades = variante.stock === 1 ? 'unidad' : 'unidades';
       throw new ErrorApi(409, 'SIN_STOCK', `Solo hay ${variante.stock} ${unidades} disponibles.`);
     }

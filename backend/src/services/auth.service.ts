@@ -1,5 +1,3 @@
-// Lógica de negocio de autenticación: hashear contraseñas, validar credenciales
-// y emitir el token. El controller solo traduce eso a una respuesta HTTP.
 import { createHash, randomBytes } from 'node:crypto';
 import bcrypt from 'bcryptjs';
 import { config } from '../config/env.js';

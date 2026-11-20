@@ -1,12 +1,22 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
-import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { catchError, distinctUntilChanged, map, of, switchMap } from 'rxjs';
 import { PedidosService } from '../../../../api/services/pedidos/pedidos.service';
-import { Pedido as PedidoModel } from '../../../../shared/models/pedido.model';
-import { ImagenFallbackDirective } from '../../../../shared/directives/imagen-fallback.directive';
+import { leerError } from '../../../../api/utils/leer-error';
 import { EstadoPedidoBadge } from '../../../../shared/components/estado-pedido/estado-pedido';
-import { NOMBRES_MARCA } from '../../../../shared/utils/tarjeta';
+import { ImagenFallbackDirective } from '../../../../shared/directives/imagen-fallback.directive';
+import { Pedido as PedidoModel } from '../../../../shared/models/pedido.model';
 import { nombreVariante } from '../../../../shared/models/producto.model';
+import { NOMBRES_MARCA } from '../../../../shared/utils/tarjeta';
 
 @Component({
   selector: 'app-pedido',
@@ -18,17 +28,46 @@ export class Pedido implements OnInit {
   readonly nombreVariante = nombreVariante;
 
   private readonly route = inject(ActivatedRoute);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly pedidosService = inject(PedidosService);
 
   readonly pedido = signal<PedidoModel | undefined>(undefined);
+  readonly cargando = signal(true);
+  readonly error = signal<string | null>(null);
   readonly nombresMarca = NOMBRES_MARCA;
 
   ngOnInit(): void {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
+    this.route.paramMap
+      .pipe(
+        map((params) => Number(params.get('id'))),
+        distinctUntilChanged(),
+        switchMap((id) => {
+          this.pedido.set(undefined);
+          this.error.set(null);
 
-    // se pide a la api para que el detalle siga estando despues de recargar la pagina
-    this.pedidosService.obtener(id).subscribe({
-      next: (pedido) => this.pedido.set(pedido),
-    });
+          if (!Number.isInteger(id) || id <= 0) {
+            this.cargando.set(false);
+            return of(undefined);
+          }
+
+          this.cargando.set(true);
+          // se pide a la api para que el detalle siga estando despues de recargar la pagina
+          return this.pedidosService.obtener(id).pipe(
+            catchError((error) => {
+              this.cargando.set(false);
+              const { codigo, mensaje } = leerError(error);
+              if (codigo !== 'PEDIDO_NO_ENCONTRADO' && codigo !== 'ID_INVALIDO') {
+                this.error.set(mensaje);
+              }
+              return of(undefined);
+            }),
+          );
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((pedido) => {
+        this.pedido.set(pedido);
+        this.cargando.set(false);
+      });
   }
 }

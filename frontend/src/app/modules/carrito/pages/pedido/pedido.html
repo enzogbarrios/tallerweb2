@@ -200,6 +200,20 @@
       </div>
     </div>
   </section>
+} @else if (cargando()) {
+  <section class="bg-white py-8 lg:py-12 lg:min-h-[40rem]">
+    <p class="py-14 text-center text-muted">Cargando pedido…</p>
+  </section>
+} @else if (error(); as mensaje) {
+  <section class="bg-white py-8 lg:py-12 lg:min-h-[40rem]">
+    <div class="mx-4 sm:mx-10">
+      <div class="border border-dashed border-gray-300 px-8 py-14 text-center">
+        <i class="bi bi-exclamation-triangle mb-4 block text-[2.2rem] text-brand"></i>
+        <h2 class="mb-2 text-[1.3rem] text-black uppercase">No pudimos cargar el pedido</h2>
+        <p class="mx-auto max-w-[430px] text-muted">{{ mensaje }}</p>
+      </div>
+    </div>
+  </section>
 } @else {
   <section class="bg-white py-8 lg:py-12 lg:min-h-[40rem]">
     <div class="mx-4 sm:mx-10">

@@ -2,10 +2,10 @@
 // Se usa con: npm run migrate
 import { readdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { RAIZ_BACKEND } from '../utils/rutas.js';
 import { pool, query } from './pool.js';
 
-// Se resuelve desde backend/ (process.cwd()), así funciona tanto con tsx como con la build en dist/.
-const carpeta = join(process.cwd(), 'src', 'db', 'migrations');
+const carpeta = join(RAIZ_BACKEND, 'src', 'db', 'migrations');
 
 async function migrar() {
   // Tabla donde anotamos qué migraciones ya se aplicaron.

@@ -4,8 +4,9 @@ import { randomBytes } from 'node:crypto';
 import { mkdir, unlink, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { ErrorApi } from './errores.js';
+import { RAIZ_BACKEND } from './rutas.js';
 
-const CARPETA = join(process.cwd(), 'uploads', 'productos');
+const CARPETA = join(RAIZ_BACKEND, 'uploads', 'productos');
 
 const EXTENSIONES: Record<string, string> = {
   'image/jpeg': '.jpg',
@@ -59,7 +60,7 @@ export async function borrarImagen(ruta: string): Promise<void> {
   }
 
   try {
-    await unlink(join(process.cwd(), ruta));
+    await unlink(join(RAIZ_BACKEND, ruta));
   } catch {
     // si no existe no hay nada que limpiar
   }

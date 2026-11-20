@@ -9,6 +9,10 @@ export class ImagenFallbackDirective {
   @HostListener('error', ['$event'])
   alFallarImagen(event: Event): void {
     const imagen = event.target as HTMLImageElement;
+    // Si el placeholder tambien falla, cortamos para no quedar en un loop de error.
+    if (imagen.src.endsWith(this.appImagenFallback)) {
+      return;
+    }
     imagen.src = this.appImagenFallback;
   }
 }
