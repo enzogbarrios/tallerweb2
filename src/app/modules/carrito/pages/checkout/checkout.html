@@ -1,0 +1,204 @@
+<section class="bg-white py-8 lg:py-12">
+  <div class="mx-4 sm:mx-10">
+    <a
+      routerLink="/carrito"
+      class="mb-4 inline-flex items-center gap-[0.35rem] text-sm text-muted hover:text-brand"
+    >
+      <i class="bi bi-arrow-left"></i> Volver al carrito
+    </a>
+
+    <h1 class="mt-2 mb-6 text-black uppercase">Finalizar compra</h1>
+
+    @if (carrito.items().length === 0) {
+      <div class="border border-dashed border-gray-300 px-8 py-14 text-center min-h-[30rem]">
+        <h2 class="mb-2 text-[1.3rem] text-black uppercase">Tu carrito está vacío</h2>
+        <p class="mx-auto mb-6 max-w-[430px] text-muted">
+          Agregá productos al carrito para poder completar la compra.
+        </p>
+        <a
+          routerLink="/productos"
+          class="inline-flex items-center justify-center gap-2 bg-brand px-6 py-3 text-[0.9rem] text-white uppercase transition-colors hover:bg-brand/70"
+        >
+          Ver productos
+        </a>
+      </div>
+    } @else {
+      <div class="grid items-start gap-8 lg:grid-cols-3">
+        <div class="lg:col-span-2">
+          @if (error()) {
+            <div class="mb-5 border border-red-200 bg-red-50 px-4 py-3 text-red-700" role="alert">
+              <i class="bi bi-exclamation-circle mr-2"></i>{{ error() }}
+            </div>
+          }
+
+          <form [formGroup]="form" (ngSubmit)="confirmar()" novalidate>
+            <h2 class="mb-4 text-[1.1rem] text-black uppercase">Datos de envío</h2>
+
+            <div class="mb-6">
+              <label class="mb-2 block text-sm text-black" for="direccion_envio">DIRECCIÓN</label>
+              <input
+                id="direccion_envio"
+                type="text"
+                class="h-full w-full border border-black p-3 focus:outline-none"
+                formControlName="direccion_envio"
+                placeholder="Calle, número, localidad"
+                [class.is-invalid]="
+                  form.get('direccion_envio')?.invalid && form.get('direccion_envio')?.touched
+                "
+              />
+              @if (
+                form.get('direccion_envio')?.touched &&
+                form.get('direccion_envio')?.hasError('required')
+              ) {
+                <div class="field-error">La dirección es obligatoria.</div>
+              }
+              @if (
+                form.get('direccion_envio')?.touched &&
+                form.get('direccion_envio')?.hasError('minlength')
+              ) {
+                <div class="field-error">La dirección debe tener al menos 5 caracteres.</div>
+              }
+            </div>
+
+            <h2 class="mb-4 text-[1.1rem] text-black uppercase">Datos de pago</h2>
+            <p class="mb-5 text-[0.85rem] text-muted">
+              tarjeta terminada en 0000 para ver rechazo y terminada en 1111 para timeout
+            </p>
+
+            <div class="mb-4">
+              <label class="mb-2 block text-sm text-black" for="numero">NÚMERO DE TARJETA</label>
+              <input
+                id="numero"
+                type="text"
+                inputmode="numeric"
+                autocomplete="cc-number"
+                class="h-full w-full border border-black p-3 focus:outline-none"
+                formControlName="numero"
+                placeholder="4242 4242 4242 4242"
+                [class.is-invalid]="form.get('numero')?.invalid && form.get('numero')?.touched"
+              />
+              @if (form.get('numero')?.touched && form.get('numero')?.invalid) {
+                <div class="field-error">
+                  Ingresá un número de tarjeta válido (13 a 19 dígitos).
+                </div>
+              }
+            </div>
+
+            <div class="mb-4">
+              <label class="mb-2 block text-sm text-black" for="titular">TITULAR</label>
+              <input
+                id="titular"
+                type="text"
+                autocomplete="cc-name"
+                class="h-full w-full border border-black p-3 focus:outline-none"
+                formControlName="titular"
+                placeholder="Como figura en la tarjeta"
+                [class.is-invalid]="form.get('titular')?.invalid && form.get('titular')?.touched"
+              />
+              @if (form.get('titular')?.touched && form.get('titular')?.invalid) {
+                <div class="field-error">Ingresá el nombre del titular.</div>
+              }
+            </div>
+
+            <div class="mb-6 grid gap-4 sm:grid-cols-2">
+              <div>
+                <label class="mb-2 block text-sm text-black" for="vencimiento">VENCIMIENTO</label>
+                <input
+                  id="vencimiento"
+                  type="text"
+                  autocomplete="cc-exp"
+                  class="h-full w-full border border-black p-3 focus:outline-none"
+                  formControlName="vencimiento"
+                  placeholder="MM/AA"
+                  [class.is-invalid]="
+                    form.get('vencimiento')?.invalid && form.get('vencimiento')?.touched
+                  "
+                />
+                @if (form.get('vencimiento')?.touched && form.get('vencimiento')?.invalid) {
+                  <div class="field-error">Usá el formato MM/AA.</div>
+                }
+              </div>
+
+              <div>
+                <label class="mb-2 block text-sm text-black" for="cvv">CVV</label>
+                <input
+                  id="cvv"
+                  type="text"
+                  inputmode="numeric"
+                  autocomplete="cc-csc"
+                  class="h-full w-full border border-black p-3 focus:outline-none"
+                  formControlName="cvv"
+                  placeholder="123"
+                  [class.is-invalid]="form.get('cvv')?.invalid && form.get('cvv')?.touched"
+                />
+                @if (form.get('cvv')?.touched && form.get('cvv')?.invalid) {
+                  <div class="field-error">El CVV debe tener 3 o 4 dígitos.</div>
+                }
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              class="inline-flex w-full cursor-pointer items-center justify-center gap-2 bg-brand px-6 py-3 text-[0.9rem] text-white uppercase transition-colors hover:bg-brand/70 disabled:cursor-not-allowed disabled:opacity-60"
+              [disabled]="enviando()"
+            >
+              @if (enviando()) {
+                <i class="bi bi-hourglass-split"></i> Procesando pago...
+              } @else {
+                <i class="bi bi-credit-card"></i> Confirmar compra
+              }
+            </button>
+          </form>
+        </div>
+
+        <aside class="bg-gray-100 p-6 lg:sticky lg:top-[100px]">
+          <h2 class="mb-5 text-[1.1rem] text-black uppercase">Resumen del pedido</h2>
+
+          <ul class="mb-4 grid gap-3">
+            @for (item of carrito.items(); track item.producto.id) {
+              <li class="flex items-start justify-between gap-3 text-[0.88rem]">
+                <span class="text-muted">
+                  <span class="font-semibold text-ink">{{ item.cantidad }} ×</span>
+                  {{ item.producto.nombre }}
+                </span>
+                <span class="whitespace-nowrap text-ink">
+                  {{
+                    item.producto.precio * item.cantidad
+                      | currency: 'ARS' : 'symbol-narrow' : '1.0-0'
+                  }}
+                </span>
+              </li>
+            }
+          </ul>
+
+          <hr class="my-4 border-gray-300" />
+
+          <div class="mb-3 flex justify-between gap-4 text-[0.95rem] text-muted">
+            <span>Productos ({{ carrito.cantidadTotal() }})</span>
+            <span>{{ carrito.subtotal() | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</span>
+          </div>
+
+          <div class="mb-3 flex justify-between gap-4 text-[0.95rem] text-muted">
+            <span>Envío</span>
+            <span>
+              @if (carrito.envio() === 0) {
+                <span class="font-semibold text-green-700">Gratis</span>
+              } @else {
+                {{ carrito.envio() | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}
+              }
+            </span>
+          </div>
+
+          <hr class="my-4 border-gray-300" />
+
+          <div class="flex justify-between gap-4 text-[1.1rem] font-bold text-ink">
+            <span>Total</span>
+            <span class="text-brand">{{
+              carrito.total() | currency: 'ARS' : 'symbol-narrow' : '1.0-0'
+            }}</span>
+          </div>
+        </aside>
+      </div>
+    }
+  </div>
+</section>

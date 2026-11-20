@@ -1,5 +1,5 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
-import { Component, computed, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, computed, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { PedidosService } from '../../../../api/services/pedidos/pedidos.service';
 
@@ -9,13 +9,17 @@ import { PedidosService } from '../../../../api/services/pedidos/pedidos.service
   templateUrl: './ventas.html',
   changeDetection: ChangeDetectionStrategy.Eager,
 })
-export class Ventas {
-  private readonly pedidos = inject(PedidosService);
+export class Ventas implements OnInit {
+  private readonly pedidosService = inject(PedidosService);
 
-  // Las más recientes primero.
-  readonly ventas = computed(() => [...this.pedidos.pedidos()].reverse());
+  // el back devuelve todas las ventas (con comprador) ordenadas de la mas nueva a la mas vieja.
+  readonly ventas = this.pedidosService.pedidos;
 
   readonly totalFacturado = computed(() =>
     this.ventas().reduce((acumulado, venta) => acumulado + venta.total, 0),
   );
+
+  ngOnInit(): void {
+    this.pedidosService.listar().subscribe();
+  }
 }

@@ -1,8 +1,8 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
-import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { AuthService } from '../../../../api/services/auth/auth.service';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PedidosService } from '../../../../api/services/pedidos/pedidos.service';
+import { Pedido as PedidoModel } from '../../../../shared/models/pedido.model';
 import { ImagenFallbackDirective } from '../../../../shared/directives/imagen-fallback.directive';
 
 @Component({
@@ -11,7 +11,18 @@ import { ImagenFallbackDirective } from '../../../../shared/directives/imagen-fa
   templateUrl: './pedido.html',
   changeDetection: ChangeDetectionStrategy.Eager,
 })
-export class Pedido {
-  readonly pedido = inject(PedidosService).ultimoPedido;
-  readonly auth = inject(AuthService);
+export class Pedido implements OnInit {
+  private readonly route = inject(ActivatedRoute);
+  private readonly pedidosService = inject(PedidosService);
+
+  readonly pedido = signal<PedidoModel | undefined>(undefined);
+
+  ngOnInit(): void {
+    const id = Number(this.route.snapshot.paramMap.get('id'));
+
+    // se pide a la api para que el detalle siga estando despues de recargar la pagina
+    this.pedidosService.obtener(id).subscribe({
+      next: (pedido) => this.pedido.set(pedido),
+    });
+  }
 }

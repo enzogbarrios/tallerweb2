@@ -1,7 +1,9 @@
 <section class="py-10 bg-white">
   <div class="container">
     <div class="flex justify-center items-center min-h-0 overflow-hidden">
-      <div class="flex items-center px-6 py-8 sm:px-[clamp(1.5rem,5vw,3.5rem)] lg:col-span-7 lg:py-10">
+      <div
+        class="flex items-center px-6 py-8 sm:px-[clamp(1.5rem,5vw,3.5rem)] lg:col-span-7 lg:py-10"
+      >
         <div class="mx-auto w-full max-w-[560px] lg:min-h-[30rem]">
           <h1 class="my-2 text-3xl">INICIAR SESIÓN</h1>
 
@@ -32,7 +34,9 @@
             <div class="mb-2">
               <div class="flex items-end justify-between mb-1">
                 <label class="text-sm text-black" for="password">CONTRASEÑA</label>
-                <a routerLink="/auth/recuperar" class="text-sm font-semibold text-black/80 hover:text-black/70"
+                <a
+                  routerLink="/auth/recuperar"
+                  class="text-sm font-semibold text-black/80 hover:text-black/70"
                   >¿Olvidaste tu contraseña?</a
                 >
               </div>
@@ -49,7 +53,9 @@
                 <button
                   type="button"
                   class="px-3 border border-black bg-black text-white cursor-pointer"
-                  [attr.aria-label]="mostrarPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+                  [attr.aria-label]="
+                    mostrarPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'
+                  "
                   (click)="mostrarPassword.set(!mostrarPassword())"
                 >
                   <i [class]="'bi ' + (mostrarPassword() ? 'bi-eye-slash' : 'bi-eye')"></i>
@@ -60,15 +66,21 @@
               }
             </div>
 
-            <button type="submit" class="py-3 cursor-pointer bg-black text-white mt-6 w-full" [disabled]="form.invalid">
+            <button
+              type="submit"
+              class="py-3 cursor-pointer bg-black text-white mt-6 w-full"
+              [disabled]="form.invalid"
+            >
               INICIAR SESIÓN
             </button>
           </form>
 
-
           <p class="mt-6 text-center text-muted text-sm">
             ¿No tenés cuenta aún?
-            <a routerLink="/auth/signup" class="font-semibold text-brand hover:text-brand/80"
+            <a
+              [routerLink]="['/auth/signup']"
+              [queryParams]="{ returnUrl: returnUrl }"
+              class="font-semibold text-brand hover:text-brand/80"
               >Creá una gratis.</a
             >
           </p>

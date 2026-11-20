@@ -15,6 +15,7 @@ export const routes: Routes = [
   },
   {
     path: 'carrito',
+    canActivate: [authGuard],
     loadChildren: () =>
       import('./modules/carrito/carrito.routes').then((modulo) => modulo.carritoRoutes),
   },
@@ -22,13 +23,14 @@ export const routes: Routes = [
     path: 'mis-pedidos',
     canActivate: [authGuard],
     loadComponent: () =>
-      import('./modules/usuarios/pages/mis-pedidos/mis-pedidos').then((modulo) => modulo.MisPedidos),
+      import('./modules/usuarios/pages/mis-pedidos/mis-pedidos').then(
+        (modulo) => modulo.MisPedidos,
+      ),
   },
   {
     path: 'admin',
     canActivate: [adminGuard],
-    loadChildren: () =>
-      import('./modules/admin/admin.routes').then((modulo) => modulo.adminRoutes),
+    loadChildren: () => import('./modules/admin/admin.routes').then((modulo) => modulo.adminRoutes),
   },
   {
     path: 'auth',

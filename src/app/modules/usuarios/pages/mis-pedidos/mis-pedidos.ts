@@ -1,7 +1,6 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
-import { Component, computed, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { AuthService } from '../../../../api/services/auth/auth.service';
 import { PedidosService } from '../../../../api/services/pedidos/pedidos.service';
 
 @Component({
@@ -10,17 +9,12 @@ import { PedidosService } from '../../../../api/services/pedidos/pedidos.service
   templateUrl: './mis-pedidos.html',
   changeDetection: ChangeDetectionStrategy.Eager,
 })
-export class MisPedidos {
-  private readonly auth = inject(AuthService);
+export class MisPedidos implements OnInit {
   private readonly pedidosService = inject(PedidosService);
 
-  // Solo los pedidos del usuario con sesión, los más recientes primero.
-  readonly pedidos = computed(() => {
-    const usuario = this.auth.usuarioActual();
+  readonly pedidos = this.pedidosService.pedidos;
 
-    return this.pedidosService
-      .pedidos()
-      .filter((pedido) => usuario !== null && pedido.comprador?.id === usuario.id)
-      .reverse();
-  });
+  ngOnInit(): void {
+    this.pedidosService.listar().subscribe();
+  }
 }

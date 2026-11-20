@@ -1,6 +1,6 @@
 import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../../api/services/auth/auth.service';
 import { leerError } from '../../../../api/utils/leer-error';
 import { NotificacionesService } from '../../../../api/services/notificaciones/notificaciones.service';
@@ -16,9 +16,11 @@ export class Signin {
   private readonly auth = inject(AuthService);
   private readonly notificaciones = inject(NotificacionesService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   readonly mostrarPassword = signal(false);
   readonly error = signal<string | null>(null);
+  readonly returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
 
   readonly form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
@@ -39,9 +41,19 @@ export class Signin {
     this.auth.iniciarSesion(email, password).subscribe({
       next: (usuario) => {
         this.notificaciones.mostrar(`¡Hola de nuevo, ${usuario.nombre}!`);
-        this.router.navigate([this.auth.esAdmin() ? '/admin' : '/']);
+        this.router.navigateByUrl(this.urlDestino());
       },
       error: (error) => this.error.set(leerError(error).mensaje),
     });
+  }
+
+  private urlDestino(): string {
+    const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+
+    if (returnUrl) {
+      return returnUrl;
+    }
+
+    return this.auth.esAdmin() ? '/admin' : '/';
   }
 }

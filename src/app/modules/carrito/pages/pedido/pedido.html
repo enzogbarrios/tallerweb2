@@ -3,7 +3,9 @@
     <div class="mx-4 sm:mx-10">
       <div class="mb-8 border-b border-gray-200 pb-8 text-center">
         <i class="bi bi-check-circle mb-3 block text-[2.6rem] text-brand"></i>
-        <h1 class="mb-2 text-[clamp(1.8rem,4vw,2.6rem)] text-black uppercase">¡Gracias por tu compra!</h1>
+        <h1 class="mb-2 text-[clamp(1.8rem,4vw,2.6rem)] text-black uppercase">
+          ¡Gracias por tu compra!
+        </h1>
         <p class="mx-auto max-w-[560px] text-muted">
           Tu pedido <strong class="text-ink">#{{ p.id }}</strong> fue registrado correctamente. Te
           enviaremos las novedades por email.
@@ -16,14 +18,31 @@
             <table class="w-full border-collapse text-left">
               <thead>
                 <tr class="text-[0.72rem] tracking-[0.06em] text-muted uppercase">
-                  <th scope="col" class="border-b border-gray-200 py-3 pr-4 font-normal">Producto</th>
-                  <th scope="col" class="border-b border-gray-200 px-2 py-3 text-center font-normal sm:px-4">Cantidad</th>
-                  <th scope="col" class="hidden border-b border-gray-200 px-4 py-3 text-right font-normal sm:table-cell">Precio</th>
-                  <th scope="col" class="border-b border-gray-200 py-3 pl-2 text-right font-normal sm:pl-4">Subtotal</th>
+                  <th scope="col" class="border-b border-gray-200 py-3 pr-4 font-normal">
+                    Producto
+                  </th>
+                  <th
+                    scope="col"
+                    class="border-b border-gray-200 px-2 py-3 text-center font-normal sm:px-4"
+                  >
+                    Cantidad
+                  </th>
+                  <th
+                    scope="col"
+                    class="hidden border-b border-gray-200 px-4 py-3 text-right font-normal sm:table-cell"
+                  >
+                    Precio
+                  </th>
+                  <th
+                    scope="col"
+                    class="border-b border-gray-200 py-3 pl-2 text-right font-normal sm:pl-4"
+                  >
+                    Subtotal
+                  </th>
                 </tr>
               </thead>
               <tbody>
-                @for (item of p.items; track item.producto.id) {
+                @for (item of p.items; track $index) {
                   <tr class="border-b border-gray-200">
                     <td class="py-3 pr-2 align-middle sm:pr-4">
                       <div class="flex items-center gap-3">
@@ -37,7 +56,9 @@
                           <span class="text-[0.7rem] tracking-[0.06em] text-muted uppercase">{{
                             item.producto.clasificacion
                           }}</span>
-                          <strong class="block text-ink uppercase">{{ item.producto.nombre }}</strong>
+                          <strong class="block text-ink uppercase">{{
+                            item.producto.nombre
+                          }}</strong>
                         </div>
                       </div>
                     </td>
@@ -47,7 +68,7 @@
                     </td>
                     <td class="py-3 pl-2 text-right align-middle text-brand sm:pl-4">
                       {{
-                        (item.producto.precio * item.cantidad)
+                        item.producto.precio * item.cantidad
                           | currency: 'ARS' : 'symbol-narrow' : '1.0-0'
                       }}
                     </td>
@@ -64,7 +85,9 @@
             >
               Seguir comprando
             </a>
-            <a routerLink="/" class="text-[0.88rem] font-semibold text-ink hover:text-brand">Volver al inicio</a>
+            <a routerLink="/" class="text-[0.88rem] font-semibold text-ink hover:text-brand"
+              >Volver al inicio</a
+            >
           </div>
         </div>
 
@@ -81,7 +104,9 @@
           </div>
           <div class="mb-3 flex items-center justify-between gap-4 text-[0.95rem] text-muted">
             <span>Estado</span>
-            <span class="bg-green-100 px-2 py-1 text-xs font-bold text-green-800 uppercase">Confirmado</span>
+            <span class="bg-green-100 px-2 py-1 text-xs font-bold text-green-800 uppercase">{{
+              p.estado
+            }}</span>
           </div>
           <div class="mb-3 flex justify-between gap-4 text-[0.95rem] text-muted">
             <span>Productos</span>
@@ -100,10 +125,10 @@
             }
           </div>
 
-          @if (auth.usuarioActual()?.direccion; as direccion) {
+          @if (p.direccion_envio) {
             <div class="mb-3 flex justify-between gap-4 text-[0.95rem] text-muted">
               <span>Dirección</span>
-              <span class="text-right">{{ direccion }}</span>
+              <span class="text-right">{{ p.direccion_envio }}</span>
             </div>
           }
 
@@ -111,7 +136,9 @@
 
           <div class="flex justify-between gap-4 text-[1.1rem] font-bold text-ink">
             <span>Total</span>
-            <span class="text-brand">{{ p.total | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</span>
+            <span class="text-brand">{{
+              p.total | currency: 'ARS' : 'symbol-narrow' : '1.0-0'
+            }}</span>
           </div>
 
           <div class="mt-6 flex gap-3 border-t border-gray-300 pt-4 text-muted">
@@ -129,9 +156,10 @@
   <section class="bg-white py-8 lg:py-12 lg:min-h-[40rem]">
     <div class="mx-4 sm:mx-10">
       <div class="border border-dashed border-gray-300 px-8 py-14 text-center">
-        <h2 class="mb-2 text-[1.3rem] text-black uppercase">Todavía no realizaste ningún pedido</h2>
+        <h2 class="mb-2 text-[1.3rem] text-black uppercase">Pedido no encontrado</h2>
         <p class="mx-auto mb-6 max-w-[430px] text-muted">
-          Cuando confirmes una compra, acá vas a poder ver el detalle completo del pedido.
+          El pedido que buscás no existe o no te pertenece. Podés revisar todos tus pedidos desde tu
+          cuenta.
         </p>
         <a
           routerLink="/productos"

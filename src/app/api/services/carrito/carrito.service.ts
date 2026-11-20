@@ -1,73 +1,84 @@
-import { computed, Injectable, signal } from '@angular/core';
-import { ItemCarrito } from '../../../shared/models/carrito.model';
+import { HttpClient } from '@angular/common/http';
+import { computed, effect, inject, Injectable, signal } from '@angular/core';
+import { Observable, tap } from 'rxjs';
+import { CarritoResumen } from '../../../shared/models/carrito.model';
 import { Producto } from '../../../shared/models/producto.model';
+import { AuthService } from '../auth/auth.service';
+
+const CARRITO_VACIO: CarritoResumen = {
+  items: [],
+  cantidadTotal: 0,
+  subtotal: 0,
+  envio: 0,
+  total: 0,
+};
 
 @Injectable({
   providedIn: 'root',
 })
 export class CarritoService {
-  private readonly itemsState = signal<ItemCarrito[]>([]);
+  private readonly http = inject(HttpClient);
+  private readonly auth = inject(AuthService);
+  private readonly carritoState = signal<CarritoResumen>(CARRITO_VACIO);
 
-  readonly items = this.itemsState.asReadonly();
+  readonly items = computed(() => this.carritoState().items);
+  readonly cantidadTotal = computed(() => this.carritoState().cantidadTotal);
+  readonly subtotal = computed(() => this.carritoState().subtotal);
+  readonly envio = computed(() => this.carritoState().envio);
+  readonly total = computed(() => this.carritoState().total);
 
-  readonly cantidadTotal = computed(() =>
-    this.items().reduce((total, item) => total + item.cantidad, 0),
-  );
-
-  readonly subtotal = computed(() =>
-    this.items().reduce((total, item) => total + item.producto.precio * item.cantidad, 0),
-  );
-
-  readonly envio = computed(() => {
-    if (this.items().length === 0) {
-      return 0;
-    }
-
-    return this.subtotal() >= 50000 ? 0 : 4500;
-  });
-
-  readonly total = computed(() => this.subtotal() + this.envio());
-
-  agregar(producto: Producto, cantidad = 1): void {
-    if (cantidad <= 0) {
-      return;
-    }
-
-    this.itemsState.update((items) => {
-      const existente = items.find((item) => item.producto.id === producto.id);
-
-      if (existente) {
-        return items.map((item) =>
-          item.producto.id === producto.id
-            ? { ...item, cantidad: item.cantidad + cantidad }
-            : item,
-        );
+  constructor() {
+    // el carrito se carga al iniciar sesion y se limpia al cerrarla
+    effect(() => {
+      if (this.auth.usuarioActual()) {
+        this.cargar().subscribe({ error: () => this.limpiar() });
+      } else {
+        this.limpiar();
       }
-
-      return [...items, { producto, cantidad }];
     });
   }
 
-  cambiarCantidad(productoId: number, cantidad: number): void {
+  cargar(): Observable<CarritoResumen> {
+    return this.http
+      .get<CarritoResumen>('/api/carrito')
+      .pipe(tap((carrito) => this.carritoState.set(carrito)));
+  }
+
+  agregar(producto: Producto, cantidad = 1): Observable<CarritoResumen> {
+    const cantidadActual = this.cantidadDe(producto.id);
+    return this.actualizarCantidad(producto.id, cantidadActual + cantidad);
+  }
+
+  cambiarCantidad(productoId: number, cantidad: number): Observable<CarritoResumen> {
     if (cantidad <= 0) {
-      this.quitar(productoId);
-      return;
+      return this.quitar(productoId);
     }
-
-    this.itemsState.update((items) =>
-      items.map((item) =>
-        item.producto.id === productoId ? { ...item, cantidad } : item,
-      ),
-    );
+    return this.actualizarCantidad(productoId, cantidad);
   }
 
-  quitar(productoId: number): void {
-    this.itemsState.update((items) =>
-      items.filter((item) => item.producto.id !== productoId),
-    );
+  quitar(productoId: number): Observable<CarritoResumen> {
+    return this.http
+      .delete<CarritoResumen>(`/api/carrito/items/${productoId}`)
+      .pipe(tap((carrito) => this.carritoState.set(carrito)));
   }
 
-  vaciar(): void {
-    this.itemsState.set([]);
+  vaciar(): Observable<CarritoResumen> {
+    return this.http
+      .delete<CarritoResumen>('/api/carrito')
+      .pipe(tap((carrito) => this.carritoState.set(carrito)));
+  }
+
+  limpiar(): void {
+    this.carritoState.set({ ...CARRITO_VACIO });
+  }
+
+  private actualizarCantidad(productoId: number, cantidad: number): Observable<CarritoResumen> {
+    return this.http
+      .put<CarritoResumen>(`/api/carrito/items/${productoId}`, { cantidad })
+      .pipe(tap((carrito) => this.carritoState.set(carrito)));
+  }
+
+  private cantidadDe(productoId: number): number {
+    return this.items().find((item) => item.producto.id === productoId)?.cantidad ?? 0;
   }
 }

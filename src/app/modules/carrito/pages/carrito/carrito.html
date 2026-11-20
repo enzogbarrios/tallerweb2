@@ -23,7 +23,10 @@
               <article
                 class="grid grid-cols-[76px_minmax(0,1fr)_auto] items-center gap-3 border-b border-gray-200 py-4 md:grid-cols-[96px_minmax(0,1fr)_auto_auto_auto] md:gap-4"
               >
-                <a [routerLink]="['/productos', item.producto.id]" class="block overflow-hidden bg-gray-200">
+                <a
+                  [routerLink]="['/productos', item.producto.id]"
+                  class="block overflow-hidden bg-gray-200"
+                >
                   <img
                     class="block aspect-[2.5/3] w-full object-cover"
                     [src]="item.producto.imagen"
@@ -37,7 +40,10 @@
                     item.producto.clasificacion
                   }}</span>
                   <h2 class="mt-[0.15rem] mb-1 text-base">
-                    <a class="text-ink uppercase hover:text-brand" [routerLink]="['/productos', item.producto.id]">
+                    <a
+                      class="text-ink uppercase hover:text-brand"
+                      [routerLink]="['/productos', item.producto.id]"
+                    >
                       {{ item.producto.nombre }}
                     </a>
                   </h2>
@@ -62,7 +68,7 @@
                       type="button"
                       class="size-10 cursor-pointer leading-none text-ink transition-colors hover:text-brand"
                       aria-label="Disminuir cantidad"
-                      (click)="carrito.cambiarCantidad(item.producto.id, item.cantidad - 1)"
+                      (click)="cambiarCantidad(item.producto.id, item.cantidad - 1)"
                     >
                       <i class="bi bi-dash"></i>
                     </button>
@@ -71,7 +77,7 @@
                       type="button"
                       class="size-10 cursor-pointer leading-none text-ink transition-colors hover:text-brand"
                       aria-label="Aumentar cantidad"
-                      (click)="carrito.cambiarCantidad(item.producto.id, item.cantidad + 1)"
+                      (click)="cambiarCantidad(item.producto.id, item.cantidad + 1)"
                     >
                       <i class="bi bi-plus"></i>
                     </button>
@@ -80,7 +86,7 @@
 
                 <div class="col-start-2 text-brand md:col-auto md:min-w-[100px] md:text-right">
                   {{
-                    (item.producto.precio * item.cantidad)
+                    item.producto.precio * item.cantidad
                       | currency: 'ARS' : 'symbol-narrow' : '1.0-0'
                   }}
                 </div>
@@ -119,7 +125,9 @@
 
           <div class="mb-5 flex justify-between gap-4 text-[1.1rem] font-bold text-ink">
             <span>Total</span>
-            <span class="text-brand">{{ carrito.total() | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</span>
+            <span class="text-brand">{{
+              carrito.total() | currency: 'ARS' : 'symbol-narrow' : '1.0-0'
+            }}</span>
           </div>
 
           <button

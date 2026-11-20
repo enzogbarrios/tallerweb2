@@ -19,7 +19,9 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       // Las rutas /auth/ se manejan en su propio componente (ej: contraseña incorrecta también es 401).
       if (token && error.status === 401 && !req.url.includes('/api/auth/')) {
         auth.cerrarSesion();
-        router.navigate(['/auth/signin']);
+        router.navigate(['/auth/signin'], {
+          queryParams: { returnUrl: router.url },
+        });
       }
       return throwError(() => error);
     }),

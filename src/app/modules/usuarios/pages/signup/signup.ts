@@ -1,6 +1,6 @@
 import { Component, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../../api/services/auth/auth.service';
 import { NotificacionesService } from '../../../../api/services/notificaciones/notificaciones.service';
 import { leerError } from '../../../../api/utils/leer-error';
@@ -22,9 +22,11 @@ export class Signup {
   private readonly auth = inject(AuthService);
   private readonly notificaciones = inject(NotificacionesService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   readonly mostrarPassword = signal(false);
   readonly error = signal<string | null>(null);
+  readonly returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
   readonly passwordValue = signal('');
 
   readonly form = this.fb.nonNullable.group(
@@ -85,7 +87,7 @@ export class Signup {
       .subscribe({
         next: () => {
           this.notificaciones.mostrar(`¡Bienvenido/a, ${valores.nombre}! Tu cuenta fue creada.`);
-          this.router.navigate(['/']);
+          this.router.navigateByUrl(this.route.snapshot.queryParamMap.get('returnUrl') ?? '/');
         },
         error: (error) => {
           const { codigo, mensaje } = leerError(error);

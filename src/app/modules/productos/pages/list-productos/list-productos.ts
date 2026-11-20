@@ -1,8 +1,11 @@
 import { Component, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Router } from '@angular/router';
+import { AuthService } from '../../../../api/services/auth/auth.service';
 import { CarritoService } from '../../../../api/services/carrito/carrito.service';
 import { NotificacionesService } from '../../../../api/services/notificaciones/notificaciones.service';
 import { ProductosService } from '../../../../api/services/productos/productos.service';
 import { CLASIFICACIONES, Clasificacion, Producto } from '../../../../shared/models/producto.model';
+import { agregarAlCarrito } from '../../../../shared/utils/agregar-al-carrito';
 import { ProductoCard } from '../../components/producto-card/producto-card';
 
 @Component({
@@ -14,7 +17,9 @@ import { ProductoCard } from '../../components/producto-card/producto-card';
 export class ListProductos {
   private readonly productosService = inject(ProductosService);
   private readonly carrito = inject(CarritoService);
+  private readonly auth = inject(AuthService);
   private readonly notificaciones = inject(NotificacionesService);
+  private readonly router = inject(Router);
 
   readonly clasificaciones: Array<Clasificacion | 'Todas'> = ['Todas', ...CLASIFICACIONES];
 
@@ -54,7 +59,6 @@ export class ListProductos {
   }
 
   agregarAlCarrito(producto: Producto): void {
-    this.carrito.agregar(producto);
-    this.notificaciones.mostrar(`${producto.nombre} se agregó al carrito.`);
+    agregarAlCarrito(this.auth, this.router, this.carrito, this.notificaciones, producto);
   }
 }

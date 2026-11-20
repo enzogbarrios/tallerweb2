@@ -1,6 +1,7 @@
 import { CurrencyPipe } from '@angular/common';
-import { Component, input, output, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, input, output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { AuthService } from '../../../../api/services/auth/auth.service';
 import { ImagenFallbackDirective } from '../../../../shared/directives/imagen-fallback.directive';
 import { Producto } from '../../../../shared/models/producto.model';
 
@@ -16,8 +17,16 @@ export class ProductoCard {
 
   readonly agregado = signal(false);
 
+  private readonly auth = inject(AuthService);
+
   agregarAlCarrito(): void {
     this.agregar.emit(this.producto());
+
+    // si no hay sesion el padre redirige al login y no mostramos el check
+    if (!this.auth.usuarioActual()) {
+      return;
+    }
+
     this.agregado.set(true);
     setTimeout(() => this.agregado.set(false), 1300);
   }

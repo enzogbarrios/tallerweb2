@@ -3,7 +3,8 @@
     <div class="mb-6">
       <h1 class="mt-2 text-black uppercase">Mis pedidos</h1>
       <p class="text-sm text-muted">
-        {{ pedidos().length }} {{ pedidos().length === 1 ? 'pedido realizado' : 'pedidos realizados' }}
+        {{ pedidos().length }}
+        {{ pedidos().length === 1 ? 'pedido realizado' : 'pedidos realizados' }}
       </p>
     </div>
 
@@ -28,8 +29,12 @@
               <th scope="col" class="border-b border-gray-200 py-3 pr-4 font-normal">Pedido</th>
               <th scope="col" class="border-b border-gray-200 px-4 py-3 font-normal">Fecha</th>
               <th scope="col" class="border-b border-gray-200 px-4 py-3 font-normal">Productos</th>
-              <th scope="col" class="border-b border-gray-200 px-4 py-3 text-right font-normal">Total</th>
-              <th scope="col" class="border-b border-gray-200 py-3 pl-4 text-right font-normal">Estado</th>
+              <th scope="col" class="border-b border-gray-200 px-4 py-3 text-right font-normal">
+                Total
+              </th>
+              <th scope="col" class="border-b border-gray-200 py-3 pl-4 text-right font-normal">
+                Estado
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -41,7 +46,7 @@
                 </td>
                 <td class="px-4 py-3 align-top">
                   <ul class="grid gap-1 text-[0.88rem]">
-                    @for (item of pedido.items; track item.producto.id) {
+                    @for (item of pedido.items; track $index) {
                       <li>
                         <span class="text-muted">{{ item.cantidad }} ×</span>
                         <span class="text-ink uppercase"> {{ item.producto.nombre }}</span>

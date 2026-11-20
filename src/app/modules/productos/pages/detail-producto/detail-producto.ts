@@ -1,10 +1,12 @@
 import { CurrencyPipe } from '@angular/common';
 import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { AuthService } from '../../../../api/services/auth/auth.service';
 import { CarritoService } from '../../../../api/services/carrito/carrito.service';
 import { NotificacionesService } from '../../../../api/services/notificaciones/notificaciones.service';
 import { ProductosService } from '../../../../api/services/productos/productos.service';
 import { Producto } from '../../../../shared/models/producto.model';
+import { agregarAlCarrito } from '../../../../shared/utils/agregar-al-carrito';
 import { ImagenFallbackDirective } from '../../../../shared/directives/imagen-fallback.directive';
 
 @Component({
@@ -17,7 +19,9 @@ export class DetailProducto implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly productosService = inject(ProductosService);
   private readonly carrito = inject(CarritoService);
+  private readonly auth = inject(AuthService);
   private readonly notificaciones = inject(NotificacionesService);
+  private readonly router = inject(Router);
 
   readonly producto = signal<Producto | undefined>(undefined);
   readonly cantidad = signal(1);
@@ -36,10 +40,13 @@ export class DetailProducto implements OnInit {
   }
 
   agregarAlCarrito(producto: Producto): void {
-    const cantidad = this.cantidad();
-    this.carrito.agregar(producto, cantidad);
-    this.notificaciones.mostrar(
-      `${cantidad} ${cantidad === 1 ? 'unidad' : 'unidades'} de ${producto.nombre} se agregó al carrito.`,
+    agregarAlCarrito(
+      this.auth,
+      this.router,
+      this.carrito,
+      this.notificaciones,
+      producto,
+      this.cantidad(),
     );
   }
 }
