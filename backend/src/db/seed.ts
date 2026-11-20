@@ -11,7 +11,7 @@ import { pool, query } from './pool.js';
 
 // Las rutas se resuelven desde backend/ (process.cwd()), igual con tsx que con la build.
 // Las imágenes originales están en el front; las copiamos al backend.
-const carpetaOrigen = join(process.cwd(), '..', 'public', 'img', 'productos');
+const carpetaOrigen = join(process.cwd(), '..', 'frontend', 'public', 'img', 'productos');
 const carpetaDestino = join(process.cwd(), 'uploads', 'productos');
 
 type UsuarioSeed = {

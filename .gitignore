@@ -1,13 +1,21 @@
 # See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
 
-# Compiled output
-/dist
-/tmp
-/out-tsc
-/bazel-out
+# Frontend (Angular)
+/frontend/node_modules
+/frontend/dist
+/frontend/.angular/cache
+/frontend/out-tsc
+/frontend/tmp
+/frontend/bazel-out
+/frontend/coverage
+
+# Backend (Express)
+/backend/node_modules
+/backend/dist
+/backend/.env
+/backend/uploads
 
 # Node
-/node_modules
 npm-debug.log
 yarn-error.log
 
@@ -30,7 +38,6 @@ yarn-error.log
 .history/*
 
 # Miscellaneous
-/.angular/cache
 .sass-cache/
 /connect.lock
 /coverage
@@ -42,9 +49,3 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
-
-# Backend
-/backend/node_modules
-/backend/dist
-/backend/.env
-/backend/uploads
