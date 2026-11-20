@@ -23,9 +23,71 @@
 
           <p class="mb-5 leading-[1.7] text-muted">{{ p.descripcion }}</p>
 
-          <div class="mb-7 text-[clamp(1.6rem,3vw,2rem)] tracking-tight text-brand">
+          <div class="mb-6 text-[clamp(1.6rem,3vw,2rem)] tracking-tight text-brand">
             {{ p.precio | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}
           </div>
+
+          @if (talles().length > 0) {
+            <div class="mb-5">
+              <span class="mb-2 block text-[0.72rem] tracking-[0.06em] text-muted uppercase"
+                >Talle</span
+              >
+              <div class="flex flex-wrap gap-[0.4rem]">
+                @for (opcion of talles(); track opcion) {
+                  <button
+                    type="button"
+                    class="min-w-11 cursor-pointer border px-[0.8rem] py-[0.45rem] text-[0.82rem] uppercase transition-colors"
+                    [class]="
+                      talle() === opcion
+                        ? 'border-brand bg-brand text-white'
+                        : hayStockDeTalle(opcion)
+                          ? 'border-gray-300 bg-white text-ink hover:border-brand hover:text-brand'
+                          : 'border-gray-200 bg-gray-50 text-gray-400 line-through'
+                    "
+                    [attr.aria-pressed]="talle() === opcion"
+                    (click)="elegirTalle(opcion)"
+                  >
+                    {{ opcion || 'Único' }}
+                  </button>
+                }
+              </div>
+            </div>
+          }
+
+          @if (colores().length > 0) {
+            <div class="mb-5">
+              <span class="mb-2 block text-[0.72rem] tracking-[0.06em] text-muted uppercase"
+                >Color</span
+              >
+              <div class="flex flex-wrap gap-[0.4rem]">
+                @for (opcion of colores(); track opcion) {
+                  <button
+                    type="button"
+                    class="cursor-pointer border px-[0.8rem] py-[0.45rem] text-[0.82rem] uppercase transition-colors"
+                    [class]="
+                      color() === opcion
+                        ? 'border-brand bg-brand text-white'
+                        : hayStockDeColor(opcion)
+                          ? 'border-gray-300 bg-white text-ink hover:border-brand hover:text-brand'
+                          : 'border-gray-200 bg-gray-50 text-gray-400 line-through'
+                    "
+                    [attr.aria-pressed]="color() === opcion"
+                    (click)="elegirColor(opcion)"
+                  >
+                    {{ opcion || 'Único' }}
+                  </button>
+                }
+              </div>
+            </div>
+          }
+
+          <p
+            class="mb-4 text-[0.88rem]"
+            [class]="puedeAgregar() ? 'text-green-700' : 'text-muted'"
+            role="status"
+          >
+            {{ avisoStock() }}
+          </p>
 
           <div class="flex flex-wrap items-stretch gap-3">
             <div class="inline-flex items-center border border-gray-300 bg-white">
@@ -42,6 +104,7 @@
                 type="button"
                 class="size-11 cursor-pointer text-[1.05rem] leading-none text-ink transition-colors hover:text-brand"
                 aria-label="Aumentar cantidad"
+                [disabled]="cantidad() >= disponibles()"
                 (click)="aumentar()"
               >
                 <i class="bi bi-plus"></i>
@@ -50,7 +113,8 @@
 
             <button
               type="button"
-              class="inline-flex cursor-pointer items-center justify-center gap-2 bg-brand px-6 py-3 text-[0.9rem] text-white uppercase transition-colors hover:bg-brand/70"
+              class="inline-flex cursor-pointer items-center justify-center gap-2 bg-brand px-6 py-3 text-[0.9rem] text-white uppercase transition-colors hover:bg-brand/70 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-brand"
+              [disabled]="!puedeAgregar()"
               (click)="agregarAlCarrito(p)"
             >
               <i class="bi bi-bag-plus"></i> Agregar al carrito

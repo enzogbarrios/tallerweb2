@@ -6,6 +6,7 @@ import { Pedido as PedidoModel } from '../../../../shared/models/pedido.model';
 import { ImagenFallbackDirective } from '../../../../shared/directives/imagen-fallback.directive';
 import { EstadoPedidoBadge } from '../../../../shared/components/estado-pedido/estado-pedido';
 import { NOMBRES_MARCA } from '../../../../shared/utils/tarjeta';
+import { nombreVariante } from '../../../../shared/models/producto.model';
 
 @Component({
   selector: 'app-pedido',
@@ -14,6 +15,8 @@ import { NOMBRES_MARCA } from '../../../../shared/utils/tarjeta';
   changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class Pedido implements OnInit {
+  readonly nombreVariante = nombreVariante;
+
   private readonly route = inject(ActivatedRoute);
   private readonly pedidosService = inject(PedidosService);
 

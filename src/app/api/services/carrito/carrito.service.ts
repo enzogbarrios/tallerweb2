@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 import { CarritoResumen } from '../../../shared/models/carrito.model';
-import { Producto } from '../../../shared/models/producto.model';
+import { Variante } from '../../../shared/models/producto.model';
 import { AuthService } from '../auth/auth.service';
 
 const CARRITO_VACIO: CarritoResumen = {
@@ -44,21 +44,25 @@ export class CarritoService {
       .pipe(tap((carrito) => this.carritoState.set(carrito)));
   }
 
-  agregar(producto: Producto, cantidad = 1): Observable<CarritoResumen> {
-    const cantidadActual = this.cantidadDe(producto.id);
-    return this.actualizarCantidad(producto.id, cantidadActual + cantidad);
+  agregar(variante: Variante, cantidad = 1): Observable<CarritoResumen> {
+    const cantidadActual = this.cantidadDe(variante.id);
+    return this.actualizarCantidad(variante.id, cantidadActual + cantidad);
   }
 
-  cambiarCantidad(productoId: number, cantidad: number): Observable<CarritoResumen> {
+  cantidadDe(varianteId: number): number {
+    return this.items().find((item) => item.variante.id === varianteId)?.cantidad ?? 0;
+  }
+
+  cambiarCantidad(varianteId: number, cantidad: number): Observable<CarritoResumen> {
     if (cantidad <= 0) {
-      return this.quitar(productoId);
+      return this.quitar(varianteId);
     }
-    return this.actualizarCantidad(productoId, cantidad);
+    return this.actualizarCantidad(varianteId, cantidad);
   }
 
-  quitar(productoId: number): Observable<CarritoResumen> {
+  quitar(varianteId: number): Observable<CarritoResumen> {
     return this.http
-      .delete<CarritoResumen>(`/api/carrito/items/${productoId}`)
+      .delete<CarritoResumen>(`/api/carrito/items/${varianteId}`)
       .pipe(tap((carrito) => this.carritoState.set(carrito)));
   }
 
@@ -72,13 +76,9 @@ export class CarritoService {
     this.carritoState.set({ ...CARRITO_VACIO });
   }
 
-  private actualizarCantidad(productoId: number, cantidad: number): Observable<CarritoResumen> {
+  private actualizarCantidad(varianteId: number, cantidad: number): Observable<CarritoResumen> {
     return this.http
-      .put<CarritoResumen>(`/api/carrito/items/${productoId}`, { cantidad })
+      .put<CarritoResumen>(`/api/carrito/items/${varianteId}`, { cantidad })
       .pipe(tap((carrito) => this.carritoState.set(carrito)));
-  }
-
-  private cantidadDe(productoId: number): number {
-    return this.items().find((item) => item.producto.id === productoId)?.cantidad ?? 0;
   }
 }

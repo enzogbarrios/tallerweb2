@@ -34,6 +34,7 @@ import {
   OrdenVentas,
   Pedido,
 } from '../../../../shared/models/pedido.model';
+import { nombreVariante } from '../../../../shared/models/producto.model';
 
 const LIMITES = [5, 10, 20] as const;
 const LIMITE_POR_DEFECTO = 10;
@@ -50,6 +51,8 @@ const FECHA_VALIDA = /^\d{4}-\d{2}-\d{2}$/;
   changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class MisPedidos implements OnInit {
+  readonly nombreVariante = nombreVariante;
+
   private readonly pedidosService = inject(PedidosService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);

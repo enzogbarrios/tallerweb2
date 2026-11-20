@@ -1,10 +1,11 @@
 import { CurrencyPipe } from '@angular/common';
-import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, computed, inject, ChangeDetectionStrategy } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { CarritoService } from '../../../../api/services/carrito/carrito.service';
 import { NotificacionesService } from '../../../../api/services/notificaciones/notificaciones.service';
 import { leerError } from '../../../../api/utils/leer-error';
 import { ImagenFallbackDirective } from '../../../../shared/directives/imagen-fallback.directive';
+import { nombreVariante } from '../../../../shared/models/producto.model';
 
 @Component({
   selector: 'app-carrito',
@@ -18,14 +19,20 @@ export class Carrito {
   private readonly notificaciones = inject(NotificacionesService);
   private readonly router = inject(Router);
 
-  cambiarCantidad(productoId: number, cantidad: number): void {
-    this.carrito.cambiarCantidad(productoId, cantidad).subscribe({
+  readonly nombreVariante = nombreVariante;
+
+  readonly faltaStock = computed(() =>
+    this.carrito.items().some((item) => item.cantidad > item.variante.stock),
+  );
+
+  cambiarCantidad(varianteId: number, cantidad: number): void {
+    this.carrito.cambiarCantidad(varianteId, cantidad).subscribe({
       error: (error) => this.notificaciones.mostrar(leerError(error).mensaje, 'error'),
     });
   }
 
-  quitar(productoId: number, nombre: string): void {
-    this.carrito.quitar(productoId).subscribe({
+  quitar(varianteId: number, nombre: string): void {
+    this.carrito.quitar(varianteId).subscribe({
       next: () => this.notificaciones.mostrar(`${nombre} se quitó del carrito.`, 'info'),
       error: (error) => this.notificaciones.mostrar(leerError(error).mensaje, 'error'),
     });
@@ -33,6 +40,11 @@ export class Carrito {
 
   realizarPedido(): void {
     if (this.carrito.items().length === 0) {
+      return;
+    }
+
+    if (this.faltaStock()) {
+      this.notificaciones.mostrar('Hay productos sin stock suficiente. Ajustá tu carrito.', 'error');
       return;
     }
 

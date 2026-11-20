@@ -235,6 +235,9 @@
                         <li class="truncate" [title]="item.producto.nombre">
                           <span class="text-muted">{{ item.cantidad }} ×</span>
                           <span class="text-ink uppercase"> {{ item.producto.nombre }}</span>
+                          @if (nombreVariante(item); as detalle) {
+                            <span class="text-muted uppercase"> ({{ detalle }})</span>
+                          }
                         </li>
                       }
                     </ul>

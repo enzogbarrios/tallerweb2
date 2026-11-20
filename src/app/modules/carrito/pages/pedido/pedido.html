@@ -59,6 +59,11 @@
                           <strong class="block text-ink uppercase">{{
                             item.producto.nombre
                           }}</strong>
+                          @if (nombreVariante(item); as detalle) {
+                            <span class="block text-[0.8rem] text-muted uppercase">{{
+                              detalle
+                            }}</span>
+                          }
                         </div>
                       </div>
                     </td>

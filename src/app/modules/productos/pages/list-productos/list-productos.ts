@@ -64,6 +64,9 @@ export class ListProductos {
   }
 
   agregarAlCarrito(producto: Producto): void {
-    agregarAlCarrito(this.auth, this.router, this.carrito, this.notificaciones, producto);
+    const variante = producto.variantes[0];
+    if (!variante) return;
+
+    agregarAlCarrito(this.auth, this.router, this.carrito, this.notificaciones, producto, variante);
   }
 }

@@ -1,5 +1,19 @@
 export type Clasificacion = string;
 
+export interface Variante {
+  id: number;
+  talle: string;
+  color: string;
+  stock: number;
+}
+
+export interface NuevaVariante {
+  id?: number;
+  talle: string;
+  color: string;
+  stock: number;
+}
+
 export interface Producto {
   id: number;
   nombre: string;
@@ -9,10 +23,22 @@ export interface Producto {
   precio: number;
   imagen: string;
   destacado: boolean;
+  variantes: Variante[];
+  stock: number;
 }
 
-export interface NuevoProducto extends Omit<Producto, 'id' | 'imagen' | 'clasificacion'> {
+export interface NuevoProducto
+  extends Omit<Producto, 'id' | 'imagen' | 'clasificacion' | 'variantes' | 'stock'> {
   imagen: File | null;
+  variantes: NuevaVariante[];
+}
+
+export function nombreVariante(variante: Pick<Variante, 'talle' | 'color'>): string {
+  return [variante.talle, variante.color].filter(Boolean).join(' / ');
+}
+
+export function tieneVariantes(producto: Producto): boolean {
+  return producto.variantes.length > 1 || producto.variantes.some((v) => nombreVariante(v) !== '');
 }
 
 export const ORDENES_PRODUCTOS = [
@@ -21,7 +47,11 @@ export const ORDENES_PRODUCTOS = [
   { valor: 'nombre_desc', etiqueta: 'Nombre (Z-A)' },
   { valor: 'precio_asc', etiqueta: 'Menor precio' },
   { valor: 'precio_desc', etiqueta: 'Mayor precio' },
+  { valor: 'stock_asc', etiqueta: 'Menos stock' },
+  { valor: 'stock_desc', etiqueta: 'Más stock' },
 ] as const;
+
+export type FiltroStock = 'con_stock' | 'sin_stock';
 
 export type OrdenProductos = (typeof ORDENES_PRODUCTOS)[number]['valor'];
 
@@ -33,5 +63,6 @@ export interface FiltrosProductosAdmin {
   destacado?: boolean;
   precio_min?: number;
   precio_max?: number;
+  stock?: FiltroStock;
   orden?: OrdenProductos;
 }

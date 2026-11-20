@@ -3,7 +3,7 @@ import { AuthService } from '../../api/services/auth/auth.service';
 import { CarritoService } from '../../api/services/carrito/carrito.service';
 import { NotificacionesService } from '../../api/services/notificaciones/notificaciones.service';
 import { leerError } from '../../api/utils/leer-error';
-import { Producto } from '../models/producto.model';
+import { nombreVariante, Producto, Variante } from '../models/producto.model';
 
 // agrega un producto solo si hay sesion
 export function agregarAlCarrito(
@@ -12,6 +12,7 @@ export function agregarAlCarrito(
   carrito: CarritoService,
   notificaciones: NotificacionesService,
   producto: Producto,
+  variante: Variante,
   cantidad = 1,
 ): void {
   if (!auth.usuarioActual()) {
@@ -20,11 +21,25 @@ export function agregarAlCarrito(
     return;
   }
 
-  carrito.agregar(producto, cantidad).subscribe({
+  if (carrito.cantidadDe(variante.id) + cantidad > variante.stock) {
+    const disponibles = variante.stock - carrito.cantidadDe(variante.id);
+    notificaciones.mostrar(
+      disponibles > 0
+        ? `Solo podés agregar ${disponibles} ${disponibles === 1 ? 'unidad' : 'unidades'} más.`
+        : 'Ya tenés en el carrito todo el stock disponible.',
+      'error',
+    );
+    return;
+  }
+
+  carrito.agregar(variante, cantidad).subscribe({
     next: () => {
       const unidades = cantidad === 1 ? 'unidad' : 'unidades';
       const verbo = cantidad === 1 ? 'se agregó' : 'se agregaron';
-      notificaciones.mostrar(`${cantidad} ${unidades} de ${producto.nombre} ${verbo} al carrito.`);
+      const detalle = nombreVariante(variante);
+      notificaciones.mostrar(
+        `${cantidad} ${unidades} de ${producto.nombre}${detalle ? ` (${detalle})` : ''} ${verbo} al carrito.`,
+      );
     },
     error: (error) => notificaciones.mostrar(leerError(error).mensaje, 'error'),
   });

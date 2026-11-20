@@ -32,6 +32,16 @@ export class HomeComponent {
   readonly totalProductos = computed(() => this.productosService.productos().length);
 
   agregarAlCarrito(producto: Producto): void {
-    agregarProductoAlCarrito(this.auth, this.router, this.carrito, this.notificaciones, producto);
+    const variante = producto.variantes[0];
+    if (!variante) return;
+
+    agregarProductoAlCarrito(
+      this.auth,
+      this.router,
+      this.carrito,
+      this.notificaciones,
+      producto,
+      variante,
+    );
   }
 }

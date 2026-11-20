@@ -1,9 +1,17 @@
 import { CurrencyPipe } from '@angular/common';
-import { Component, inject, input, output, signal, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  output,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../../api/services/auth/auth.service';
 import { ImagenFallbackDirective } from '../../../../shared/directives/imagen-fallback.directive';
-import { Producto } from '../../../../shared/models/producto.model';
+import { Producto, tieneVariantes } from '../../../../shared/models/producto.model';
 
 @Component({
   selector: 'app-producto-card',
@@ -16,6 +24,7 @@ export class ProductoCard {
   readonly agregar = output<Producto>();
 
   readonly agregado = signal(false);
+  readonly conVariantes = computed(() => tieneVariantes(this.producto()));
 
   private readonly auth = inject(AuthService);
 

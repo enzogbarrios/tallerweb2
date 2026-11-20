@@ -1,7 +1,8 @@
-import { Producto } from './producto.model';
+import { Producto, Variante } from './producto.model';
 
 export interface ItemCarrito {
   producto: Producto;
+  variante: Variante;
   cantidad: number;
 }
 

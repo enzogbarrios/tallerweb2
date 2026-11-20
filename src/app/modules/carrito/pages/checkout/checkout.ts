@@ -6,6 +6,7 @@ import { AuthService } from '../../../../api/services/auth/auth.service';
 import { CarritoService } from '../../../../api/services/carrito/carrito.service';
 import { NotificacionesService } from '../../../../api/services/notificaciones/notificaciones.service';
 import { PedidosService } from '../../../../api/services/pedidos/pedidos.service';
+import { ProductosService } from '../../../../api/services/productos/productos.service';
 import { leerError } from '../../../../api/utils/leer-error';
 import { SoloNumerosDirective } from '../../../../shared/directives/solo-numeros.directive';
 import { MarcaTarjeta, PROVINCIAS } from '../../../../shared/models/pedido.model';
@@ -18,6 +19,7 @@ import {
   validarNumeroTarjeta,
   validarVencimiento,
 } from '../../../../shared/utils/tarjeta';
+import { nombreVariante } from '../../../../shared/models/producto.model';
 
 type Paso = 1 | 2 | 3 | 4;
 
@@ -39,10 +41,13 @@ function separarDireccion(direccion: string) {
   changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class Checkout {
+  readonly nombreVariante = nombreVariante;
+
   private readonly fb = inject(FormBuilder);
   private readonly auth = inject(AuthService);
   protected readonly carrito = inject(CarritoService);
   private readonly pedidos = inject(PedidosService);
+  private readonly productos = inject(ProductosService);
   private readonly notificaciones = inject(NotificacionesService);
   private readonly router = inject(Router);
 
@@ -185,6 +190,7 @@ export class Checkout {
       .subscribe({
         next: (pedido) => {
           this.carrito.limpiar();
+          this.productos.cargar().subscribe();
           this.notificaciones.mostrar(`Pedido #${pedido.id} confirmado. ¡Gracias por tu compra!`);
           this.router.navigate(['/carrito/pedido', pedido.id]);
         },

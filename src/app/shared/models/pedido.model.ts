@@ -78,6 +78,8 @@ export interface ProductoPedido {
 
 export interface ItemPedido {
   producto: ProductoPedido;
+  talle: string;
+  color: string;
   cantidad: number;
 }
 

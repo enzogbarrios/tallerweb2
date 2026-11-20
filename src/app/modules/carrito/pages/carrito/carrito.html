@@ -19,7 +19,7 @@
       <div class="grid items-start gap-8 lg:grid-cols-3 min-h-[30rem]">
         <div class="lg:col-span-2">
           <div class="h-[30rem] overflow-y-auto overscroll-contain border-y border-gray-200 pr-2">
-            @for (item of carrito.items(); track item.producto.id) {
+            @for (item of carrito.items(); track item.variante.id) {
               <article
                 class="grid grid-cols-[76px_minmax(0,1fr)_auto] items-center gap-3 border-b border-gray-200 py-4 md:grid-cols-[96px_minmax(0,1fr)_auto_auto_auto] md:gap-4"
               >
@@ -47,17 +47,29 @@
                       {{ item.producto.nombre }}
                     </a>
                   </h2>
+                  @if (nombreVariante(item.variante); as detalle) {
+                    <span class="block text-[0.8rem] text-muted uppercase">{{ detalle }}</span>
+                  }
                   <span class="text-[0.85rem] text-brand">
                     {{ item.producto.precio | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}
                     c/u
                   </span>
+                  @if (item.cantidad > item.variante.stock) {
+                    <span class="field-error block">
+                      @if (item.variante.stock === 0) {
+                        Sin stock: quitalo para poder comprar.
+                      } @else {
+                        Solo quedan {{ item.variante.stock }}: bajá la cantidad.
+                      }
+                    </span>
+                  }
                 </div>
 
                 <button
                   type="button"
                   class="col-start-3 row-start-1 grid size-[34px] cursor-pointer place-items-center text-gray-500 transition-colors hover:text-red-600 md:order-last md:col-auto md:row-auto"
                   aria-label="Quitar producto"
-                  (click)="quitar(item.producto.id, item.producto.nombre)"
+                  (click)="quitar(item.variante.id, item.producto.nombre)"
                 >
                   <i class="bi bi-trash3"></i>
                 </button>
@@ -68,16 +80,17 @@
                       type="button"
                       class="size-10 cursor-pointer leading-none text-ink transition-colors hover:text-brand"
                       aria-label="Disminuir cantidad"
-                      (click)="cambiarCantidad(item.producto.id, item.cantidad - 1)"
+                      (click)="cambiarCantidad(item.variante.id, item.cantidad - 1)"
                     >
                       <i class="bi bi-dash"></i>
                     </button>
                     <span class="min-w-9 text-center font-bold">{{ item.cantidad }}</span>
                     <button
                       type="button"
-                      class="size-10 cursor-pointer leading-none text-ink transition-colors hover:text-brand"
+                      class="size-10 cursor-pointer leading-none text-ink transition-colors hover:text-brand disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:text-ink"
                       aria-label="Aumentar cantidad"
-                      (click)="cambiarCantidad(item.producto.id, item.cantidad + 1)"
+                      [disabled]="item.cantidad >= item.variante.stock"
+                      (click)="cambiarCantidad(item.variante.id, item.cantidad + 1)"
                     >
                       <i class="bi bi-plus"></i>
                     </button>

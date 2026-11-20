@@ -46,6 +46,16 @@ export class ProductosService {
     return this.productos().find((producto) => producto.id === id);
   }
 
+  buscar(id: number): Observable<Producto> {
+    return this.http.get<Producto>(`/api/productos/${id}`).pipe(
+      tap((producto) =>
+        this.productosState.update((productos) =>
+          productos.map((item) => (item.id === id ? producto : item)),
+        ),
+      ),
+    );
+  }
+
   // el back recibe la imagen como multipart, el navegador arma el FormData
   crear(datos: NuevoProducto): Observable<Producto> {
     return this.http
@@ -85,6 +95,7 @@ export class ProductosService {
     formData.append('categoria_id', String(datos.categoria_id));
     formData.append('precio', String(datos.precio));
     formData.append('destacado', String(datos.destacado));
+    formData.append('variantes', JSON.stringify(datos.variantes));
 
     // si no se elige archivo al editar, el backend mantiene la imagen actual
     if (datos.imagen) {

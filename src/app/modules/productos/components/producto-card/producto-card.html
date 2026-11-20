@@ -31,23 +31,38 @@
         producto().precio | currency: 'ARS' : 'symbol-narrow' : '1.0-0'
       }}</span>
 
-      <button
-        type="button"
-        class="inline-flex cursor-pointer items-center gap-[0.35rem] px-[0.8rem] py-[0.45rem] text-[0.78rem] transition-colors"
-        [class]="
-          agregado()
-            ? 'bg-emerald-50 text-emerald-700'
-            : 'bg-brand text-white hover:bg-brand/70 hover:text-white'
-        "
-        [disabled]="agregado()"
-        (click)="agregarAlCarrito()"
-      >
-        @if (agregado()) {
-          <i class="bi bi-check2"></i> AGREGADO
-        } @else {
-          AGREGAR AL CARRITO
-        }
-      </button>
+      @if (producto().stock === 0) {
+        <span
+          class="inline-flex items-center px-[0.8rem] py-[0.45rem] text-[0.78rem] bg-gray-100 text-gray-500"
+        >
+          SIN STOCK
+        </span>
+      } @else if (conVariantes()) {
+        <a
+          class="inline-flex items-center gap-[0.35rem] bg-brand px-[0.8rem] py-[0.45rem] text-[0.78rem] text-white transition-colors hover:bg-brand/70 hover:text-white"
+          [routerLink]="['/productos', producto().id]"
+        >
+          ELEGIR TALLE
+        </a>
+      } @else {
+        <button
+          type="button"
+          class="inline-flex cursor-pointer items-center gap-[0.35rem] px-[0.8rem] py-[0.45rem] text-[0.78rem] transition-colors"
+          [class]="
+            agregado()
+              ? 'bg-emerald-50 text-emerald-700'
+              : 'bg-brand text-white hover:bg-brand/70 hover:text-white'
+          "
+          [disabled]="agregado()"
+          (click)="agregarAlCarrito()"
+        >
+          @if (agregado()) {
+            <i class="bi bi-check2"></i> AGREGADO
+          } @else {
+            AGREGAR AL CARRITO
+          }
+        </button>
+      }
     </div>
   </div>
 </article>
