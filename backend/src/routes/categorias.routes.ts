@@ -10,8 +10,6 @@ const categoriasController = new CategoriasController();
 
 categoriasRoutes.get('/', categoriasController.listar);
 
-categoriasRoutes.get('/admin', autenticar, requireAdmin, categoriasController.listarAdmin);
-
 categoriasRoutes.post(
   '/',
   autenticar,

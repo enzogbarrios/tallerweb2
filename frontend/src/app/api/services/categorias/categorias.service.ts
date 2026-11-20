@@ -1,13 +1,7 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { catchError, forkJoin, map, Observable, of, switchMap, tap } from 'rxjs';
-import {
-  Categoria,
-  CategoriaAdmin,
-  FiltrosCategorias,
-  NuevaCategoria,
-} from '../../../shared/models/categoria.model';
-import { Pagina } from '../../../shared/models/pagina.model';
+import { Categoria, NuevaCategoria } from '../../../shared/models/categoria.model';
 import { ProductosService } from '../productos/productos.service';
 
 @Injectable({
@@ -29,19 +23,6 @@ export class CategoriasService {
         return of(null);
       }),
     );
-  }
-
-  listarAdmin(filtros: FiltrosCategorias): Observable<Pagina<CategoriaAdmin>> {
-    let params = new HttpParams()
-      .set('pagina', filtros.pagina)
-      .set('limite', filtros.limite)
-      .set('orden', filtros.orden);
-
-    if (filtros.q.trim()) {
-      params = params.set('q', filtros.q.trim());
-    }
-
-    return this.http.get<Pagina<CategoriaAdmin>>('/api/categorias/admin', { params });
   }
 
   crear(datos: NuevaCategoria): Observable<Categoria> {

@@ -54,15 +54,3 @@ export const ORDENES_PRODUCTOS = [
 export type FiltroStock = 'con_stock' | 'sin_stock';
 
 export type OrdenProductos = (typeof ORDENES_PRODUCTOS)[number]['valor'];
-
-export interface FiltrosProductosAdmin {
-  pagina?: number;
-  limite?: number;
-  q?: string;
-  categoria_id?: number;
-  destacado?: boolean;
-  precio_min?: number;
-  precio_max?: number;
-  stock?: FiltroStock;
-  orden?: OrdenProductos;
-}

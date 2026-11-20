@@ -1,13 +1,21 @@
-import { Component, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../../api/services/auth/auth.service';
 import { CarritoService } from '../../../../api/services/carrito/carrito.service';
 import { CategoriasService } from '../../../../api/services/categorias/categorias.service';
 import { NotificacionesService } from '../../../../api/services/notificaciones/notificaciones.service';
 import { ProductosService } from '../../../../api/services/productos/productos.service';
-import { Clasificacion, Producto } from '../../../../shared/models/producto.model';
+import {
+  ORDENES_PRODUCTOS,
+  OrdenProductos,
+  Producto,
+} from '../../../../shared/models/producto.model';
 import { agregarAlCarrito } from '../../../../shared/utils/agregar-al-carrito';
+import { ordenarProductos } from '../../../../shared/utils/ordenar-productos';
 import { ProductoCard } from '../../components/producto-card/producto-card';
+
+const LIMITES = [8, 12, 24];
+const LIMITE_POR_DEFECTO = 12;
 
 @Component({
   selector: 'app-list-productos',
@@ -23,44 +31,90 @@ export class ListProductos {
   private readonly notificaciones = inject(NotificacionesService);
   private readonly router = inject(Router);
 
-  readonly clasificaciones = computed<Array<Clasificacion | 'Todas'>>(() => [
-    'Todas',
-    ...this.categoriasService.categorias().map((categoria) => categoria.nombre),
-  ]);
+  readonly categorias = this.categoriasService.categorias;
+  readonly ordenes = ORDENES_PRODUCTOS;
+  readonly limites = LIMITES;
 
   readonly busqueda = signal('');
-  readonly clasificacionActiva = signal<Clasificacion | 'Todas'>('Todas');
+  readonly categoriaId = signal<number | undefined>(undefined);
+  readonly orden = signal<OrdenProductos>('recientes');
+  readonly pagina = signal(1);
+  readonly limite = signal(LIMITE_POR_DEFECTO);
 
-  readonly productosFiltrados = computed(() => {
+  readonly filtrados = computed(() => {
     const texto = this.busqueda().trim().toLowerCase();
-    const clasificacion = this.clasificacionActiva();
+    const categoriaId = this.categoriaId();
 
-    return this.productosService.productos().filter((producto) => {
+    const coincidentes = this.productosService.productos().filter((producto) => {
       const coincideTexto =
         !texto ||
         producto.nombre.toLowerCase().includes(texto) ||
         producto.descripcion.toLowerCase().includes(texto);
-
-      const coincideClasificacion =
-        clasificacion === 'Todas' || producto.clasificacion === clasificacion;
-
-      return coincideTexto && coincideClasificacion;
+      const coincideCategoria = categoriaId === undefined || producto.categoria_id === categoriaId;
+      return coincideTexto && coincideCategoria;
     });
+
+    return ordenarProductos(coincidentes, this.orden());
   });
 
-  readonly cantidadResultados = computed(() => this.productosFiltrados().length);
+  readonly total = computed(() => this.filtrados().length);
+  readonly totalPaginas = computed(() => Math.ceil(this.total() / this.limite()));
+
+  readonly paginaActual = computed(() =>
+    Math.min(this.pagina(), Math.max(1, this.totalPaginas())),
+  );
+
+  readonly productos = computed(() => {
+    const inicio = (this.paginaActual() - 1) * this.limite();
+    return this.filtrados().slice(inicio, inicio + this.limite());
+  });
+
+  readonly hayFiltros = computed(() => !!this.busqueda().trim() || this.categoriaId() !== undefined);
+
+  readonly paginasVisibles = computed<Array<number | null>>(() => {
+    const actual = this.paginaActual();
+    const ultima = this.totalPaginas();
+    const visibles: Array<number | null> = [];
+
+    for (let numero = 1; numero <= ultima; numero++) {
+      if (numero === 1 || numero === ultima || Math.abs(numero - actual) <= 1) {
+        visibles.push(numero);
+      } else if (visibles[visibles.length - 1] !== null) {
+        visibles.push(null);
+      }
+    }
+    return visibles;
+  });
 
   buscar(event: Event): void {
     this.busqueda.set((event.target as HTMLInputElement).value);
+    this.pagina.set(1);
   }
 
-  filtrar(clasificacion: Clasificacion | 'Todas'): void {
-    this.clasificacionActiva.set(clasificacion);
+  filtrar(categoriaId: number | undefined): void {
+    this.categoriaId.set(categoriaId);
+    this.pagina.set(1);
+  }
+
+  ordenarPor(event: Event): void {
+    this.orden.set((event.target as HTMLSelectElement).value as OrdenProductos);
+    this.pagina.set(1);
+  }
+
+  cambiarLimite(event: Event): void {
+    this.limite.set(Number((event.target as HTMLSelectElement).value));
+    this.pagina.set(1);
+  }
+
+  irAPagina(pagina: number): void {
+    if (pagina < 1 || pagina > this.totalPaginas()) return;
+    this.pagina.set(pagina);
   }
 
   limpiarFiltros(): void {
     this.busqueda.set('');
-    this.clasificacionActiva.set('Todas');
+    this.categoriaId.set(undefined);
+    this.pagina.set(1);
   }
 
   agregarAlCarrito(producto: Producto): void {

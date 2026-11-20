@@ -1,12 +1,7 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { catchError, Observable, of, tap } from 'rxjs';
-import { Pagina } from '../../../shared/models/pagina.model';
-import {
-  FiltrosProductosAdmin,
-  NuevoProducto,
-  Producto,
-} from '../../../shared/models/producto.model';
+import { NuevoProducto, Producto } from '../../../shared/models/producto.model';
 
 @Injectable({
   providedIn: 'root',
@@ -14,12 +9,10 @@ import {
 export class ProductosService {
   private readonly http = inject(HttpClient);
 
-  // La lista vive en una señal: los componentes la leen con productos() y se actualizan solos.
   private readonly productosState = signal<Producto[]>([]);
 
   readonly productos = this.productosState.asReadonly();
 
-  // Trae el catálogo desde la API. Se llama una vez al arrancar la app (ver app.config.ts).
   cargar(): Observable<unknown> {
     return this.http.get<Producto[]>('/api/productos').pipe(
       tap((lista) => this.productosState.set(lista)),
@@ -28,18 +21,6 @@ export class ProductosService {
         return of(null);
       }),
     );
-  }
-
-  listarAdmin(filtros: FiltrosProductosAdmin): Observable<Pagina<Producto>> {
-    let params = new HttpParams();
-
-    for (const [clave, valor] of Object.entries(filtros)) {
-      if (valor !== undefined && valor !== null && valor !== '') {
-        params = params.set(clave, String(valor));
-      }
-    }
-
-    return this.http.get<Pagina<Producto>>('/api/productos/admin', { params });
   }
 
   obtenerPorId(id: number): Producto | undefined {

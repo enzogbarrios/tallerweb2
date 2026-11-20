@@ -63,7 +63,3 @@ export function leerQuery<T extends z.ZodType>(esquema: T, query: unknown): z.in
 
   return resultado.data;
 }
-
-export function patronBusqueda(texto: string) {
-  return `%${texto.replace(/[\\%_]/g, '\\$&')}%`;
-}

@@ -57,9 +57,9 @@
           class="border border-gray-300 bg-white px-3 py-[0.6rem] text-[0.9rem] text-ink focus:border-brand focus:outline-none"
           (change)="filtrarCategoria($event)"
         >
-          <option value="" [selected]="!filtros().categoria_id">Todas</option>
+          <option value="" [selected]="!categoriaId()">Todas</option>
           @for (categoria of categorias(); track categoria.id) {
-            <option [value]="categoria.id" [selected]="filtros().categoria_id === categoria.id">
+            <option [value]="categoria.id" [selected]="categoriaId() === categoria.id">
               {{ categoria.nombre }}
             </option>
           }
@@ -77,9 +77,9 @@
           class="border border-gray-300 bg-white px-3 py-[0.6rem] text-[0.9rem] text-ink focus:border-brand focus:outline-none"
           (change)="filtrarDestacado($event)"
         >
-          <option value="" [selected]="filtros().destacado === undefined">Todos</option>
-          <option value="true" [selected]="filtros().destacado === true">Sí</option>
-          <option value="false" [selected]="filtros().destacado === false">No</option>
+          <option value="" [selected]="destacado() === undefined">Todos</option>
+          <option value="true" [selected]="destacado() === true">Sí</option>
+          <option value="false" [selected]="destacado() === false">No</option>
         </select>
       </div>
 
@@ -94,9 +94,9 @@
           class="border border-gray-300 bg-white px-3 py-[0.6rem] text-[0.9rem] text-ink focus:border-brand focus:outline-none"
           (change)="filtrarStock($event)"
         >
-          <option value="" [selected]="filtros().stock === undefined">Todos</option>
-          <option value="con_stock" [selected]="filtros().stock === 'con_stock'">Con stock</option>
-          <option value="sin_stock" [selected]="filtros().stock === 'sin_stock'">Sin stock</option>
+          <option value="" [selected]="stock() === undefined">Todos</option>
+          <option value="con_stock" [selected]="stock() === 'con_stock'">Con stock</option>
+          <option value="sin_stock" [selected]="stock() === 'sin_stock'">Sin stock</option>
         </select>
       </div>
 
@@ -113,7 +113,7 @@
             step="1"
             placeholder="Mínimo"
             aria-label="Precio mínimo"
-            [value]="filtros().precio_min ?? ''"
+            [value]="precioMin() ?? ''"
             (change)="filtrarPrecio('precio_min', $event)"
           />
           <span class="text-muted">—</span>
@@ -125,7 +125,7 @@
             step="1"
             placeholder="Máximo"
             aria-label="Precio máximo"
-            [value]="filtros().precio_max ?? ''"
+            [value]="precioMax() ?? ''"
             (change)="filtrarPrecio('precio_max', $event)"
           />
         </div>
@@ -142,9 +142,9 @@
           class="border border-gray-300 bg-white px-3 py-[0.6rem] text-[0.9rem] text-ink focus:border-brand focus:outline-none"
           (change)="ordenar($event)"
         >
-          @for (orden of ordenes; track orden.valor) {
-            <option [value]="orden.valor" [selected]="filtros().orden === orden.valor">
-              {{ orden.etiqueta }}
+          @for (opcion of ordenes; track opcion.valor) {
+            <option [value]="opcion.valor" [selected]="orden() === opcion.valor">
+              {{ opcion.etiqueta }}
             </option>
           }
         </select>
@@ -153,11 +153,8 @@
 
     <div class="mb-6 flex flex-wrap items-center justify-between gap-2">
       <span class="text-[0.85rem] text-muted">
-        @if (cargando()) {
-          Cargando productos...
-        } @else {
-          {{ total() }} {{ total() === 1 ? 'producto' : 'productos' }}
-        }
+        {{ total() }} {{ total() === 1 ? 'producto' : 'productos' }}
+        {{ hayFiltros() ? (total() === 1 ? 'encontrado' : 'encontrados') : 'cargados' }}
       </span>
 
       @if (hayFiltros()) {
@@ -171,13 +168,7 @@
       }
     </div>
 
-    @if (error() && !resultado()) {
-      <div class="border border-dashed border-gray-300 px-8 py-14 text-center">
-        <i class="bi bi-exclamation-triangle mb-4 block text-[2.2rem] text-brand"></i>
-        <h2 class="mb-2 text-[1.3rem] text-black uppercase">No se pudieron cargar los productos</h2>
-        <p class="mx-auto max-w-[430px] text-muted">{{ error() }}</p>
-      </div>
-    } @else if (resultado() && productos().length === 0) {
+    @if (productos().length === 0) {
       @if (hayFiltros()) {
         <div class="border border-dashed border-gray-300 px-8 py-14 text-center">
           <i class="bi bi-search mb-4 block text-[2.2rem] text-brand"></i>
@@ -202,11 +193,8 @@
           </p>
         </div>
       }
-    } @else if (resultado()) {
-      <div
-        class="overflow-x-auto border-t border-gray-200 transition-opacity"
-        [class.opacity-50]="cargando()"
-      >
+    } @else {
+      <div class="overflow-x-auto border-t border-gray-200">
         <table class="w-full min-w-[960px] table-fixed border-collapse text-left">
           <colgroup>
             <col class="w-[70px]" />
@@ -332,9 +320,9 @@
             class="border border-gray-300 bg-white px-2 py-1 text-[0.85rem] text-ink focus:border-brand focus:outline-none"
             (change)="cambiarLimite($event)"
           >
-            @for (limite of limites; track limite) {
-              <option [value]="limite" [selected]="filtros().limite === limite">
-                {{ limite }}
+            @for (cantidad of limites; track cantidad) {
+              <option [value]="cantidad" [selected]="limite() === cantidad">
+                {{ cantidad }}
               </option>
             }
           </select>

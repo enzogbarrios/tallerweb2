@@ -4,7 +4,7 @@
       <h1 class="mt-2 text-black uppercase">Productos</h1>
     </div>
 
-    <div class="mb-5 flex flex-wrap items-center justify-between gap-4">
+    <div class="mb-5 flex flex-wrap items-end gap-4">
       <div
         class="flex flex-[1_1_300px] items-center gap-[0.6rem] border border-gray-300 bg-white px-[0.85rem] py-[0.65rem] focus-within:border-brand"
       >
@@ -20,30 +20,60 @@
       </div>
 
       <div class="flex flex-wrap gap-[0.4rem]">
-        @for (clasificacion of clasificaciones(); track clasificacion) {
+        <button
+          type="button"
+          class="cursor-pointer border px-[0.8rem] py-[0.45rem] text-[0.78rem] uppercase transition-colors"
+          [class]="
+            categoriaId() === undefined
+              ? 'border-brand bg-brand text-white'
+              : 'border-gray-300 bg-white text-muted hover:border-brand hover:text-brand'
+          "
+          (click)="filtrar(undefined)"
+        >
+          Todas
+        </button>
+        @for (categoria of categorias(); track categoria.id) {
           <button
             type="button"
             class="cursor-pointer border px-[0.8rem] py-[0.45rem] text-[0.78rem] uppercase transition-colors"
             [class]="
-              clasificacionActiva() === clasificacion
+              categoriaId() === categoria.id
                 ? 'border-brand bg-brand text-white'
                 : 'border-gray-300 bg-white text-muted hover:border-brand hover:text-brand'
             "
-            (click)="filtrar(clasificacion)"
+            (click)="filtrar(categoria.id)"
           >
-            {{ clasificacion }}
+            {{ categoria.nombre }}
           </button>
         }
+      </div>
+
+      <div>
+        <label
+          class="mb-1 block text-[0.72rem] tracking-[0.06em] text-muted uppercase"
+          for="orden-productos"
+          >Ordenar por</label
+        >
+        <select
+          id="orden-productos"
+          class="border border-gray-300 bg-white px-3 py-[0.6rem] text-[0.9rem] text-ink focus:border-brand focus:outline-none"
+          (change)="ordenarPor($event)"
+        >
+          @for (opcion of ordenes; track opcion.valor) {
+            <option [value]="opcion.valor" [selected]="orden() === opcion.valor">
+              {{ opcion.etiqueta }}
+            </option>
+          }
+        </select>
       </div>
     </div>
 
     <div class="mb-6 flex flex-wrap items-center justify-between gap-2">
       <span class="text-[0.85rem] text-muted">
-        {{ cantidadResultados() }}
-        {{ cantidadResultados() === 1 ? 'producto encontrado' : 'productos encontrados' }}
+        {{ total() }} {{ total() === 1 ? 'producto encontrado' : 'productos encontrados' }}
       </span>
 
-      @if (busqueda() || clasificacionActiva() !== 'Todas') {
+      @if (hayFiltros()) {
         <button
           type="button"
           class="inline-flex cursor-pointer items-center gap-[0.35rem] text-[0.82rem] font-semibold text-ink hover:text-brand"
@@ -54,24 +84,88 @@
       }
     </div>
 
-    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-      @for (producto of productosFiltrados(); track producto.id) {
-        <app-producto-card
-          [producto]="producto"
-          (agregar)="agregarAlCarrito($event)"
-        ></app-producto-card>
-      } @empty {
-        <div class="col-span-full border border-dashed border-gray-300 px-8 py-14 text-center">
-          <i class="bi bi-search mb-4 block text-[2.2rem] text-brand"></i>
-          <h2 class="mb-2 text-[1.3rem] text-black uppercase">No encontramos productos</h2>
-          <p class="mx-auto mb-6 max-w-[430px] text-muted">
-            Probá con otra búsqueda o quitá los filtros para ver todo el catálogo.
-          </p>
-          <button type="button" class="inline-flex cursor-pointer items-center justify-center gap-2 bg-brand px-6 py-3 text-[0.9rem] text-white uppercase transition-colors hover:bg-brand/70" (click)="limpiarFiltros()">
-            Ver todos los productos
-          </button>
+    @if (total() === 0) {
+      <div class="border border-dashed border-gray-300 px-8 py-14 text-center">
+        <i class="bi bi-search mb-4 block text-[2.2rem] text-brand"></i>
+        <h2 class="mb-2 text-[1.3rem] text-black uppercase">No encontramos productos</h2>
+        <p class="mx-auto mb-6 max-w-[430px] text-muted">
+          Probá con otra búsqueda o quitá los filtros para ver todo el catálogo.
+        </p>
+        <button
+          type="button"
+          class="inline-flex cursor-pointer items-center justify-center gap-2 bg-brand px-6 py-3 text-[0.9rem] text-white uppercase transition-colors hover:bg-brand/70"
+          (click)="limpiarFiltros()"
+        >
+          Ver todos los productos
+        </button>
+      </div>
+    } @else {
+      <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        @for (producto of productos(); track producto.id) {
+          <app-producto-card
+            [producto]="producto"
+            (agregar)="agregarAlCarrito($event)"
+          ></app-producto-card>
+        }
+      </div>
+
+      <div class="mt-8 flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-2 text-[0.85rem] text-muted">
+          <label for="limite-productos">Mostrar</label>
+          <select
+            id="limite-productos"
+            class="border border-gray-300 bg-white px-2 py-1 text-[0.85rem] text-ink focus:border-brand focus:outline-none"
+            (change)="cambiarLimite($event)"
+          >
+            @for (cantidad of limites; track cantidad) {
+              <option [value]="cantidad" [selected]="limite() === cantidad">{{ cantidad }}</option>
+            }
+          </select>
+          <span>por página</span>
         </div>
-      }
-    </div>
+
+        @if (totalPaginas() > 1) {
+          <nav class="flex flex-wrap items-center gap-[0.4rem]" aria-label="Paginación">
+            <button
+              type="button"
+              class="cursor-pointer border border-gray-300 bg-white px-[0.8rem] py-[0.45rem] text-[0.78rem] text-ink uppercase transition-colors hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-gray-300 disabled:hover:text-ink"
+              [disabled]="paginaActual() <= 1"
+              (click)="irAPagina(paginaActual() - 1)"
+            >
+              <i class="bi bi-chevron-left"></i> Anterior
+            </button>
+
+            @for (numero of paginasVisibles(); track $index) {
+              @if (numero === null) {
+                <span class="px-1 text-muted">…</span>
+              } @else {
+                <button
+                  type="button"
+                  class="min-w-[2.2rem] cursor-pointer border px-[0.7rem] py-[0.45rem] text-[0.78rem] transition-colors"
+                  [class]="
+                    numero === paginaActual()
+                      ? 'border-brand bg-brand text-white'
+                      : 'border-gray-300 bg-white text-muted hover:border-brand hover:text-brand'
+                  "
+                  [attr.aria-current]="numero === paginaActual() ? 'page' : null"
+                  (click)="irAPagina(numero)"
+                >
+                  {{ numero }}
+                </button>
+              }
+            }
+
+            <button
+              type="button"
+              class="cursor-pointer border border-gray-300 bg-white px-[0.8rem] py-[0.45rem] text-[0.78rem] text-ink uppercase transition-colors hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-gray-300 disabled:hover:text-ink"
+              [disabled]="paginaActual() >= totalPaginas()"
+              (click)="irAPagina(paginaActual() + 1)"
+            >
+              Siguiente <i class="bi bi-chevron-right"></i>
+            </button>
+          </nav>
+        }
+      </div>
+    }
   </div>
 </section>

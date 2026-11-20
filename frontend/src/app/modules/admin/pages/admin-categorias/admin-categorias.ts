@@ -2,44 +2,23 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  DestroyRef,
   ElementRef,
   inject,
-  OnInit,
   signal,
   viewChild,
 } from '@angular/core';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import {
-  catchError,
-  debounceTime,
-  distinctUntilChanged,
-  map,
-  of,
-  startWith,
-  Subject,
-  switchMap,
-  tap,
-} from 'rxjs';
 import { CategoriasService } from '../../../../api/services/categorias/categorias.service';
 import { NotificacionesService } from '../../../../api/services/notificaciones/notificaciones.service';
+import { ProductosService } from '../../../../api/services/productos/productos.service';
 import { leerError } from '../../../../api/utils/leer-error';
-import {
-  CategoriaAdmin,
-  FiltrosCategorias,
-  OrdenCategorias,
-} from '../../../../shared/models/categoria.model';
-import { Pagina } from '../../../../shared/models/pagina.model';
+import { CategoriaAdmin, OrdenCategorias } from '../../../../shared/models/categoria.model';
 
-const FILTROS_INICIALES: FiltrosCategorias = {
-  pagina: 1,
-  limite: 10,
-  q: '',
-  orden: 'nombre_asc',
-};
-
+const LIMITES = [5, 10, 20];
+const LIMITE_POR_DEFECTO = 10;
+const ORDEN_POR_DEFECTO: OrdenCategorias = 'nombre_asc';
 const PAGINAS_VISIBLES = 5;
 
 @Component({
@@ -48,11 +27,11 @@ const PAGINAS_VISIBLES = 5;
   templateUrl: './admin-categorias.html',
   changeDetection: ChangeDetectionStrategy.Eager,
 })
-export class AdminCategorias implements OnInit {
+export class AdminCategorias {
   private readonly categoriasService = inject(CategoriasService);
+  private readonly productosService = inject(ProductosService);
   private readonly notificaciones = inject(NotificacionesService);
   private readonly fb = inject(FormBuilder);
-  private readonly destroyRef = inject(DestroyRef);
 
   readonly ordenes: Array<{ valor: OrdenCategorias; texto: string }> = [
     { valor: 'nombre_asc', texto: 'Nombre (A-Z)' },
@@ -60,17 +39,15 @@ export class AdminCategorias implements OnInit {
     { valor: 'productos_desc', texto: 'Más productos' },
     { valor: 'recientes', texto: 'Más recientes' },
   ];
+  readonly limites = LIMITES;
 
-  readonly filtros = signal<FiltrosCategorias>(FILTROS_INICIALES);
-  readonly resultado = signal<Pagina<CategoriaAdmin> | null>(null);
-  readonly cargando = signal(true);
-  readonly errorListado = signal<string | null>(null);
-
-  readonly textoBusqueda = signal('');
+  readonly busqueda = signal('');
+  readonly orden = signal<OrdenCategorias>(ORDEN_POR_DEFECTO);
+  readonly pagina = signal(1);
+  readonly limite = signal(LIMITE_POR_DEFECTO);
 
   readonly editando = signal<CategoriaAdmin | null>(null);
   readonly guardando = signal(false);
-
   readonly confirmandoId = signal<number | null>(null);
 
   readonly form = this.fb.nonNullable.group({
@@ -84,9 +61,7 @@ export class AdminCategorias implements OnInit {
 
   readonly sinCambios = computed(() => {
     const editando = this.editando();
-    if (!editando) {
-      return false;
-    }
+    if (!editando) return false;
 
     const valores = this.valoresForm();
     return (
@@ -95,90 +70,85 @@ export class AdminCategorias implements OnInit {
     );
   });
 
-  readonly numerosPagina = computed(() => {
-    const resultado = this.resultado();
-    if (!resultado) {
-      return [];
-    }
+  readonly categorias = computed<CategoriaAdmin[]>(() => {
+    const productos = this.productosService.productos();
+    return this.categoriasService.categorias().map((categoria) => ({
+      ...categoria,
+      cantidad_productos: productos.filter((producto) => producto.categoria_id === categoria.id)
+        .length,
+    }));
+  });
 
+  readonly filtrados = computed(() => {
+    const texto = this.busqueda().trim().toLowerCase();
+    const coincidentes = this.categorias().filter(
+      (categoria) =>
+        !texto ||
+        categoria.nombre.toLowerCase().includes(texto) ||
+        (categoria.descripcion ?? '').toLowerCase().includes(texto),
+    );
+    const copia = [...coincidentes];
+
+    switch (this.orden()) {
+      case 'nombre_asc':
+        return copia.sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
+      case 'nombre_desc':
+        return copia.sort((a, b) => b.nombre.localeCompare(a.nombre, 'es'));
+      case 'productos_desc':
+        return copia.sort(
+          (a, b) => b.cantidad_productos - a.cantidad_productos || a.nombre.localeCompare(b.nombre, 'es'),
+        );
+      default:
+        // "recientes" ≈ id más alto primero
+        return copia.sort((a, b) => b.id - a.id);
+    }
+  });
+
+  readonly total = computed(() => this.filtrados().length);
+  readonly totalPaginas = computed(() => Math.ceil(this.total() / this.limite()));
+  readonly paginaActual = computed(() =>
+    Math.min(this.pagina(), Math.max(1, this.totalPaginas())),
+  );
+  readonly items = computed(() => {
+    const inicio = (this.paginaActual() - 1) * this.limite();
+    return this.filtrados().slice(inicio, inicio + this.limite());
+  });
+
+  readonly numerosPagina = computed(() => {
+    const ultima = this.totalPaginas();
     const hasta = Math.min(
-      resultado.paginas,
-      Math.max(resultado.pagina + Math.floor(PAGINAS_VISIBLES / 2), PAGINAS_VISIBLES),
+      ultima,
+      Math.max(this.paginaActual() + Math.floor(PAGINAS_VISIBLES / 2), PAGINAS_VISIBLES),
     );
     const desde = Math.max(1, hasta - PAGINAS_VISIBLES + 1);
-
     return Array.from({ length: hasta - desde + 1 }, (_, indice) => desde + indice);
   });
 
   private readonly formulario = viewChild<ElementRef<HTMLElement>>('formulario');
 
-  private readonly pedidos$ = new Subject<FiltrosCategorias>();
-  private readonly busqueda$ = new Subject<string>();
-
-  ngOnInit(): void {
-    this.busqueda$
-      .pipe(
-        map((texto) => texto.trim()),
-        debounceTime(350),
-        distinctUntilChanged(),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe((q) => this.cambiarFiltros({ q, pagina: 1 }));
-
-    this.pedidos$
-      .pipe(
-        startWith(this.filtros()),
-        tap(() => this.cargando.set(true)),
-        switchMap((filtros) =>
-          this.categoriasService.listarAdmin(filtros).pipe(
-            catchError((error) => {
-              this.errorListado.set(leerError(error).mensaje);
-              return of(null);
-            }),
-          ),
-        ),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe((resultado) => {
-        this.cargando.set(false);
-
-        if (!resultado) {
-          return;
-        }
-
-        if (resultado.items.length === 0 && resultado.pagina > 1) {
-          this.cambiarFiltros({ pagina: Math.max(1, resultado.paginas) });
-          return;
-        }
-
-        this.errorListado.set(null);
-        this.resultado.set(resultado);
-      });
-  }
-
   buscar(evento: Event): void {
-    const texto = (evento.target as HTMLInputElement).value;
-    this.textoBusqueda.set(texto);
-    this.busqueda$.next(texto);
+    this.busqueda.set((evento.target as HTMLInputElement).value);
+    this.pagina.set(1);
   }
 
   ordenar(evento: Event): void {
-    const orden = (evento.target as HTMLSelectElement).value as OrdenCategorias;
-    this.cambiarFiltros({ orden, pagina: 1 });
+    this.orden.set((evento.target as HTMLSelectElement).value as OrdenCategorias);
+    this.pagina.set(1);
+  }
+
+  cambiarLimite(evento: Event): void {
+    this.limite.set(Number((evento.target as HTMLSelectElement).value));
+    this.pagina.set(1);
   }
 
   irAPagina(pagina: number): void {
-    const resultado = this.resultado();
-
-    if (!resultado || pagina < 1 || pagina > resultado.paginas || pagina === resultado.pagina) {
-      return;
-    }
-    this.cambiarFiltros({ pagina });
+    if (pagina < 1 || pagina > this.totalPaginas()) return;
+    this.pagina.set(pagina);
   }
 
   limpiarBusqueda(): void {
-    this.textoBusqueda.set('');
-    this.busqueda$.next('');
+    this.busqueda.set('');
+    this.pagina.set(1);
   }
 
   editar(categoria: CategoriaAdmin): void {
@@ -219,7 +189,6 @@ export class AdminCategorias implements OnInit {
             : `"${categoria.nombre}" se creó correctamente.`,
         );
         this.cancelarEdicion();
-        this.recargar();
       },
       error: (error) => {
         this.guardando.set(false);
@@ -258,21 +227,11 @@ export class AdminCategorias implements OnInit {
           this.cancelarEdicion();
         }
         this.notificaciones.mostrar(`"${categoria.nombre}" se eliminó.`, 'info');
-        this.recargar();
       },
       error: (error) => {
         this.confirmandoId.set(null);
         this.notificaciones.mostrar(leerError(error).mensaje, 'error');
       },
     });
-  }
-
-  private cambiarFiltros(cambios: Partial<FiltrosCategorias>): void {
-    this.filtros.update((filtros) => ({ ...filtros, ...cambios }));
-    this.pedidos$.next(this.filtros());
-  }
-
-  private recargar(): void {
-    this.pedidos$.next(this.filtros());
   }
 }

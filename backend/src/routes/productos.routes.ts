@@ -10,7 +10,6 @@ export const productosRoutes = Router();
 const productosController = new ProductosController();
 
 productosRoutes.get('/', productosController.listar);
-productosRoutes.get('/admin', autenticar, requireAdmin, productosController.listarAdmin);
 productosRoutes.get('/:id', productosController.obtener);
 
 productosRoutes.post(

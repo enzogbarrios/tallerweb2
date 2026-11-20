@@ -10,13 +10,11 @@
     <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
       <div>
         <h1 class="mt-2 text-black uppercase">Categorías</h1>
-        @if (resultado(); as r) {
-          <p class="text-sm text-muted">
-            {{ r.total }}
-            {{ r.total === 1 ? 'categoría' : 'categorías' }}
-            {{ filtros().q ? 'encontradas' : 'cargadas' }}
-          </p>
-        }
+        <p class="text-sm text-muted">
+          {{ total() }}
+          {{ total() === 1 ? 'categoría' : 'categorías' }}
+          {{ busqueda() ? 'encontradas' : 'cargadas' }}
+        </p>
       </div>
     </div>
 
@@ -115,7 +113,7 @@
               type="search"
               placeholder="Buscar por nombre o descripción..."
               aria-label="Buscar categorías"
-              [value]="textoBusqueda()"
+              [value]="busqueda()"
               (input)="buscar($event)"
             />
           </div>
@@ -127,34 +125,38 @@
               aria-label="Ordenar categorías"
               (change)="ordenar($event)"
             >
-              @for (orden of ordenes; track orden.valor) {
-                <option [value]="orden.valor" [selected]="filtros().orden === orden.valor">
-                  {{ orden.texto }}
+              @for (opcion of ordenes; track opcion.valor) {
+                <option [value]="opcion.valor" [selected]="orden() === opcion.valor">
+                  {{ opcion.texto }}
                 </option>
+              }
+            </select>
+          </label>
+
+          <label class="flex items-center gap-2 text-[0.78rem] text-muted uppercase">
+            Mostrar
+            <select
+              class="border border-gray-300 bg-white px-[0.8rem] py-[0.6rem] text-[0.85rem] text-ink normal-case focus:border-brand focus:outline-none"
+              aria-label="Categorías por página"
+              (change)="cambiarLimite($event)"
+            >
+              @for (cantidad of limites; track cantidad) {
+                <option [value]="cantidad" [selected]="limite() === cantidad">{{ cantidad }}</option>
               }
             </select>
           </label>
         </div>
 
         <div class="flex h-[600px] flex-col">
-        @if (errorListado(); as error) {
-          <div
-            class="flex flex-1 flex-col justify-center border border-dashed border-gray-300 px-8 py-14 text-center"
-          >
-            <i class="bi bi-exclamation-triangle mb-4 block text-[2.2rem] text-red-600"></i>
-            <h2 class="mb-2 text-[1.3rem] text-black uppercase">No se pudo cargar el listado</h2>
-            <p class="mx-auto max-w-[430px] text-muted">{{ error }}</p>
-          </div>
-        } @else if (resultado(); as r) {
-          @if (r.items.length === 0) {
+          @if (items().length === 0) {
             <div
               class="flex flex-1 flex-col justify-center border border-dashed border-gray-300 px-8 py-14 text-center"
             >
               <i class="bi bi-tags mb-4 block text-[2.2rem] text-brand"></i>
-              @if (filtros().q) {
+              @if (busqueda()) {
                 <h2 class="mb-2 text-[1.3rem] text-black uppercase">No encontramos categorías</h2>
                 <p class="mx-auto mb-6 max-w-[430px] text-muted">
-                  Ninguna categoría coincide con "{{ filtros().q }}".
+                  Ninguna categoría coincide con "{{ busqueda() }}".
                 </p>
                 <button
                   type="button"
@@ -169,10 +171,7 @@
               }
             </div>
           } @else {
-            <div
-              class="min-h-0 flex-1 overflow-auto border-t border-gray-200 transition-opacity"
-              [class.opacity-50]="cargando()"
-            >
+            <div class="min-h-0 flex-1 overflow-auto border-t border-gray-200">
               <table class="w-full min-w-[640px] border-collapse text-left">
                 <thead class="[&_th]:sticky [&_th]:top-0 [&_th]:z-10 [&_th]:bg-white">
                   <tr class="text-[0.72rem] tracking-[0.06em] text-muted uppercase">
@@ -198,7 +197,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  @for (categoria of r.items; track categoria.id) {
+                  @for (categoria of items(); track categoria.id) {
                     <tr
                       class="border-b border-gray-200"
                       [class.bg-gray-50]="editando()?.id === categoria.id"
@@ -255,21 +254,21 @@
               </table>
             </div>
 
-            @if (r.paginas > 1) {
+            @if (totalPaginas() > 1) {
               <nav
                 class="mt-auto flex flex-wrap items-center justify-between gap-3 pt-4"
                 aria-label="Paginación de categorías"
               >
                 <span class="text-[0.85rem] text-muted">
-                  Página {{ r.pagina }} de {{ r.paginas }}
+                  Página {{ paginaActual() }} de {{ totalPaginas() }}
                 </span>
 
                 <div class="flex flex-wrap items-center gap-[0.4rem]">
                   <button
                     type="button"
                     class="cursor-pointer border border-gray-300 bg-white px-[0.8rem] py-[0.45rem] text-[0.78rem] text-ink uppercase transition-colors hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-gray-300 disabled:hover:text-ink"
-                    [disabled]="r.pagina === 1"
-                    (click)="irAPagina(r.pagina - 1)"
+                    [disabled]="paginaActual() === 1"
+                    (click)="irAPagina(paginaActual() - 1)"
                   >
                     <i class="bi bi-chevron-left"></i> Anterior
                   </button>
@@ -279,11 +278,11 @@
                       type="button"
                       class="min-w-9 cursor-pointer border px-[0.8rem] py-[0.45rem] text-[0.78rem] transition-colors"
                       [class]="
-                        numero === r.pagina
+                        numero === paginaActual()
                           ? 'border-brand bg-brand text-white'
                           : 'border-gray-300 bg-white text-muted hover:border-brand hover:text-brand'
                       "
-                      [attr.aria-current]="numero === r.pagina ? 'page' : null"
+                      [attr.aria-current]="numero === paginaActual() ? 'page' : null"
                       (click)="irAPagina(numero)"
                     >
                       {{ numero }}
@@ -293,8 +292,8 @@
                   <button
                     type="button"
                     class="cursor-pointer border border-gray-300 bg-white px-[0.8rem] py-[0.45rem] text-[0.78rem] text-ink uppercase transition-colors hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-gray-300 disabled:hover:text-ink"
-                    [disabled]="r.pagina === r.paginas"
-                    (click)="irAPagina(r.pagina + 1)"
+                    [disabled]="paginaActual() === totalPaginas()"
+                    (click)="irAPagina(paginaActual() + 1)"
                   >
                     Siguiente <i class="bi bi-chevron-right"></i>
                   </button>
@@ -302,9 +301,6 @@
               </nav>
             }
           }
-        } @else if (cargando()) {
-          <p class="py-10 text-center text-[0.9rem] text-muted">Cargando categorías…</p>
-        }
         </div>
       </div>
     </div>

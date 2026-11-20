@@ -29,6 +29,8 @@ npm start         # http://localhost:4200
 
 El frontend redirige `/api` y `/uploads` al puerto 3000 mediante `proxy.conf.json`.
 
+`GET /api/productos` y `GET /api/categorias` devuelven los listados completos; el frontend filtra, ordena y pagina en memoria tanto el catálogo como los paneles de administración. La paginación en servidor (`LIMIT/OFFSET` + `count(*)`) queda para `GET /api/pedidos` (Mis pedidos) y `GET /api/pedidos/todos` (Ventas), que devuelven `{ items, total, pagina, limite, paginas }` y aceptan filtros.
+
 ## Usuarios de prueba
 
 - Admin: `admin@shaka.com` / `Shaka1234!`

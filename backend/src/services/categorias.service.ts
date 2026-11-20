@@ -1,7 +1,6 @@
 import type { CategoriasRepository } from '../repository/categorias.repository.js';
-import type { CategoriaDto, ListadoCategoriasDto } from '../schemas/categorias.schemas.js';
+import type { CategoriaDto } from '../schemas/categorias.schemas.js';
 import { codigoDeError, ErrorApi } from '../utils/errores.js';
-import { armarPagina } from '../utils/paginacion.js';
 
 function nombreDuplicado() {
   return new ErrorApi(409, 'CATEGORIA_DUPLICADA', 'Ya existe una categoría con ese nombre.', {
@@ -35,11 +34,6 @@ export class CategoriasService {
 
   async listar() {
     return await this.categorias.listar();
-  }
-
-  async listarPaginado(filtros: ListadoCategoriasDto) {
-    const { items, total } = await this.categorias.listarPaginado(filtros);
-    return armarPagina(items, total, filtros.pagina, filtros.limite);
   }
 
   async obtener(id: number) {

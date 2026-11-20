@@ -11,10 +11,3 @@ export interface CategoriaAdmin extends Categoria {
 export type NuevaCategoria = Pick<Categoria, 'nombre' | 'descripcion'>;
 
 export type OrdenCategorias = 'nombre_asc' | 'nombre_desc' | 'productos_desc' | 'recientes';
-
-export interface FiltrosCategorias {
-  pagina: number;
-  limite: number;
-  q: string;
-  orden: OrdenCategorias;
-}
