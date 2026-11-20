@@ -91,6 +91,7 @@
           <input
             class="w-28 border border-gray-300 bg-white px-3 py-[0.6rem] text-[0.9rem] text-ink placeholder:text-gray-400 focus:border-brand focus:outline-none"
             type="number"
+            appSoloNumeros
             min="0"
             step="1"
             placeholder="Mínimo"
@@ -102,6 +103,7 @@
           <input
             class="w-28 border border-gray-300 bg-white px-3 py-[0.6rem] text-[0.9rem] text-ink placeholder:text-gray-400 focus:border-brand focus:outline-none"
             type="number"
+            appSoloNumeros
             min="0"
             step="1"
             placeholder="Máximo"
@@ -188,13 +190,21 @@
         class="overflow-x-auto border-t border-gray-200 transition-opacity"
         [class.opacity-50]="cargando()"
       >
-        <table class="w-full min-w-[760px] border-collapse text-left">
+        <table class="w-full min-w-[860px] table-fixed border-collapse text-left">
+          <colgroup>
+            <col class="w-[70px]" />
+            <col />
+            <col class="w-[160px]" />
+            <col class="w-[130px]" />
+            <col class="w-[110px]" />
+            <col class="w-[210px]" />
+          </colgroup>
           <thead>
             <tr class="text-[0.72rem] tracking-[0.06em] text-muted uppercase">
               <th scope="col" class="border-b border-gray-200 py-3 pr-4 font-normal">ID</th>
               <th scope="col" class="border-b border-gray-200 px-4 py-3 font-normal">Producto</th>
               <th scope="col" class="border-b border-gray-200 px-4 py-3 font-normal">
-                Clasificación
+                Categoría
               </th>
               <th scope="col" class="border-b border-gray-200 px-4 py-3 text-right font-normal">
                 Precio
@@ -212,17 +222,21 @@
               <tr class="border-b border-gray-200">
                 <td class="py-3 pr-4 align-middle text-muted">{{ producto.id }}</td>
                 <td class="px-4 py-3 align-middle">
-                  <div class="flex items-center gap-3">
+                  <div class="flex min-w-0 items-center gap-3">
                     <img
                       class="aspect-[2.5/3] w-12 flex-none bg-gray-200 object-cover"
                       [src]="producto.imagen"
                       [alt]="producto.nombre"
                       appImagenFallback
                     />
-                    <strong class="text-ink uppercase">{{ producto.nombre }}</strong>
+                    <strong class="truncate text-ink uppercase" [title]="producto.nombre">{{
+                      producto.nombre
+                    }}</strong>
                   </div>
                 </td>
-                <td class="px-4 py-3 align-middle text-muted">{{ producto.clasificacion }}</td>
+                <td class="truncate px-4 py-3 align-middle text-muted" [title]="producto.clasificacion">
+                  {{ producto.clasificacion }}
+                </td>
                 <td class="px-4 py-3 text-right align-middle text-brand">
                   {{ producto.precio | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}
                 </td>

@@ -14,6 +14,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { map } from 'rxjs';
 import { ImagenFallbackDirective } from '../../directives/imagen-fallback.directive';
+import { SoloNumerosDirective } from '../../directives/solo-numeros.directive';
 import { CategoriasService } from '../../../api/services/categorias/categorias.service';
 import { NuevoProducto, Producto } from '../../models/producto.model';
 
@@ -23,7 +24,13 @@ const MAXIMO_IMAGEN = 2 * 1024 * 1024;
 // Formulario compartido entre "agregar" y "editar" producto.
 @Component({
   selector: 'app-producto-form',
-  imports: [ReactiveFormsModule, RouterLink, CurrencyPipe, ImagenFallbackDirective],
+  imports: [
+    ReactiveFormsModule,
+    RouterLink,
+    CurrencyPipe,
+    ImagenFallbackDirective,
+    SoloNumerosDirective,
+  ],
   templateUrl: './producto-form.html',
   changeDetection: ChangeDetectionStrategy.Eager,
 })

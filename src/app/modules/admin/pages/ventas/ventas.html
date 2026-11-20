@@ -66,13 +66,12 @@
           for="ventas-desde"
           >Desde</label
         >
-        <input
-          id="ventas-desde"
-          type="date"
-          class="border border-gray-300 bg-white px-[0.85rem] py-[0.55rem] text-[0.85rem] text-ink outline-none focus:border-brand"
-          [value]="desde()"
-          [max]="hasta() || null"
-          (change)="cambiarDesde($event)"
+        <app-campo-fecha
+          idCampo="ventas-desde"
+          etiqueta="Fecha desde"
+          [valor]="desde()"
+          [max]="hasta()"
+          (cambio)="cambiarDesde($event)"
         />
       </div>
       <div>
@@ -81,13 +80,12 @@
           for="ventas-hasta"
           >Hasta</label
         >
-        <input
-          id="ventas-hasta"
-          type="date"
-          class="border border-gray-300 bg-white px-[0.85rem] py-[0.55rem] text-[0.85rem] text-ink outline-none focus:border-brand"
-          [value]="hasta()"
-          [min]="desde() || null"
-          (change)="cambiarHasta($event)"
+        <app-campo-fecha
+          idCampo="ventas-hasta"
+          etiqueta="Fecha hasta"
+          [valor]="hasta()"
+          [min]="desde()"
+          (cambio)="cambiarHasta($event)"
         />
       </div>
       <div>
@@ -241,37 +239,7 @@
                   {{ venta.total | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}
                 </td>
                 <td class="py-3 pl-4 text-right align-top">
-                  @switch (venta.estado) {
-                    @case ('Confirmado') {
-                      <span
-                        class="bg-green-100 px-2 py-1 text-xs font-bold text-green-800 uppercase"
-                      >
-                        {{ venta.estado }}
-                      </span>
-                    }
-                    @case ('En preparación') {
-                      <span
-                        class="bg-amber-100 px-2 py-1 text-xs font-bold text-amber-800 uppercase"
-                      >
-                        {{ venta.estado }}
-                      </span>
-                    }
-                    @case ('Enviado') {
-                      <span class="bg-blue-100 px-2 py-1 text-xs font-bold text-blue-800 uppercase">
-                        {{ venta.estado }}
-                      </span>
-                    }
-                    @case ('Entregado') {
-                      <span class="bg-gray-800 px-2 py-1 text-xs font-bold text-white uppercase">
-                        {{ venta.estado }}
-                      </span>
-                    }
-                    @default {
-                      <span class="bg-red-100 px-2 py-1 text-xs font-bold text-red-800 uppercase">
-                        {{ venta.estado }}
-                      </span>
-                    }
-                  }
+                  <app-estado-pedido [estado]="venta.estado" />
                 </td>
                 <td class="py-3 pl-4 text-right align-top">
                   @if (actualizandoId() === venta.id) {

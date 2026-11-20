@@ -9,7 +9,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import {
@@ -76,6 +76,23 @@ export class AdminCategorias implements OnInit {
   readonly form = this.fb.nonNullable.group({
     nombre: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(60)]],
     descripcion: ['', [Validators.maxLength(300)]],
+  });
+
+  private readonly valoresForm = toSignal(this.form.valueChanges, {
+    initialValue: this.form.getRawValue(),
+  });
+
+  readonly sinCambios = computed(() => {
+    const editando = this.editando();
+    if (!editando) {
+      return false;
+    }
+
+    const valores = this.valoresForm();
+    return (
+      (valores.nombre ?? '').trim() === editando.nombre &&
+      (valores.descripcion ?? '').trim() === (editando.descripcion ?? '')
+    );
   });
 
   readonly numerosPagina = computed(() => {
@@ -179,7 +196,7 @@ export class AdminCategorias implements OnInit {
   guardar(): void {
     this.form.markAllAsTouched();
 
-    if (this.form.invalid || this.guardando()) {
+    if (this.form.invalid || this.guardando() || this.sinCambios()) {
       return;
     }
 

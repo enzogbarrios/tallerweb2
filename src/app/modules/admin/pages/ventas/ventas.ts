@@ -24,6 +24,8 @@ import {
 import { NotificacionesService } from '../../../../api/services/notificaciones/notificaciones.service';
 import { PedidosService } from '../../../../api/services/pedidos/pedidos.service';
 import { leerError } from '../../../../api/utils/leer-error';
+import { CampoFecha } from '../../../../shared/components/campo-fecha/campo-fecha';
+import { EstadoPedidoBadge } from '../../../../shared/components/estado-pedido/estado-pedido';
 import {
   ESTADOS_PEDIDO,
   EstadoPedido,
@@ -53,7 +55,7 @@ const FECHA_VALIDA = /^\d{4}-\d{2}-\d{2}$/;
 
 @Component({
   selector: 'app-ventas',
-  imports: [RouterLink, CurrencyPipe, DatePipe],
+  imports: [RouterLink, CurrencyPipe, DatePipe, CampoFecha, EstadoPedidoBadge],
   templateUrl: './ventas.html',
   changeDetection: ChangeDetectionStrategy.Eager,
 })
@@ -204,13 +206,13 @@ export class Ventas implements OnInit {
     this.busqueda$.next(texto);
   }
 
-  cambiarDesde(event: Event): void {
-    this.desde.set((event.target as HTMLInputElement).value);
+  cambiarDesde(fecha: string): void {
+    this.desde.set(fecha);
     this.pagina.set(1);
   }
 
-  cambiarHasta(event: Event): void {
-    this.hasta.set((event.target as HTMLInputElement).value);
+  cambiarHasta(fecha: string): void {
+    this.hasta.set(fecha);
     this.pagina.set(1);
   }
 

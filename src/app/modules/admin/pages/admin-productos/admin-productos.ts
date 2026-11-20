@@ -26,6 +26,7 @@ import { NotificacionesService } from '../../../../api/services/notificaciones/n
 import { ProductosService } from '../../../../api/services/productos/productos.service';
 import { leerError } from '../../../../api/utils/leer-error';
 import { ImagenFallbackDirective } from '../../../../shared/directives/imagen-fallback.directive';
+import { SoloNumerosDirective } from '../../../../shared/directives/solo-numeros.directive';
 import { Pagina } from '../../../../shared/models/pagina.model';
 import { CategoriasService } from '../../../../api/services/categorias/categorias.service';
 import {
@@ -64,7 +65,7 @@ function filtrosDesdeUrl(params: ParamMap): FiltrosProductosAdmin {
 
 @Component({
   selector: 'app-admin-productos',
-  imports: [RouterLink, CurrencyPipe, ImagenFallbackDirective],
+  imports: [RouterLink, CurrencyPipe, ImagenFallbackDirective, SoloNumerosDirective],
   templateUrl: './admin-productos.html',
   changeDetection: ChangeDetectionStrategy.Eager,
 })
