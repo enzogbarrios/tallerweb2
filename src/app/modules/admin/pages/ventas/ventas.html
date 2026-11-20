@@ -35,7 +35,7 @@
       </div>
     } @else {
       <div class="overflow-x-auto border-t border-gray-200">
-        <table class="w-full min-w-[760px] border-collapse text-left">
+        <table class="w-full min-w-[980px] border-collapse text-left">
           <thead>
             <tr class="text-[0.72rem] tracking-[0.06em] text-muted uppercase">
               <th scope="col" class="border-b border-gray-200 py-3 pr-4 font-normal">Pedido</th>
@@ -47,6 +47,9 @@
               </th>
               <th scope="col" class="border-b border-gray-200 py-3 pl-4 text-right font-normal">
                 Estado
+              </th>
+              <th scope="col" class="border-b border-gray-200 py-3 pl-4 text-right font-normal">
+                Acciones
               </th>
             </tr>
           </thead>
@@ -81,9 +84,82 @@
                   {{ venta.total | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}
                 </td>
                 <td class="py-3 pl-4 text-right align-top">
-                  <span class="bg-green-100 px-2 py-1 text-xs font-bold text-green-800 uppercase">
-                    {{ venta.estado }}
-                  </span>
+                  @switch (venta.estado) {
+                    @case ('Confirmado') {
+                      <span
+                        class="bg-green-100 px-2 py-1 text-xs font-bold text-green-800 uppercase"
+                      >
+                        {{ venta.estado }}
+                      </span>
+                    }
+                    @case ('En preparación') {
+                      <span
+                        class="bg-amber-100 px-2 py-1 text-xs font-bold text-amber-800 uppercase"
+                      >
+                        {{ venta.estado }}
+                      </span>
+                    }
+                    @case ('Enviado') {
+                      <span class="bg-blue-100 px-2 py-1 text-xs font-bold text-blue-800 uppercase">
+                        {{ venta.estado }}
+                      </span>
+                    }
+                    @case ('Entregado') {
+                      <span class="bg-gray-800 px-2 py-1 text-xs font-bold text-white uppercase">
+                        {{ venta.estado }}
+                      </span>
+                    }
+                    @default {
+                      <span class="bg-red-100 px-2 py-1 text-xs font-bold text-red-800 uppercase">
+                        {{ venta.estado }}
+                      </span>
+                    }
+                  }
+                </td>
+                <td class="py-3 pl-4 text-right align-top">
+                  @if (actualizandoId() === venta.id) {
+                    <span class="text-[0.82rem] text-muted">Actualizando…</span>
+                  } @else if (confirmandoCancelacion() === venta.id) {
+                    <span class="mr-2 text-[0.82rem] text-ink">¿Cancelar?</span>
+                    <button
+                      type="button"
+                      class="mr-2 cursor-pointer bg-red-600 px-3 py-1 text-[0.78rem] text-white uppercase hover:bg-red-700"
+                      (click)="confirmarCancelacion(venta)"
+                    >
+                      Sí
+                    </button>
+                    <button
+                      type="button"
+                      class="cursor-pointer border border-gray-400 px-3 py-1 text-[0.78rem] text-ink uppercase hover:border-black"
+                      (click)="cancelarConfirmacion()"
+                    >
+                      No
+                    </button>
+                  } @else {
+                    <div class="flex flex-wrap justify-end gap-3">
+                      @if (siguienteEstado(venta.estado); as siguiente) {
+                        <button
+                          type="button"
+                          class="inline-flex cursor-pointer items-center gap-1 text-[0.85rem] text-ink uppercase hover:text-brand"
+                          (click)="avanzar(venta)"
+                        >
+                          <i class="bi bi-arrow-right-circle"></i> {{ siguiente }}
+                        </button>
+                      }
+                      @if (puedeCancelar(venta.estado)) {
+                        <button
+                          type="button"
+                          class="inline-flex cursor-pointer items-center gap-1 text-[0.85rem] text-ink uppercase hover:text-red-600"
+                          (click)="pedirConfirmacion(venta.id)"
+                        >
+                          <i class="bi bi-x-circle"></i> Cancelar
+                        </button>
+                      }
+                      @if (!siguienteEstado(venta.estado) && !puedeCancelar(venta.estado)) {
+                        <span class="text-[0.82rem] text-muted">Sin acciones</span>
+                      }
+                    </div>
+                  }
                 </td>
               </tr>
             }

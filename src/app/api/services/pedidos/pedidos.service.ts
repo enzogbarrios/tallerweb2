@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
-import { DatosPedido, Pedido } from '../../../shared/models/pedido.model';
+import { DatosPedido, EstadoPedido, Pedido } from '../../../shared/models/pedido.model';
 
 @Injectable({
   providedIn: 'root',
@@ -37,5 +37,20 @@ export class PedidosService {
 
   obtener(id: number): Observable<Pedido> {
     return this.http.get<Pedido>(`/api/pedidos/${id}`);
+  }
+
+  // solo admin. el back responde con el pedido sin comprador, asi que en las
+  // listas ya cargadas actualizamos solamente el estado
+  cambiarEstado(id: number, estado: EstadoPedido): Observable<Pedido> {
+    return this.http.patch<Pedido>(`/api/pedidos/${id}/estado`, { estado }).pipe(
+      tap((pedido) => {
+        this.pedidosState.update((pedidos) => this.reemplazarEstado(pedidos, id, pedido.estado));
+        this.ventasState.update((ventas) => this.reemplazarEstado(ventas, id, pedido.estado));
+      }),
+    );
+  }
+
+  private reemplazarEstado(pedidos: Pedido[], id: number, estado: EstadoPedido): Pedido[] {
+    return pedidos.map((pedido) => (pedido.id === id ? { ...pedido, estado } : pedido));
   }
 }

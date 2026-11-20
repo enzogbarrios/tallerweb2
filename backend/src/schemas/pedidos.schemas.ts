@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { ESTADOS_PEDIDO } from '../models/pedido.model.js';
 
 const numeroTarjeta = z
   .string('El número de tarjeta es obligatorio.')
@@ -37,3 +38,9 @@ export const esquemaPedido = z.object({
 });
 
 export type PedidoDto = z.infer<typeof esquemaPedido>;
+
+export const esquemaEstadoPedido = z.object({
+  estado: z.enum(ESTADOS_PEDIDO, 'El estado no es válido.'),
+});
+
+export type EstadoPedidoDto = z.infer<typeof esquemaEstadoPedido>;

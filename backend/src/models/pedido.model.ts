@@ -1,4 +1,12 @@
-export type EstadoPedido = 'Confirmado' | 'En preparación' | 'Enviado' | 'Entregado' | 'Cancelado';
+export const ESTADOS_PEDIDO = [
+  'Confirmado',
+  'En preparación',
+  'Enviado',
+  'Entregado',
+  'Cancelado',
+] as const;
+
+export type EstadoPedido = (typeof ESTADOS_PEDIDO)[number];
 
 export type EstadoPago = 'pendiente' | 'aprobado' | 'rechazado';
 

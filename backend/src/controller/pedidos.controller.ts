@@ -2,7 +2,7 @@ import type { Request, Response } from 'express';
 import { CarritoRepository } from '../repository/carrito.repository.js';
 import { PedidosRepository } from '../repository/pedidos.repository.js';
 import { ProductosRepository } from '../repository/productos.repository.js';
-import type { PedidoDto } from '../schemas/pedidos.schemas.js';
+import type { EstadoPedidoDto, PedidoDto } from '../schemas/pedidos.schemas.js';
 import { CarritoService } from '../services/carrito.service.js';
 import { PagosService } from '../services/pagos.service.js';
 import { PedidosService } from '../services/pedidos.service.js';
@@ -35,5 +35,11 @@ export class PedidosController {
     const pedidoId = idNumerico(req.params.id);
     const pedido = await pedidosService.obtener(req.usuario!.id, req.usuario!.rol, pedidoId);
     return res.json(pedido);
+  };
+
+  public cambiarEstado = async (req: Request, res: Response) => {
+    const pedidoId = idNumerico(req.params.id);
+    const { estado } = req.body as EstadoPedidoDto;
+    return res.json(await pedidosService.cambiarEstado(pedidoId, estado));
   };
 }

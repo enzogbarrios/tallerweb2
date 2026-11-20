@@ -1,4 +1,10 @@
-import type { CompradorPedido, Pedido, PedidoApi, PedidoItem } from '../models/pedido.model.js';
+import type {
+  CompradorPedido,
+  EstadoPedido,
+  Pedido,
+  PedidoApi,
+  PedidoItem,
+} from '../models/pedido.model.js';
 import type { Rol } from '../models/usuario.model.js';
 import type { PedidosRepository } from '../repository/pedidos.repository.js';
 import { ErrorApi } from '../utils/errores.js';
@@ -13,6 +19,15 @@ export type DatosCompra = {
     vencimiento: string;
     cvv: string;
   };
+};
+
+// desde cada estado solo se puede pasar a los de aca
+const SIGUIENTES_ESTADOS: Record<EstadoPedido, EstadoPedido[]> = {
+  Confirmado: ['En preparación', 'Cancelado'],
+  'En preparación': ['Enviado'],
+  Enviado: ['Entregado'],
+  Entregado: [],
+  Cancelado: [],
 };
 
 export class PedidosService {
@@ -92,6 +107,45 @@ export class PedidosService {
     return filas.map((fila) =>
       this.armar(fila.pedido, itemsPorPedido.get(fila.pedido.id) ?? [], fila.comprador),
     );
+  }
+
+  async cambiarEstado(pedidoId: number, estado: EstadoPedido) {
+    const pedido = await this.pedidos.buscarPorId(pedidoId);
+
+    if (!pedido) {
+      throw new ErrorApi(404, 'PEDIDO_NO_ENCONTRADO', 'El pedido no existe.');
+    }
+
+    if (pedido.estado === estado) {
+      throw new ErrorApi(409, 'ESTADO_INVALIDO', `El pedido ya está en estado "${estado}".`);
+    }
+
+    const siguientes = SIGUIENTES_ESTADOS[pedido.estado];
+
+    if (siguientes.length === 0) {
+      throw new ErrorApi(
+        409,
+        'ESTADO_INVALIDO',
+        `El pedido está "${pedido.estado}" y ya no se puede modificar.`,
+      );
+    }
+
+    if (!siguientes.includes(estado)) {
+      throw new ErrorApi(
+        409,
+        'ESTADO_INVALIDO',
+        `No se puede pasar de "${pedido.estado}" a "${estado}".`,
+      );
+    }
+
+    const actualizado = await this.pedidos.actualizarEstado(pedidoId, estado);
+
+    if (!actualizado) {
+      throw new ErrorApi(404, 'PEDIDO_NO_ENCONTRADO', 'El pedido no existe.');
+    }
+
+    const items = await this.pedidos.itemsDePedido(pedidoId);
+    return this.armar(actualizado, items);
   }
 
   async obtener(usuarioId: number, rol: Rol, pedidoId: number) {

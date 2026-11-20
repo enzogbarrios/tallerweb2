@@ -1,7 +1,7 @@
 import type { PoolClient } from 'pg';
 import { query } from '../db/pool.js';
 import { enTransaccion } from '../db/transaccion.js';
-import type { Pedido, PedidoItem } from '../models/pedido.model.js';
+import type { EstadoPedido, Pedido, PedidoItem } from '../models/pedido.model.js';
 
 export type ItemNuevoPedido = {
   productoId: number;
@@ -25,7 +25,6 @@ export type DatosNuevoPedido = {
 };
 
 export class PedidosRepository {
-
   // crea el pedido, guarda cada item y vacia el carrito
   async crearConItems(datos: DatosNuevoPedido) {
     return await enTransaccion(async (cliente: PoolClient) => {
@@ -75,6 +74,17 @@ export class PedidosRepository {
 
   async buscarPorId(id: number) {
     const resultado = await query<Pedido>('SELECT * FROM pedidos WHERE id = $1', [id]);
+    return resultado.rows[0];
+  }
+
+  async actualizarEstado(id: number, estado: EstadoPedido) {
+    const resultado = await query<Pedido>(
+      `UPDATE pedidos
+       SET estado = $1, actualizado_en = now()
+       WHERE id = $2
+       RETURNING *`,
+      [estado, id],
+    );
     return resultado.rows[0];
   }
 
