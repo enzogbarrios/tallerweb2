@@ -1,7 +1,14 @@
 import type { PoolClient } from 'pg';
 import { query } from '../db/pool.js';
 import { enTransaccion } from '../db/transaccion.js';
-import type { EstadoPedido, Pedido, PedidoItem } from '../models/pedido.model.js';
+import type {
+  DatosCompradorPedido,
+  DireccionPedido,
+  EstadoPedido,
+  MarcaTarjeta,
+  Pedido,
+  PedidoItem,
+} from '../models/pedido.model.js';
 import type { FiltrosVentas, OrdenVentas } from '../schemas/pedidos.schemas.js';
 import { calcularOffset } from '../utils/paginacion.js';
 
@@ -88,6 +95,9 @@ export type DatosNuevoPedido = {
   metodoPago: string;
   referenciaPago: string;
   tarjetaUltimos4: string;
+  tarjetaMarca: MarcaTarjeta;
+  comprador: DatosCompradorPedido;
+  direccion: DireccionPedido;
   items: ItemNuevoPedido[];
 };
 
@@ -98,8 +108,12 @@ export class PedidosRepository {
       const resultado = await cliente.query(
         `INSERT INTO pedidos
            (usuario_id, direccion_envio, subtotal, envio, total, estado, estado_pago,
-            metodo_pago, referencia_pago, tarjeta_ultimos4, pagado_en)
-         VALUES ($1, $2, $3, $4, $5, 'Confirmado', 'aprobado', $6, $7, $8, now())
+            metodo_pago, referencia_pago, tarjeta_ultimos4, tarjeta_marca, pagado_en,
+            comprador_nombre, comprador_apellido, comprador_email, comprador_telefono,
+            comprador_dni, envio_calle, envio_numero, envio_piso_depto, envio_ciudad,
+            envio_provincia, envio_codigo_postal, envio_indicaciones)
+         VALUES ($1, $2, $3, $4, $5, 'Confirmado', 'aprobado', $6, $7, $8, $9, now(),
+                 $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
          RETURNING id`,
         [
           datos.usuarioId,
@@ -110,6 +124,19 @@ export class PedidosRepository {
           datos.metodoPago,
           datos.referenciaPago,
           datos.tarjetaUltimos4,
+          datos.tarjetaMarca,
+          datos.comprador.nombre,
+          datos.comprador.apellido,
+          datos.comprador.email,
+          datos.comprador.telefono,
+          datos.comprador.dni,
+          datos.direccion.calle,
+          datos.direccion.numero,
+          datos.direccion.piso_depto,
+          datos.direccion.ciudad,
+          datos.direccion.provincia,
+          datos.direccion.codigo_postal,
+          datos.direccion.indicaciones,
         ],
       );
 

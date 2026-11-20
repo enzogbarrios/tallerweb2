@@ -54,6 +54,7 @@
 }
 
 /* Campo inválido: va fuera de @layer para ganarle al border-black de las utilidades. */
-input.is-invalid {
+input.is-invalid,
+select.is-invalid {
   border-color: var(--color-red-600);
 }

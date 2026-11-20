@@ -25,130 +25,626 @@
     } @else {
       <div class="grid items-start gap-8 lg:grid-cols-3">
         <div class="lg:col-span-2">
+          <ol class="mb-8 grid grid-cols-4 gap-2" aria-label="Pasos de la compra">
+            @for (p of pasos; track p.numero) {
+              <li>
+                <button
+                  type="button"
+                  class="flex w-full flex-col items-start gap-2 border-t-4 pt-3 text-left disabled:cursor-default"
+                  [class.border-black]="p.numero <= paso()"
+                  [class.border-gray-200]="p.numero > paso()"
+                  [class.cursor-pointer]="p.numero <= pasoMaximo() && p.numero !== paso()"
+                  [disabled]="p.numero > pasoMaximo() || enviando()"
+                  [attr.aria-current]="p.numero === paso() ? 'step' : null"
+                  (click)="irA(p.numero)"
+                >
+                  <span
+                    class="inline-flex h-7 w-7 items-center justify-center text-[0.8rem] font-bold"
+                    [class.bg-black]="p.numero <= paso()"
+                    [class.text-white]="p.numero <= paso()"
+                    [class.bg-gray-100]="p.numero > paso()"
+                    [class.text-muted]="p.numero > paso()"
+                  >
+                    @if (p.numero < paso()) {
+                      <i class="bi bi-check-lg"></i>
+                    } @else {
+                      {{ p.numero }}
+                    }
+                  </span>
+                  <span
+                    class="text-[0.72rem] tracking-[0.06em] uppercase sm:text-[0.8rem]"
+                    [class.text-black]="p.numero === paso()"
+                    [class.font-semibold]="p.numero === paso()"
+                    [class.text-muted]="p.numero !== paso()"
+                  >
+                    {{ p.titulo }}
+                  </span>
+                </button>
+              </li>
+            }
+          </ol>
+
           @if (error()) {
             <div class="mb-5 border border-red-200 bg-red-50 px-4 py-3 text-red-700" role="alert">
               <i class="bi bi-exclamation-circle mr-2"></i>{{ error() }}
             </div>
           }
 
-          <form [formGroup]="form" (ngSubmit)="confirmar()" novalidate>
-            <h2 class="mb-4 text-[1.1rem] text-black uppercase">Datos de envío</h2>
+          @switch (paso()) {
+            @case (1) {
+              <form [formGroup]="formComprador" (ngSubmit)="siguiente()" novalidate>
+                <h2 class="mb-4 text-[1.1rem] text-black uppercase">Datos del comprador</h2>
 
-            <div class="mb-6">
-              <label class="mb-2 block text-sm text-black" for="direccion_envio">DIRECCIÓN</label>
-              <input
-                id="direccion_envio"
-                type="text"
-                class="h-full w-full border border-black p-3 focus:outline-none"
-                formControlName="direccion_envio"
-                placeholder="Calle, número, localidad"
-                [class.is-invalid]="
-                  form.get('direccion_envio')?.invalid && form.get('direccion_envio')?.touched
-                "
-              />
-              @if (
-                form.get('direccion_envio')?.touched &&
-                form.get('direccion_envio')?.hasError('required')
-              ) {
-                <div class="field-error">La dirección es obligatoria.</div>
-              }
-              @if (
-                form.get('direccion_envio')?.touched &&
-                form.get('direccion_envio')?.hasError('minlength')
-              ) {
-                <div class="field-error">La dirección debe tener al menos 5 caracteres.</div>
-              }
-            </div>
+                <div class="mb-4 grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <label class="mb-2 block text-sm text-black" for="nombre">NOMBRE</label>
+                    <input
+                      id="nombre"
+                      type="text"
+                      autocomplete="given-name"
+                      class="h-full w-full border border-black p-3 focus:outline-none"
+                      formControlName="nombre"
+                      [class.is-invalid]="
+                        formComprador.get('nombre')?.invalid && formComprador.get('nombre')?.touched
+                      "
+                    />
+                    @if (
+                      formComprador.get('nombre')?.touched && formComprador.get('nombre')?.invalid
+                    ) {
+                      <div class="field-error">El nombre es obligatorio.</div>
+                    }
+                  </div>
 
-            <h2 class="mb-4 text-[1.1rem] text-black uppercase">Datos de pago</h2>
-            <p class="mb-5 text-[0.85rem] text-muted">
-              tarjeta terminada en 0000 para ver rechazo y terminada en 1111 para timeout
-            </p>
-
-            <div class="mb-4">
-              <label class="mb-2 block text-sm text-black" for="numero">NÚMERO DE TARJETA</label>
-              <input
-                id="numero"
-                type="text"
-                inputmode="numeric"
-                autocomplete="cc-number"
-                class="h-full w-full border border-black p-3 focus:outline-none"
-                formControlName="numero"
-                placeholder="4242 4242 4242 4242"
-                [class.is-invalid]="form.get('numero')?.invalid && form.get('numero')?.touched"
-              />
-              @if (form.get('numero')?.touched && form.get('numero')?.invalid) {
-                <div class="field-error">
-                  Ingresá un número de tarjeta válido (13 a 19 dígitos).
+                  <div>
+                    <label class="mb-2 block text-sm text-black" for="apellido">APELLIDO</label>
+                    <input
+                      id="apellido"
+                      type="text"
+                      autocomplete="family-name"
+                      class="h-full w-full border border-black p-3 focus:outline-none"
+                      formControlName="apellido"
+                      [class.is-invalid]="
+                        formComprador.get('apellido')?.invalid &&
+                        formComprador.get('apellido')?.touched
+                      "
+                    />
+                    @if (
+                      formComprador.get('apellido')?.touched &&
+                      formComprador.get('apellido')?.invalid
+                    ) {
+                      <div class="field-error">El apellido es obligatorio.</div>
+                    }
+                  </div>
                 </div>
-              }
-            </div>
 
-            <div class="mb-4">
-              <label class="mb-2 block text-sm text-black" for="titular">TITULAR</label>
-              <input
-                id="titular"
-                type="text"
-                autocomplete="cc-name"
-                class="h-full w-full border border-black p-3 focus:outline-none"
-                formControlName="titular"
-                placeholder="Como figura en la tarjeta"
-                [class.is-invalid]="form.get('titular')?.invalid && form.get('titular')?.touched"
-              />
-              @if (form.get('titular')?.touched && form.get('titular')?.invalid) {
-                <div class="field-error">Ingresá el nombre del titular.</div>
-              }
-            </div>
+                <div class="mb-4">
+                  <label class="mb-2 block text-sm text-black" for="email">EMAIL</label>
+                  <input
+                    id="email"
+                    type="email"
+                    autocomplete="email"
+                    class="h-full w-full border border-black p-3 focus:outline-none"
+                    formControlName="email"
+                    placeholder="nombre@mail.com"
+                    [class.is-invalid]="
+                      formComprador.get('email')?.invalid && formComprador.get('email')?.touched
+                    "
+                  />
+                  @if (
+                    formComprador.get('email')?.touched &&
+                    formComprador.get('email')?.hasError('required')
+                  ) {
+                    <div class="field-error">El email es obligatorio.</div>
+                  }
+                  @if (
+                    formComprador.get('email')?.touched &&
+                    formComprador.get('email')?.hasError('email')
+                  ) {
+                    <div class="field-error">El email no es válido.</div>
+                  }
+                </div>
 
-            <div class="mb-6 grid gap-4 sm:grid-cols-2">
-              <div>
-                <label class="mb-2 block text-sm text-black" for="vencimiento">VENCIMIENTO</label>
-                <input
-                  id="vencimiento"
-                  type="text"
-                  autocomplete="cc-exp"
-                  class="h-full w-full border border-black p-3 focus:outline-none"
-                  formControlName="vencimiento"
-                  placeholder="MM/AA"
-                  [class.is-invalid]="
-                    form.get('vencimiento')?.invalid && form.get('vencimiento')?.touched
-                  "
-                />
-                @if (form.get('vencimiento')?.touched && form.get('vencimiento')?.invalid) {
-                  <div class="field-error">Usá el formato MM/AA.</div>
-                }
+                <div class="mb-6 grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <label class="mb-2 block text-sm text-black" for="telefono">TELÉFONO</label>
+                    <input
+                      id="telefono"
+                      type="tel"
+                      autocomplete="tel"
+                      class="h-full w-full border border-black p-3 focus:outline-none"
+                      formControlName="telefono"
+                      placeholder="11 2345 6789"
+                      [class.is-invalid]="
+                        formComprador.get('telefono')?.invalid &&
+                        formComprador.get('telefono')?.touched
+                      "
+                    />
+                    @if (
+                      formComprador.get('telefono')?.touched &&
+                      formComprador.get('telefono')?.hasError('required')
+                    ) {
+                      <div class="field-error">El teléfono es obligatorio.</div>
+                    }
+                    @if (
+                      formComprador.get('telefono')?.touched &&
+                      formComprador.get('telefono')?.hasError('pattern')
+                    ) {
+                      <div class="field-error">
+                        Ingresá un teléfono válido (al menos 8 dígitos).
+                      </div>
+                    }
+                  </div>
+
+                  <div>
+                    <label class="mb-2 block text-sm text-black" for="dni">DNI</label>
+                    <input
+                      id="dni"
+                      type="text"
+                      inputmode="numeric"
+                      class="h-full w-full border border-black p-3 focus:outline-none"
+                      formControlName="dni"
+                      placeholder="12345678"
+                      [class.is-invalid]="
+                        formComprador.get('dni')?.invalid && formComprador.get('dni')?.touched
+                      "
+                    />
+                    @if (
+                      formComprador.get('dni')?.touched &&
+                      formComprador.get('dni')?.hasError('required')
+                    ) {
+                      <div class="field-error">El DNI es obligatorio.</div>
+                    }
+                    @if (
+                      formComprador.get('dni')?.touched &&
+                      formComprador.get('dni')?.hasError('pattern')
+                    ) {
+                      <div class="field-error">El DNI debe tener 7 u 8 dígitos.</div>
+                    }
+                  </div>
+                </div>
+
+                <div class="flex justify-end">
+                  <button
+                    type="submit"
+                    class="inline-flex w-full cursor-pointer items-center justify-center gap-2 bg-black px-6 py-3 text-[0.9rem] text-white uppercase sm:w-auto"
+                  >
+                    Continuar <i class="bi bi-arrow-right"></i>
+                  </button>
+                </div>
+              </form>
+            }
+
+            @case (2) {
+              <form [formGroup]="formDireccion" (ngSubmit)="siguiente()" novalidate>
+                <h2 class="mb-4 text-[1.1rem] text-black uppercase">Dirección de envío</h2>
+
+                <div class="mb-4 grid gap-4 sm:grid-cols-3">
+                  <div class="sm:col-span-2">
+                    <label class="mb-2 block text-sm text-black" for="calle">CALLE</label>
+                    <input
+                      id="calle"
+                      type="text"
+                      autocomplete="address-line1"
+                      class="h-full w-full border border-black p-3 focus:outline-none"
+                      formControlName="calle"
+                      placeholder="Av. Corrientes"
+                      [class.is-invalid]="
+                        formDireccion.get('calle')?.invalid && formDireccion.get('calle')?.touched
+                      "
+                    />
+                    @if (
+                      formDireccion.get('calle')?.touched && formDireccion.get('calle')?.invalid
+                    ) {
+                      <div class="field-error">La calle es obligatoria.</div>
+                    }
+                  </div>
+
+                  <div>
+                    <label class="mb-2 block text-sm text-black" for="numero_calle">NÚMERO</label>
+                    <input
+                      id="numero_calle"
+                      type="text"
+                      class="h-full w-full border border-black p-3 focus:outline-none"
+                      formControlName="numero"
+                      placeholder="1234"
+                      [class.is-invalid]="
+                        formDireccion.get('numero')?.invalid && formDireccion.get('numero')?.touched
+                      "
+                    />
+                    @if (
+                      formDireccion.get('numero')?.touched &&
+                      formDireccion.get('numero')?.hasError('required')
+                    ) {
+                      <div class="field-error">El número es obligatorio.</div>
+                    }
+                    @if (
+                      formDireccion.get('numero')?.touched &&
+                      formDireccion.get('numero')?.hasError('pattern')
+                    ) {
+                      <div class="field-error">Solo números (o S/N si no tiene).</div>
+                    }
+                  </div>
+                </div>
+
+                <div class="mb-4 grid gap-4 sm:grid-cols-3">
+                  <div>
+                    <label class="mb-2 block text-sm text-black" for="piso_depto">
+                      PISO / DEPTO <span class="text-muted normal-case">(opcional)</span>
+                    </label>
+                    <input
+                      id="piso_depto"
+                      type="text"
+                      autocomplete="address-line2"
+                      class="h-full w-full border border-black p-3 focus:outline-none"
+                      formControlName="piso_depto"
+                      placeholder="5° B"
+                    />
+                  </div>
+
+                  <div class="sm:col-span-2">
+                    <label class="mb-2 block text-sm text-black" for="ciudad">CIUDAD</label>
+                    <input
+                      id="ciudad"
+                      type="text"
+                      autocomplete="address-level2"
+                      class="h-full w-full border border-black p-3 focus:outline-none"
+                      formControlName="ciudad"
+                      [class.is-invalid]="
+                        formDireccion.get('ciudad')?.invalid && formDireccion.get('ciudad')?.touched
+                      "
+                    />
+                    @if (
+                      formDireccion.get('ciudad')?.touched && formDireccion.get('ciudad')?.invalid
+                    ) {
+                      <div class="field-error">La ciudad es obligatoria.</div>
+                    }
+                  </div>
+                </div>
+
+                <div class="mb-4 grid gap-4 sm:grid-cols-3">
+                  <div class="sm:col-span-2">
+                    <label class="mb-2 block text-sm text-black" for="provincia">PROVINCIA</label>
+                    <select
+                      id="provincia"
+                      class="w-full border border-black bg-white p-3 focus:outline-none"
+                      formControlName="provincia"
+                      [class.is-invalid]="
+                        formDireccion.get('provincia')?.invalid &&
+                        formDireccion.get('provincia')?.touched
+                      "
+                    >
+                      <option value="" disabled>Elegí una provincia</option>
+                      @for (provincia of provincias; track provincia) {
+                        <option [value]="provincia">{{ provincia }}</option>
+                      }
+                    </select>
+                    @if (
+                      formDireccion.get('provincia')?.touched &&
+                      formDireccion.get('provincia')?.invalid
+                    ) {
+                      <div class="field-error">Elegí una provincia.</div>
+                    }
+                  </div>
+
+                  <div>
+                    <label class="mb-2 block text-sm text-black" for="codigo_postal"
+                      >CÓDIGO POSTAL</label
+                    >
+                    <input
+                      id="codigo_postal"
+                      type="text"
+                      autocomplete="postal-code"
+                      class="h-full w-full border border-black p-3 uppercase focus:outline-none"
+                      formControlName="codigo_postal"
+                      placeholder="1425"
+                      [class.is-invalid]="
+                        formDireccion.get('codigo_postal')?.invalid &&
+                        formDireccion.get('codigo_postal')?.touched
+                      "
+                    />
+                    @if (
+                      formDireccion.get('codigo_postal')?.touched &&
+                      formDireccion.get('codigo_postal')?.hasError('required')
+                    ) {
+                      <div class="field-error">El código postal es obligatorio.</div>
+                    }
+                    @if (
+                      formDireccion.get('codigo_postal')?.touched &&
+                      formDireccion.get('codigo_postal')?.hasError('pattern')
+                    ) {
+                      <div class="field-error">Usá 4 dígitos (1425) o CPA (C1425ABC).</div>
+                    }
+                  </div>
+                </div>
+
+                <div class="mb-6">
+                  <label class="mb-2 block text-sm text-black" for="indicaciones">
+                    INDICACIONES <span class="text-muted normal-case">(opcional)</span>
+                  </label>
+                  <textarea
+                    id="indicaciones"
+                    rows="3"
+                    class="w-full border border-black p-3 focus:outline-none"
+                    formControlName="indicaciones"
+                    placeholder="Entre calles, timbre, horario de entrega..."
+                  ></textarea>
+                  @if (formDireccion.get('indicaciones')?.hasError('maxlength')) {
+                    <div class="field-error">Máximo 200 caracteres.</div>
+                  }
+                </div>
+
+                <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
+                  <button
+                    type="button"
+                    class="inline-flex cursor-pointer items-center justify-center gap-2 border border-black px-6 py-3 text-[0.9rem] text-black uppercase"
+                    (click)="anterior()"
+                  >
+                    <i class="bi bi-arrow-left"></i> Volver
+                  </button>
+                  <button
+                    type="submit"
+                    class="inline-flex cursor-pointer items-center justify-center gap-2 bg-black px-6 py-3 text-[0.9rem] text-white uppercase"
+                  >
+                    Continuar <i class="bi bi-arrow-right"></i>
+                  </button>
+                </div>
+              </form>
+            }
+
+            @case (3) {
+              <form [formGroup]="formPago" (ngSubmit)="siguiente()" novalidate>
+                <h2 class="mb-4 text-[1.1rem] text-black uppercase">Datos de pago</h2>
+                <p class="mb-5 text-[0.85rem] text-muted">
+                  tarjeta terminada en 0000 para ver rechazo y terminada en 1111 para timeout
+                </p>
+
+                <div class="mb-4">
+                  <label class="mb-2 block text-sm text-black" for="numero"
+                    >NÚMERO DE TARJETA</label
+                  >
+                  <div class="relative">
+                    <input
+                      id="numero"
+                      type="text"
+                      inputmode="numeric"
+                      autocomplete="cc-number"
+                      maxlength="23"
+                      class="h-full w-full border border-black p-3 pr-40 focus:outline-none"
+                      formControlName="numero"
+                      placeholder="4242 4242 4242 4242"
+                      (input)="onNumeroTarjeta($event)"
+                      [class.is-invalid]="
+                        formPago.get('numero')?.invalid && formPago.get('numero')?.touched
+                      "
+                    />
+                    @if (marca(); as m) {
+                      <span
+                        class="absolute top-1/2 right-3 -translate-y-1/2 bg-black px-2 py-1 text-[0.7rem] font-bold tracking-[0.06em] text-white uppercase"
+                      >
+                        {{ nombresMarca[m] }}
+                      </span>
+                    }
+                  </div>
+                  @if (formPago.get('numero')?.touched && formPago.get('numero')?.invalid) {
+                    <div class="field-error">
+                      Ingresá un número de tarjeta válido (13 a 19 dígitos).
+                    </div>
+                  }
+                </div>
+
+                <div class="mb-4">
+                  <label class="mb-2 block text-sm text-black" for="titular">TITULAR</label>
+                  <input
+                    id="titular"
+                    type="text"
+                    autocomplete="cc-name"
+                    class="h-full w-full border border-black p-3 focus:outline-none"
+                    formControlName="titular"
+                    placeholder="Como figura en la tarjeta"
+                    [class.is-invalid]="
+                      formPago.get('titular')?.invalid && formPago.get('titular')?.touched
+                    "
+                  />
+                  @if (formPago.get('titular')?.touched && formPago.get('titular')?.invalid) {
+                    <div class="field-error">Ingresá el nombre del titular.</div>
+                  }
+                </div>
+
+                <div class="mb-6 grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <label class="mb-2 block text-sm text-black" for="vencimiento"
+                      >VENCIMIENTO</label
+                    >
+                    <input
+                      id="vencimiento"
+                      type="text"
+                      inputmode="numeric"
+                      autocomplete="cc-exp"
+                      maxlength="5"
+                      class="h-full w-full border border-black p-3 focus:outline-none"
+                      formControlName="vencimiento"
+                      placeholder="MM/AA"
+                      (input)="onVencimiento($event)"
+                      [class.is-invalid]="
+                        formPago.get('vencimiento')?.invalid && formPago.get('vencimiento')?.touched
+                      "
+                    />
+                    @if (formPago.get('vencimiento')?.touched) {
+                      @if (formPago.get('vencimiento')?.hasError('vencida')) {
+                        <div class="field-error">La tarjeta está vencida.</div>
+                      } @else if (formPago.get('vencimiento')?.invalid) {
+                        <div class="field-error">Usá el formato MM/AA.</div>
+                      }
+                    }
+                  </div>
+
+                  <div>
+                    <label class="mb-2 block text-sm text-black" for="cvv">CVV</label>
+                    <input
+                      id="cvv"
+                      type="password"
+                      inputmode="numeric"
+                      autocomplete="cc-csc"
+                      maxlength="4"
+                      class="h-full w-full border border-black p-3 focus:outline-none"
+                      formControlName="cvv"
+                      [placeholder]="marca() === 'amex' ? '1234' : '123'"
+                      [class.is-invalid]="
+                        (formPago.get('cvv')?.invalid || formPago.hasError('cvvMarca')) &&
+                        formPago.get('cvv')?.touched
+                      "
+                    />
+                    @if (formPago.get('cvv')?.touched) {
+                      @if (formPago.get('cvv')?.invalid) {
+                        <div class="field-error">El CVV debe tener 3 o 4 dígitos.</div>
+                      } @else if (formPago.hasError('cvvMarca')) {
+                        <div class="field-error">
+                          El CVV de esta tarjeta tiene {{ formPago.getError('cvvMarca') }} dígitos.
+                        </div>
+                      }
+                    }
+                  </div>
+                </div>
+
+                <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
+                  <button
+                    type="button"
+                    class="inline-flex cursor-pointer items-center justify-center gap-2 border border-black px-6 py-3 text-[0.9rem] text-black uppercase"
+                    (click)="anterior()"
+                  >
+                    <i class="bi bi-arrow-left"></i> Volver
+                  </button>
+                  <button
+                    type="submit"
+                    class="inline-flex cursor-pointer items-center justify-center gap-2 bg-black px-6 py-3 text-[0.9rem] text-white uppercase"
+                  >
+                    Revisar pedido <i class="bi bi-arrow-right"></i>
+                  </button>
+                </div>
+              </form>
+            }
+
+            @case (4) {
+              <h2 class="mb-4 text-[1.1rem] text-black uppercase">Revisá tu pedido</h2>
+
+              @let c = formComprador.getRawValue();
+              @let d = formDireccion.getRawValue();
+
+              <div class="mb-6 grid gap-4 sm:grid-cols-3">
+                <div class="border border-gray-200 p-4">
+                  <div class="mb-3 flex items-center justify-between gap-2">
+                    <strong class="text-[0.82rem] text-ink uppercase">Comprador</strong>
+                    <button
+                      type="button"
+                      class="cursor-pointer text-[0.8rem] text-muted underline hover:text-brand"
+                      (click)="irA(1)"
+                    >
+                      Editar
+                    </button>
+                  </div>
+                  <p class="text-[0.88rem] text-muted">
+                    <span class="block text-ink">{{ c.nombre }} {{ c.apellido }}</span>
+                    <span class="block break-all">{{ c.email }}</span>
+                    <span class="block">Tel. {{ c.telefono }}</span>
+                    <span class="block">DNI {{ c.dni }}</span>
+                  </p>
+                </div>
+
+                <div class="border border-gray-200 p-4">
+                  <div class="mb-3 flex items-center justify-between gap-2">
+                    <strong class="text-[0.82rem] text-ink uppercase">Envío</strong>
+                    <button
+                      type="button"
+                      class="cursor-pointer text-[0.8rem] text-muted underline hover:text-brand"
+                      (click)="irA(2)"
+                    >
+                      Editar
+                    </button>
+                  </div>
+                  <p class="text-[0.88rem] text-muted">
+                    <span class="block text-ink">
+                      {{ d.calle }} {{ d.numero }}{{ d.piso_depto ? ', ' + d.piso_depto : '' }}
+                    </span>
+                    <span class="block">{{ d.ciudad }}, {{ d.provincia }}</span>
+                    <span class="block">CP {{ d.codigo_postal }}</span>
+                    @if (d.indicaciones) {
+                      <span class="mt-1 block italic">"{{ d.indicaciones }}"</span>
+                    }
+                  </p>
+                </div>
+
+                <div class="border border-gray-200 p-4">
+                  <div class="mb-3 flex items-center justify-between gap-2">
+                    <strong class="text-[0.82rem] text-ink uppercase">Pago</strong>
+                    <button
+                      type="button"
+                      class="cursor-pointer text-[0.8rem] text-muted underline hover:text-brand"
+                      (click)="irA(3)"
+                    >
+                      Editar
+                    </button>
+                  </div>
+                  <p class="text-[0.88rem] text-muted">
+                    <span class="block text-ink">
+                      {{ nombresMarca[marca() ?? 'otra'] }} terminada en {{ ultimos4() }}
+                    </span>
+                    <span class="block">{{ formPago.controls.titular.value }}</span>
+                    <span class="block">Vence {{ formPago.controls.vencimiento.value }}</span>
+                  </p>
+                </div>
               </div>
 
-              <div>
-                <label class="mb-2 block text-sm text-black" for="cvv">CVV</label>
-                <input
-                  id="cvv"
-                  type="text"
-                  inputmode="numeric"
-                  autocomplete="cc-csc"
-                  class="h-full w-full border border-black p-3 focus:outline-none"
-                  formControlName="cvv"
-                  placeholder="123"
-                  [class.is-invalid]="form.get('cvv')?.invalid && form.get('cvv')?.touched"
-                />
-                @if (form.get('cvv')?.touched && form.get('cvv')?.invalid) {
-                  <div class="field-error">El CVV debe tener 3 o 4 dígitos.</div>
+              <ul class="mb-6 border-t border-gray-200">
+                @for (item of carrito.items(); track item.producto.id) {
+                  <li
+                    class="flex items-center justify-between gap-3 border-b border-gray-200 py-3 text-[0.9rem]"
+                  >
+                    <div>
+                      <span class="text-[0.7rem] tracking-[0.06em] text-muted uppercase">{{
+                        item.producto.clasificacion
+                      }}</span>
+                      <strong class="block text-ink uppercase">{{ item.producto.nombre }}</strong>
+                      <span class="text-[0.8rem] text-muted"
+                        >{{ item.cantidad }} ×
+                        {{
+                          item.producto.precio | currency: 'ARS' : 'symbol-narrow' : '1.0-0'
+                        }}</span
+                      >
+                    </div>
+                    <span class="whitespace-nowrap text-brand">
+                      {{
+                        item.producto.precio * item.cantidad
+                          | currency: 'ARS' : 'symbol-narrow' : '1.0-0'
+                      }}
+                    </span>
+                  </li>
                 }
-              </div>
-            </div>
+              </ul>
 
-            <button
-              type="submit"
-              class="inline-flex w-full cursor-pointer items-center justify-center gap-2 bg-brand px-6 py-3 text-[0.9rem] text-white uppercase transition-colors hover:bg-brand/70 disabled:cursor-not-allowed disabled:opacity-60"
-              [disabled]="enviando()"
-            >
-              @if (enviando()) {
-                <i class="bi bi-hourglass-split"></i> Procesando pago...
-              } @else {
-                <i class="bi bi-credit-card"></i> Confirmar compra
-              }
-            </button>
-          </form>
+              <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
+                <button
+                  type="button"
+                  class="inline-flex cursor-pointer items-center justify-center gap-2 border border-black px-6 py-3 text-[0.9rem] text-black uppercase disabled:cursor-not-allowed disabled:opacity-60"
+                  [disabled]="enviando()"
+                  (click)="anterior()"
+                >
+                  <i class="bi bi-arrow-left"></i> Volver
+                </button>
+                <button
+                  type="button"
+                  class="inline-flex cursor-pointer items-center justify-center gap-2 bg-brand px-6 py-3 text-[0.9rem] text-white uppercase transition-colors hover:bg-brand/70 disabled:cursor-not-allowed disabled:opacity-60"
+                  [disabled]="enviando()"
+                  (click)="confirmar()"
+                >
+                  @if (enviando()) {
+                    <i class="bi bi-hourglass-split"></i> Procesando pago...
+                  } @else {
+                    <i class="bi bi-credit-card"></i> Confirmar compra
+                  }
+                </button>
+              </div>
+            }
+          }
         </div>
 
         <aside class="bg-gray-100 p-6 lg:sticky lg:top-[100px]">

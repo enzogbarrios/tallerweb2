@@ -16,6 +16,58 @@ export type EstadoPago = 'pendiente' | 'aprobado' | 'rechazado';
 
 export type Comprador = Pick<Usuario, 'id' | 'nombre' | 'apellido' | 'email'>;
 
+export const PROVINCIAS = [
+  'Buenos Aires',
+  'Ciudad Autónoma de Buenos Aires',
+  'Catamarca',
+  'Chaco',
+  'Chubut',
+  'Córdoba',
+  'Corrientes',
+  'Entre Ríos',
+  'Formosa',
+  'Jujuy',
+  'La Pampa',
+  'La Rioja',
+  'Mendoza',
+  'Misiones',
+  'Neuquén',
+  'Río Negro',
+  'Salta',
+  'San Juan',
+  'San Luis',
+  'Santa Cruz',
+  'Santa Fe',
+  'Santiago del Estero',
+  'Tierra del Fuego',
+  'Tucumán',
+] as const;
+
+export type MarcaTarjeta = 'visa' | 'mastercard' | 'amex' | 'otra';
+
+export interface DatosComprador {
+  nombre: string;
+  apellido: string;
+  email: string;
+  telefono: string;
+  dni: string;
+}
+
+export interface DireccionEnvio {
+  calle: string;
+  numero: string;
+  piso_depto: string | null;
+  ciudad: string;
+  provincia: string;
+  codigo_postal: string;
+  indicaciones: string | null;
+}
+
+export interface TarjetaPedido {
+  marca: MarcaTarjeta | null;
+  ultimos4: string | null;
+}
+
 export interface ProductoPedido {
   id: number | null;
   nombre: string;
@@ -40,6 +92,9 @@ export interface Pedido {
   estado: EstadoPedido;
   estado_pago: EstadoPago;
   comprador: Comprador | null;
+  datos_comprador: DatosComprador | null;
+  direccion: DireccionEnvio | null;
+  tarjeta: TarjetaPedido;
 }
 
 export interface TarjetaPago {
@@ -50,7 +105,8 @@ export interface TarjetaPago {
 }
 
 export interface DatosPedido {
-  direccion_envio: string;
+  comprador: DatosComprador;
+  direccion: DireccionEnvio;
   tarjeta: TarjetaPago;
 }
 

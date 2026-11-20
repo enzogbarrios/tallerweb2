@@ -1,5 +1,6 @@
 import type {
   CompradorPedido,
+  DireccionPedido,
   EstadoPedido,
   Pedido,
   PedidoApi,
@@ -11,17 +12,18 @@ import type { FiltrosVentas } from '../schemas/pedidos.schemas.js';
 import { ErrorApi } from '../utils/errores.js';
 import { armarPagina } from '../utils/paginacion.js';
 import type { CarritoService } from './carrito.service.js';
-import type { PagosService } from './pagos.service.js';
+import type { PedidoDto } from '../schemas/pedidos.schemas.js';
+import { detectarMarca, type PagosService } from './pagos.service.js';
 
-export type DatosCompra = {
-  direccion_envio: string;
-  tarjeta: {
-    numero: string;
-    titular: string;
-    vencimiento: string;
-    cvv: string;
-  };
-};
+export type DatosCompra = PedidoDto;
+
+export function armarDireccionEnvio(direccion: DireccionPedido) {
+  const calleYNumero = `${direccion.calle} ${direccion.numero}`;
+  const partes = [calleYNumero, direccion.piso_depto, direccion.ciudad, direccion.provincia].filter(
+    (parte) => !!parte,
+  );
+  return `${partes.join(', ')} (${direccion.codigo_postal})`;
+}
 
 // desde cada estado solo se puede pasar a los de aca
 const SIGUIENTES_ESTADOS: Record<EstadoPedido, EstadoPedido[]> = {
@@ -66,13 +68,16 @@ export class PedidosService {
 
     const pedidoId = await this.pedidos.crearConItems({
       usuarioId,
-      direccionEnvio: datos.direccion_envio,
+      direccionEnvio: armarDireccionEnvio(datos.direccion),
       subtotal: carrito.subtotal,
       envio: carrito.envio,
       total: carrito.total,
       metodoPago: 'tarjeta',
       referenciaPago: pago.referencia,
       tarjetaUltimos4: pago.ultimos4,
+      tarjetaMarca: detectarMarca(datos.tarjeta.numero),
+      comprador: datos.comprador,
+      direccion: datos.direccion,
       items: carrito.items.map((item) => ({
         productoId: item.producto.id,
         nombre: item.producto.nombre,
@@ -206,6 +211,35 @@ export class PedidosService {
         cantidad: item.cantidad,
       })),
       comprador,
+      datos_comprador: this.armarDatosComprador(pedido),
+      direccion: this.armarDireccion(pedido),
+      tarjeta: { marca: pedido.tarjeta_marca, ultimos4: pedido.tarjeta_ultimos4 },
+    };
+  }
+
+  private armarDatosComprador(pedido: Pedido) {
+    if (!pedido.comprador_nombre) return null;
+
+    return {
+      nombre: pedido.comprador_nombre,
+      apellido: pedido.comprador_apellido ?? '',
+      email: pedido.comprador_email ?? '',
+      telefono: pedido.comprador_telefono ?? '',
+      dni: pedido.comprador_dni ?? '',
+    };
+  }
+
+  private armarDireccion(pedido: Pedido): DireccionPedido | null {
+    if (!pedido.envio_calle) return null;
+
+    return {
+      calle: pedido.envio_calle,
+      numero: pedido.envio_numero ?? '',
+      piso_depto: pedido.envio_piso_depto,
+      ciudad: pedido.envio_ciudad ?? '',
+      provincia: pedido.envio_provincia ?? '',
+      codigo_postal: pedido.envio_codigo_postal ?? '',
+      indicaciones: pedido.envio_indicaciones,
     };
   }
 }

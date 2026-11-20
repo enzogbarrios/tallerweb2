@@ -4,6 +4,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PedidosService } from '../../../../api/services/pedidos/pedidos.service';
 import { Pedido as PedidoModel } from '../../../../shared/models/pedido.model';
 import { ImagenFallbackDirective } from '../../../../shared/directives/imagen-fallback.directive';
+import { NOMBRES_MARCA } from '../../../../shared/utils/tarjeta';
 
 @Component({
   selector: 'app-pedido',
@@ -16,6 +17,7 @@ export class Pedido implements OnInit {
   private readonly pedidosService = inject(PedidosService);
 
   readonly pedido = signal<PedidoModel | undefined>(undefined);
+  readonly nombresMarca = NOMBRES_MARCA;
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));

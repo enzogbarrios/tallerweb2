@@ -78,6 +78,51 @@
             </table>
           </div>
 
+          @if (p.datos_comprador || p.direccion || p.tarjeta.ultimos4) {
+            <div class="mt-6 grid gap-4 sm:grid-cols-3">
+              @if (p.datos_comprador; as c) {
+                <div class="border border-gray-200 p-4">
+                  <strong class="mb-3 block text-[0.82rem] text-ink uppercase">Comprador</strong>
+                  <p class="text-[0.88rem] text-muted">
+                    <span class="block text-ink">{{ c.nombre }} {{ c.apellido }}</span>
+                    <span class="block break-all">{{ c.email }}</span>
+                    <span class="block">Tel. {{ c.telefono }}</span>
+                    <span class="block">DNI {{ c.dni }}</span>
+                  </p>
+                </div>
+              }
+
+              @if (p.direccion; as d) {
+                <div class="border border-gray-200 p-4">
+                  <strong class="mb-3 block text-[0.82rem] text-ink uppercase">Envío</strong>
+                  <p class="text-[0.88rem] text-muted">
+                    <span class="block text-ink">
+                      {{ d.calle }} {{ d.numero }}{{ d.piso_depto ? ', ' + d.piso_depto : '' }}
+                    </span>
+                    <span class="block">{{ d.ciudad }}, {{ d.provincia }}</span>
+                    <span class="block">CP {{ d.codigo_postal }}</span>
+                    @if (d.indicaciones) {
+                      <span class="mt-1 block italic">"{{ d.indicaciones }}"</span>
+                    }
+                  </p>
+                </div>
+              }
+
+              @if (p.tarjeta.ultimos4) {
+                <div class="border border-gray-200 p-4">
+                  <strong class="mb-3 block text-[0.82rem] text-ink uppercase">Pago</strong>
+                  <p class="text-[0.88rem] text-muted">
+                    <span class="block text-ink">
+                      {{ nombresMarca[p.tarjeta.marca ?? 'otra'] }} terminada en
+                      {{ p.tarjeta.ultimos4 }}
+                    </span>
+                    <span class="block capitalize">Pago {{ p.estado_pago }}</span>
+                  </p>
+                </div>
+              }
+            </div>
+          }
+
           <div class="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
             <a
               routerLink="/productos"
@@ -125,7 +170,7 @@
             }
           </div>
 
-          @if (p.direccion_envio) {
+          @if (p.direccion_envio && !p.direccion) {
             <div class="mb-3 flex justify-between gap-4 text-[0.95rem] text-muted">
               <span>Dirección</span>
               <span class="text-right">{{ p.direccion_envio }}</span>
