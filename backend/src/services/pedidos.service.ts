@@ -8,7 +8,7 @@ import type {
 } from '../models/pedido.model.js';
 import type { Rol } from '../models/usuario.model.js';
 import type { PedidosRepository } from '../repository/pedidos.repository.js';
-import type { FiltrosVentas } from '../schemas/pedidos.schemas.js';
+import type { FiltrosMisPedidos, FiltrosVentas } from '../schemas/pedidos.schemas.js';
 import { ErrorApi } from '../utils/errores.js';
 import { armarPagina } from '../utils/paginacion.js';
 import type { CarritoService } from './carrito.service.js';
@@ -98,12 +98,13 @@ export class PedidosService {
     return this.armar(pedido, items);
   }
 
-  async listar(usuarioId: number) {
-    const pedidos = await this.pedidos.listarPorUsuario(usuarioId);
+  async listar(usuarioId: number, filtros: FiltrosMisPedidos) {
+    const { pedidos, total } = await this.pedidos.listarPorUsuario(usuarioId, filtros);
     const items = await this.pedidos.itemsDePedidos(pedidos.map((pedido) => pedido.id));
     const itemsPorPedido = this.agruparItems(items);
 
-    return pedidos.map((pedido) => this.armar(pedido, itemsPorPedido.get(pedido.id) ?? []));
+    const armados = pedidos.map((pedido) => this.armar(pedido, itemsPorPedido.get(pedido.id) ?? []));
+    return armarPagina(armados, total, filtros.pagina, filtros.limite);
   }
 
   async listarTodos(filtros: FiltrosVentas) {

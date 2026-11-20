@@ -9,7 +9,11 @@ import type {
   Pedido,
   PedidoItem,
 } from '../models/pedido.model.js';
-import type { FiltrosVentas, OrdenVentas } from '../schemas/pedidos.schemas.js';
+import type {
+  FiltrosMisPedidos,
+  FiltrosVentas,
+  OrdenVentas,
+} from '../schemas/pedidos.schemas.js';
 import { calcularOffset } from '../utils/paginacion.js';
 
 const ZONA_HORARIA = 'America/Argentina/Buenos_Aires';
@@ -31,7 +35,7 @@ function escaparLike(texto: string) {
   return texto.replace(/[\\%_]/g, (caracter) => `\\${caracter}`);
 }
 
-function armarFiltrosVentas(filtros: FiltrosVentas) {
+function armarFiltrosVentas(filtros: FiltrosVentas, usuarioId?: number) {
   const condiciones: string[] = [];
   const parametros: unknown[] = [];
 
@@ -40,21 +44,32 @@ function armarFiltrosVentas(filtros: FiltrosVentas) {
     condiciones.push(condicion(`$${parametros.length}`));
   };
 
+  if (usuarioId !== undefined) {
+    agregar((n) => `p.usuario_id = ${n}`, usuarioId);
+  }
+
   if (filtros.estado) {
     agregar((n) => `p.estado = ${n}`, filtros.estado);
   }
 
   if (filtros.q) {
     const numero = /^#?\d{1,9}$/.test(filtros.q) ? Number(filtros.q.replace('#', '')) : null;
+    const patron = `%${escaparLike(filtros.q)}%`;
 
     if (numero !== null) {
       agregar((n) => `p.id = ${n}`, numero);
+    } else if (usuarioId !== undefined) {
+      agregar(
+        (n) =>
+          `EXISTS (SELECT 1 FROM pedido_items pi WHERE pi.pedido_id = p.id AND pi.nombre ILIKE ${n})`,
+        patron,
+      );
     } else {
       agregar(
         (n) =>
           `(u.nombre ILIKE ${n} OR u.apellido ILIKE ${n} OR u.email ILIKE ${n}
             OR (u.nombre || ' ' || u.apellido) ILIKE ${n})`,
-        `%${escaparLike(filtros.q)}%`,
+        patron,
       );
     }
   }
@@ -200,12 +215,26 @@ export class PedidosRepository {
     return resultado.rows;
   }
 
-  async listarPorUsuario(usuarioId: number) {
-    const resultado = await query<Pedido>(
-      'SELECT * FROM pedidos WHERE usuario_id = $1 ORDER BY creado_en DESC',
-      [usuarioId],
-    );
-    return resultado.rows;
+  async listarPorUsuario(usuarioId: number, filtros: FiltrosMisPedidos) {
+    const { where, parametros } = armarFiltrosVentas(filtros, usuarioId);
+    const limite = parametros.length + 1;
+    const offset = parametros.length + 2;
+
+    const [filas, conteo] = await Promise.all([
+      query<Pedido>(
+        `SELECT p.* FROM pedidos p
+         ${where}
+         ORDER BY ${ORDEN_SQL[filtros.orden]}
+         LIMIT $${limite} OFFSET $${offset}`,
+        [...parametros, filtros.limite, calcularOffset(filtros.pagina, filtros.limite)],
+      ),
+      query<{ total: number }>(
+        `SELECT count(*)::int AS total FROM pedidos p ${where}`,
+        parametros,
+      ),
+    ]);
+
+    return { pedidos: filas.rows, total: conteo.rows[0]?.total ?? 0 };
   }
 
   async listarTodos(filtros: FiltrosVentas) {

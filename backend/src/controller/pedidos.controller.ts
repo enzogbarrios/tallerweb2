@@ -3,6 +3,7 @@ import { CarritoRepository } from '../repository/carrito.repository.js';
 import { PedidosRepository } from '../repository/pedidos.repository.js';
 import { ProductosRepository } from '../repository/productos.repository.js';
 import {
+  esquemaFiltrosMisPedidos,
   esquemaFiltrosVentas,
   type EstadoPedidoDto,
   type PedidoDto,
@@ -28,8 +29,8 @@ export class PedidosController {
   };
 
   public listar = async (req: Request, res: Response) => {
-    const pedidos = await pedidosService.listar(req.usuario!.id);
-    return res.json(pedidos);
+    const filtros = leerQuery(esquemaFiltrosMisPedidos, req.query);
+    return res.json(await pedidosService.listar(req.usuario!.id, filtros));
   };
 
   public listarTodos = async (req: Request, res: Response) => {

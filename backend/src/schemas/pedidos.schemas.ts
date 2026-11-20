@@ -135,3 +135,6 @@ export const esquemaFiltrosVentas = z
   });
 
 export type FiltrosVentas = z.infer<typeof esquemaFiltrosVentas>;
+
+export const esquemaFiltrosMisPedidos = esquemaFiltrosVentas;
+export type FiltrosMisPedidos = FiltrosVentas;
