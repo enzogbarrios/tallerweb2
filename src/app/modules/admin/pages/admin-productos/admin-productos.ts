@@ -3,6 +3,7 @@ import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/cor
 import { RouterLink } from '@angular/router';
 import { NotificacionesService } from '../../../../api/services/notificaciones/notificaciones.service';
 import { ProductosService } from '../../../../api/services/productos/productos.service';
+import { leerError } from '../../../../api/utils/leer-error';
 import { ImagenFallbackDirective } from '../../../../shared/directives/imagen-fallback.directive';
 import { Producto } from '../../../../shared/models/producto.model';
 
@@ -30,8 +31,15 @@ export class AdminProductos {
   }
 
   eliminar(producto: Producto): void {
-    this.productosService.eliminar(producto.id);
-    this.confirmandoId.set(null);
-    this.notificaciones.mostrar(`"${producto.nombre}" se eliminó.`, 'info');
+    this.productosService.eliminar(producto.id).subscribe({
+      next: () => {
+        this.confirmandoId.set(null);
+        this.notificaciones.mostrar(`"${producto.nombre}" se eliminó.`, 'info');
+      },
+      error: (error) => {
+        this.confirmandoId.set(null);
+        this.notificaciones.mostrar(leerError(error).mensaje, 'error');
+      },
+    });
   }
 }

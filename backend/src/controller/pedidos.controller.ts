@@ -9,7 +9,11 @@ import { PedidosService } from '../services/pedidos.service.js';
 import { idNumerico } from '../utils/validarId.js';
 
 const carritoService = new CarritoService(new CarritoRepository(), new ProductosRepository());
-const pedidosService = new PedidosService(carritoService, new PedidosRepository(), new PagosService());
+const pedidosService = new PedidosService(
+  carritoService,
+  new PedidosRepository(),
+  new PagosService(),
+);
 
 export class PedidosController {
   public crear = async (req: Request, res: Response) => {
@@ -19,8 +23,12 @@ export class PedidosController {
   };
 
   public listar = async (req: Request, res: Response) => {
-    const pedidos = await pedidosService.listar(req.usuario!.id, req.usuario!.rol);
+    const pedidos = await pedidosService.listar(req.usuario!.id);
     return res.json(pedidos);
+  };
+
+  public listarTodos = async (_req: Request, res: Response) => {
+    return res.json(await pedidosService.listarTodos());
   };
 
   public obtener = async (req: Request, res: Response) => {

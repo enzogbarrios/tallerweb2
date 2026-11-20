@@ -2,6 +2,7 @@ import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/cor
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { NotificacionesService } from '../../../../api/services/notificaciones/notificaciones.service';
 import { ProductosService } from '../../../../api/services/productos/productos.service';
+import { leerError } from '../../../../api/utils/leer-error';
 import { ProductoForm } from '../../../../shared/components/producto-form/producto-form';
 import { NuevoProducto, Producto } from '../../../../shared/models/producto.model';
 
@@ -20,15 +21,26 @@ export class EditProducto {
   readonly producto = signal<Producto | undefined>(
     this.productosService.obtenerPorId(Number(this.route.snapshot.paramMap.get('id'))),
   );
+  readonly guardando = signal(false);
 
   guardar(datos: NuevoProducto): void {
     const producto = this.producto();
-    if (!producto) {
+
+    if (!producto || this.guardando()) {
       return;
     }
 
-    this.productosService.actualizar(producto.id, datos);
-    this.notificaciones.mostrar(`"${datos.nombre}" se actualizó correctamente.`);
-    this.router.navigate(['/admin']);
+    this.guardando.set(true);
+
+    this.productosService.actualizar(producto.id, datos).subscribe({
+      next: (actualizado) => {
+        this.notificaciones.mostrar(`"${actualizado.nombre}" se actualizó correctamente.`);
+        this.router.navigate(['/admin']);
+      },
+      error: (error) => {
+        this.guardando.set(false);
+        this.notificaciones.mostrar(leerError(error).mensaje, 'error');
+      },
+    });
   }
 }

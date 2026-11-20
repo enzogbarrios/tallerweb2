@@ -1,9 +1,4 @@
-import type {
-  CompradorPedido,
-  Pedido,
-  PedidoApi,
-  PedidoItem,
-} from '../models/pedido.model.js';
+import type { CompradorPedido, Pedido, PedidoApi, PedidoItem } from '../models/pedido.model.js';
 import type { Rol } from '../models/usuario.model.js';
 import type { PedidosRepository } from '../repository/pedidos.repository.js';
 import { ErrorApi } from '../utils/errores.js';
@@ -45,7 +40,11 @@ export class PedidosService {
     }
 
     if (pago.estado === 'timeout') {
-      throw new ErrorApi(504, 'PAGO_TIMEOUT', 'La pasarela de pago no respondió. Intentá de nuevo.');
+      throw new ErrorApi(
+        504,
+        'PAGO_TIMEOUT',
+        'La pasarela de pago no respondió. Intentá de nuevo.',
+      );
     }
 
     const pedidoId = await this.pedidos.crearConItems({
@@ -77,22 +76,22 @@ export class PedidosService {
     return this.armar(pedido, items);
   }
 
-  async listar(usuarioId: number, rol: Rol) {
-    if (rol === 'admin') {
-      const filas = await this.pedidos.listarTodos();
-      const items = await this.pedidos.itemsDePedidos(filas.map((fila) => fila.pedido.id));
-      const itemsPorPedido = this.agruparItems(items);
-
-      return filas.map((fila) =>
-        this.armar(fila.pedido, itemsPorPedido.get(fila.pedido.id) ?? [], fila.comprador),
-      );
-    }
-
+  async listar(usuarioId: number) {
     const pedidos = await this.pedidos.listarPorUsuario(usuarioId);
     const items = await this.pedidos.itemsDePedidos(pedidos.map((pedido) => pedido.id));
     const itemsPorPedido = this.agruparItems(items);
 
     return pedidos.map((pedido) => this.armar(pedido, itemsPorPedido.get(pedido.id) ?? []));
+  }
+
+  async listarTodos() {
+    const filas = await this.pedidos.listarTodos();
+    const items = await this.pedidos.itemsDePedidos(filas.map((fila) => fila.pedido.id));
+    const itemsPorPedido = this.agruparItems(items);
+
+    return filas.map((fila) =>
+      this.armar(fila.pedido, itemsPorPedido.get(fila.pedido.id) ?? [], fila.comprador),
+    );
   }
 
   async obtener(usuarioId: number, rol: Rol, pedidoId: number) {

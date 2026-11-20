@@ -13,13 +13,13 @@ export class Ventas implements OnInit {
   private readonly pedidosService = inject(PedidosService);
 
   // el back devuelve todas las ventas (con comprador) ordenadas de la mas nueva a la mas vieja.
-  readonly ventas = this.pedidosService.pedidos;
+  readonly ventas = this.pedidosService.ventas;
 
   readonly totalFacturado = computed(() =>
     this.ventas().reduce((acumulado, venta) => acumulado + venta.total, 0),
   );
 
   ngOnInit(): void {
-    this.pedidosService.listar().subscribe();
+    this.pedidosService.listarTodos().subscribe();
   }
 }

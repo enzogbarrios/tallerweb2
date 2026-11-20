@@ -83,22 +83,26 @@
 
       <div class="mt-4">
         <label class="mb-2 block text-sm text-black uppercase" for="imagen"
-          >Imagen (URL o ruta) <span class="text-red-600">*</span></label
+          >Imagen <span class="text-red-600">*</span></label
         >
         <input
           id="imagen"
-          type="text"
-          class="w-full border border-black p-3 placeholder:text-sm placeholder:text-gray-400 focus:outline-none"
-          formControlName="imagen"
-          placeholder="https://... o img/productos/remera.webp"
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          class="block w-full cursor-pointer border border-black p-2 text-sm file:mr-3 file:cursor-pointer file:border-0 file:bg-black file:px-4 file:py-2 file:text-white file:uppercase"
+          (change)="seleccionarImagen($event)"
         />
-        @if (form.get('imagen')?.touched && form.get('imagen')?.hasError('required')) {
-          <div class="field-error">La imagen es obligatoria.</div>
-        }
-        @if (form.get('imagen')?.touched && form.get('imagen')?.hasError('pattern')) {
-          <div class="field-error">
-            Ingresá una URL que empiece con http o una ruta que empiece con img/.
-          </div>
+        <p class="mt-1 text-[0.78rem] text-muted">
+          JPG, PNG o WebP. Máximo 2 MB.
+          @if (producto() && !archivo()) {
+            Si no elegís un archivo, se mantiene la imagen actual.
+          }
+          @if (nombreArchivo()) {
+            <span class="mt-1 block text-ink">{{ nombreArchivo() }}</span>
+          }
+        </p>
+        @if (errorImagen()) {
+          <div class="field-error">{{ errorImagen() }}</div>
         }
       </div>
 
@@ -115,19 +119,23 @@
         >
           {{ textoBoton() }}
         </button>
-        <a routerLink="/admin" class="text-[0.88rem] font-semibold text-ink hover:text-brand">Cancelar</a>
+        <a routerLink="/admin" class="text-[0.88rem] font-semibold text-ink hover:text-brand"
+          >Cancelar</a
+        >
       </div>
     </form>
   </div>
 
   <div class="lg:sticky lg:top-[100px] lg:col-span-5">
-    <span class="mb-3 block text-[0.72rem] tracking-[0.12em] text-muted uppercase">Vista previa</span>
+    <span class="mb-3 block text-[0.72rem] tracking-[0.12em] text-muted uppercase"
+      >Vista previa</span
+    >
 
     <div class="overflow-hidden bg-gray-200">
-      @if (vistaPrevia().imagen) {
+      @if (imagenPrevia(); as imagen) {
         <img
           class="block aspect-[2.5/3] w-full object-cover"
-          [src]="vistaPrevia().imagen"
+          [src]="imagen"
           alt="Vista previa del producto"
           appImagenFallback
         />
@@ -146,7 +154,7 @@
         {{ vistaPrevia().nombre || 'Nombre del producto' }}
       </h3>
       <span class="text-[0.9rem] tracking-tight text-brand">
-        {{ (vistaPrevia().precio || 0) | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}
+        {{ vistaPrevia().precio || 0 | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}
       </span>
     </div>
   </div>

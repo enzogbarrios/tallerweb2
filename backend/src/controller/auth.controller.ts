@@ -1,4 +1,3 @@
-// Recibe el request y decide qué responder. La lógica vive en AuthService.
 import type { Request, Response } from 'express';
 import { UsuariosRepository } from '../repository/usuarios.repository.js';
 import type { SigninDto, SignupDto } from '../schemas/auth.schemas.js';
@@ -18,13 +17,12 @@ export class AuthController {
     return res.json(resultado);
   };
 
-  // Devuelve el usuario dueño del token. El front lo usa al recargar la página.
+  // devuelve el usuario dueño del token, lo usa el front al recargar la pagina
   public me = async (req: Request, res: Response) => {
     const usuario = await authService.obtenerPorId(req.usuario!.id);
     return res.json({ usuario });
   };
 
-  // Respuesta siempre igual, exista o no el email (todavía no mandamos mails).
   public recuperar = (_req: Request, res: Response) => {
     return res.json({ mensaje: 'Te enviamos las instrucciones para recuperar tu contraseña.' });
   };
