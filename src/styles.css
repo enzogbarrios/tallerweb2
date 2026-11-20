@@ -25,6 +25,15 @@
 @layer base {
   html {
     @apply scroll-smooth;
+    scrollbar-gutter: stable;
+  }
+
+  app-menu {
+    display: contents;
+  }
+
+  .contenido-principal {
+    flex: 1 0 auto;
   }
 
   body {
