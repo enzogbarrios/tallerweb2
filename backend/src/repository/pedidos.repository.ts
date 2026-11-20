@@ -9,89 +9,15 @@ import type {
   Pedido,
   PedidoItem,
 } from '../models/pedido.model.js';
-import type {
-  FiltrosMisPedidos,
-  FiltrosVentas,
-  OrdenVentas,
-} from '../schemas/pedidos.schemas.js';
 import { ErrorApi } from '../utils/errores.js';
-import { calcularOffset } from '../utils/paginacion.js';
 
-const ZONA_HORARIA = 'America/Argentina/Buenos_Aires';
-
-const ORDEN_SQL: Record<OrdenVentas, string> = {
-  recientes: 'p.creado_en DESC, p.id DESC',
-  antiguos: 'p.creado_en ASC, p.id ASC',
-  total_desc: 'p.total DESC, p.id DESC',
-  total_asc: 'p.total ASC, p.id ASC',
-};
+const ORDEN_POR_DEFECTO = 'p.creado_en DESC, p.id DESC';
 
 type FilaVenta = Pedido & {
   usuario_nombre: string;
   usuario_apellido: string;
   usuario_email: string;
 };
-
-function escaparLike(texto: string) {
-  return texto.replace(/[\\%_]/g, (caracter) => `\\${caracter}`);
-}
-
-function armarFiltrosVentas(filtros: FiltrosVentas, usuarioId?: number) {
-  const condiciones: string[] = [];
-  const parametros: unknown[] = [];
-
-  const agregar = (condicion: (n: string) => string, valor: unknown) => {
-    parametros.push(valor);
-    condiciones.push(condicion(`$${parametros.length}`));
-  };
-
-  if (usuarioId !== undefined) {
-    agregar((n) => `p.usuario_id = ${n}`, usuarioId);
-  }
-
-  if (filtros.estado) {
-    agregar((n) => `p.estado = ${n}`, filtros.estado);
-  }
-
-  if (filtros.q) {
-    const numero = /^#?\d{1,9}$/.test(filtros.q) ? Number(filtros.q.replace('#', '')) : null;
-    const patron = `%${escaparLike(filtros.q)}%`;
-
-    if (numero !== null) {
-      agregar((n) => `p.id = ${n}`, numero);
-    } else if (usuarioId !== undefined) {
-      agregar(
-        (n) =>
-          `EXISTS (SELECT 1 FROM pedido_items pi WHERE pi.pedido_id = p.id AND pi.nombre ILIKE ${n})`,
-        patron,
-      );
-    } else {
-      agregar(
-        (n) =>
-          `(u.nombre ILIKE ${n} OR u.apellido ILIKE ${n} OR u.email ILIKE ${n}
-            OR (u.nombre || ' ' || u.apellido) ILIKE ${n})`,
-        patron,
-      );
-    }
-  }
-
-  if (filtros.desde) {
-    agregar(
-      (n) => `p.creado_en >= (${n}::date::timestamp AT TIME ZONE '${ZONA_HORARIA}')`,
-      filtros.desde,
-    );
-  }
-
-  if (filtros.hasta) {
-    agregar(
-      (n) => `p.creado_en < ((${n}::date + 1)::timestamp AT TIME ZONE '${ZONA_HORARIA}')`,
-      filtros.hasta,
-    );
-  }
-
-  const where = condiciones.length > 0 ? `WHERE ${condiciones.join(' AND ')}` : '';
-  return { where, parametros };
-}
 
 export type ItemNuevoPedido = {
   productoId: number;
@@ -260,41 +186,22 @@ export class PedidosRepository {
     return resultado.rows;
   }
 
-  async listarPorUsuario(usuarioId: number, filtros: FiltrosMisPedidos) {
-    const { where, parametros } = armarFiltrosVentas(filtros, usuarioId);
-    const limite = parametros.length + 1;
-    const offset = parametros.length + 2;
-
-    const [filas, conteo] = await Promise.all([
-      query<Pedido>(
-        `SELECT p.* FROM pedidos p
-         ${where}
-         ORDER BY ${ORDEN_SQL[filtros.orden]}
-         LIMIT $${limite} OFFSET $${offset}`,
-        [...parametros, filtros.limite, calcularOffset(filtros.pagina, filtros.limite)],
-      ),
-      query<{ total: number }>(
-        `SELECT count(*)::int AS total FROM pedidos p ${where}`,
-        parametros,
-      ),
-    ]);
-
-    return { pedidos: filas.rows, total: conteo.rows[0]?.total ?? 0 };
+  async listarPorUsuario(usuarioId: number) {
+    const resultado = await query<Pedido>(
+      `SELECT p.* FROM pedidos p
+       WHERE p.usuario_id = $1
+       ORDER BY ${ORDEN_POR_DEFECTO}`,
+      [usuarioId],
+    );
+    return resultado.rows;
   }
 
-  async listarTodos(filtros: FiltrosVentas) {
-    const { where, parametros } = armarFiltrosVentas(filtros);
-    const limite = parametros.length + 1;
-    const offset = parametros.length + 2;
-
+  async listarTodos() {
     const resultado = await query<FilaVenta>(
       `SELECT p.*, u.nombre AS usuario_nombre, u.apellido AS usuario_apellido, u.email AS usuario_email
        FROM pedidos p
        JOIN usuarios u ON u.id = p.usuario_id
-       ${where}
-       ORDER BY ${ORDEN_SQL[filtros.orden]}
-       LIMIT $${limite} OFFSET $${offset}`,
-      [...parametros, filtros.limite, calcularOffset(filtros.pagina, filtros.limite)],
+       ORDER BY ${ORDEN_POR_DEFECTO}`,
     );
 
     return resultado.rows.map((fila) => {
@@ -309,26 +216,5 @@ export class PedidosRepository {
         },
       };
     });
-  }
-
-  async resumenVentas(filtros: FiltrosVentas) {
-    const { where, parametros } = armarFiltrosVentas(filtros);
-
-    const resultado = await query<{ total: string; cantidad: string; facturado: string }>(
-      `SELECT COUNT(*) AS total,
-              COUNT(*) FILTER (WHERE p.estado <> 'Cancelado') AS cantidad,
-              COALESCE(SUM(p.total) FILTER (WHERE p.estado <> 'Cancelado'), 0) AS facturado
-       FROM pedidos p
-       JOIN usuarios u ON u.id = p.usuario_id
-       ${where}`,
-      parametros,
-    );
-
-    const fila = resultado.rows[0];
-    return {
-      total: Number(fila?.total ?? 0),
-      cantidad: Number(fila?.cantidad ?? 0),
-      facturado: Number(fila?.facturado ?? 0),
-    };
   }
 }

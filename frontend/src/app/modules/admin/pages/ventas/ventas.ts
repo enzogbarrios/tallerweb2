@@ -1,26 +1,7 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
-import {
-  Component,
-  computed,
-  DestroyRef,
-  inject,
-  OnInit,
-  signal,
-  ChangeDetectionStrategy,
-} from '@angular/core';
-import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, ParamMap, Router, RouterLink } from '@angular/router';
-import {
-  catchError,
-  debounceTime,
-  distinctUntilChanged,
-  map,
-  merge,
-  of,
-  Subject,
-  switchMap,
-  tap,
-} from 'rxjs';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { AuthService } from '../../../../api/services/auth/auth.service';
 import { NotificacionesService } from '../../../../api/services/notificaciones/notificaciones.service';
 import { PedidosService } from '../../../../api/services/pedidos/pedidos.service';
 import { leerError } from '../../../../api/utils/leer-error';
@@ -29,15 +10,14 @@ import { EstadoPedidoBadge } from '../../../../shared/components/estado-pedido/e
 import {
   ESTADOS_PEDIDO,
   EstadoPedido,
-  FiltrosVentas,
   ORDENES_VENTAS,
   OrdenVentas,
-  PaginaVentas,
   Pedido,
 } from '../../../../shared/models/pedido.model';
 import { nombreVariante } from '../../../../shared/models/producto.model';
+import { fechaLocal } from '../../../../shared/utils/fecha-local';
+import { ordenarPedidos } from '../../../../shared/utils/ordenar-pedidos';
 
-// las mismas transiciones que valida el back
 const SIGUIENTES_ESTADOS: Record<EstadoPedido, EstadoPedido[]> = {
   Confirmado: ['En preparación', 'Cancelado'],
   'En preparación': ['Enviado'],
@@ -50,24 +30,25 @@ const LIMITES = [10, 20, 50] as const;
 const LIMITE_POR_DEFECTO = 10;
 const ORDEN_POR_DEFECTO: OrdenVentas = 'recientes';
 
-const ESPERA_BUSQUEDA_MS = 400;
-
-const FECHA_VALIDA = /^\d{4}-\d{2}-\d{2}$/;
-
 @Component({
   selector: 'app-ventas',
   imports: [RouterLink, CurrencyPipe, DatePipe, CampoFecha, EstadoPedidoBadge],
   templateUrl: './ventas.html',
   changeDetection: ChangeDetectionStrategy.Eager,
 })
-export class Ventas implements OnInit {
+export class Ventas {
   readonly nombreVariante = nombreVariante;
 
   private readonly pedidosService = inject(PedidosService);
   private readonly notificaciones = inject(NotificacionesService);
-  private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
-  private readonly destroyRef = inject(DestroyRef);
+  private readonly auth = inject(AuthService);
+
+  constructor() {
+    const usuario = this.auth.usuarioActual();
+    if (usuario && this.auth.esAdmin()) {
+      this.pedidosService.cargarTodos(usuario.id).subscribe();
+    }
+  }
 
   readonly estados: Array<EstadoPedido | 'Todos'> = ['Todos', ...ESTADOS_PEDIDO];
   readonly limites = LIMITES;
@@ -78,57 +59,79 @@ export class Ventas implements OnInit {
     { valor: 'total_asc', texto: 'Menor total' },
   ];
 
-  private readonly inicial = this.leerFiltrosDeUrl(this.route.snapshot.queryParamMap);
-
-  readonly estadoActivo = signal<EstadoPedido | null>(this.inicial.estado);
-  readonly textoBusqueda = signal(this.inicial.q);
-  private readonly q = signal(this.inicial.q);
-  readonly desde = signal(this.inicial.desde);
-  readonly hasta = signal(this.inicial.hasta);
-  readonly orden = signal<OrdenVentas>(this.inicial.orden);
-  readonly limite = signal(this.inicial.limite);
-  readonly pagina = signal(this.inicial.pagina);
-
-  private readonly filtros = computed<FiltrosVentas>(() => ({
-    pagina: this.pagina(),
-    limite: this.limite(),
-    estado: this.estadoActivo(),
-    q: this.q(),
-    desde: this.desde(),
-    hasta: this.hasta(),
-    orden: this.orden(),
-  }));
-
-  private readonly filtros$ = toObservable(this.filtros);
+  readonly busqueda = signal('');
+  readonly estadoActivo = signal<EstadoPedido | null>(null);
+  readonly desde = signal('');
+  readonly hasta = signal('');
+  readonly orden = signal<OrdenVentas>(ORDEN_POR_DEFECTO);
+  readonly pagina = signal(1);
+  readonly limite = signal(LIMITE_POR_DEFECTO);
 
   readonly hayFiltros = computed(
     () =>
       this.estadoActivo() !== null ||
-      this.textoBusqueda().trim() !== '' ||
+      this.busqueda().trim() !== '' ||
       this.desde() !== '' ||
       this.hasta() !== '',
   );
 
-  private readonly busqueda$ = new Subject<string>();
-  private readonly recargar$ = new Subject<void>();
+  readonly filtrados = computed(() => {
+    const texto = this.busqueda().trim().toLowerCase();
+    const numero = /^#?\d{1,9}$/.test(texto) ? Number(texto.replace('#', '')) : null;
+    const estado = this.estadoActivo();
+    const desde = this.desde();
+    const hasta = this.hasta();
 
-  readonly resultado = signal<PaginaVentas | null>(null);
-  readonly cargando = signal(true);
-  readonly error = signal<string | null>(null);
+    const coincidentes = this.pedidosService.ventas().filter((venta) => {
+      const fecha = fechaLocal(venta.fecha);
+      const coincideEstado = estado === null || venta.estado === estado;
+      const coincideFecha = (!desde || fecha >= desde) && (!hasta || fecha <= hasta);
+      const comprador = venta.comprador;
+      const coincideTexto =
+        !texto ||
+        (numero !== null && venta.id === numero) ||
+        (numero === null &&
+          comprador !== null &&
+          [
+            comprador.nombre,
+            comprador.apellido,
+            comprador.email,
+            `${comprador.nombre} ${comprador.apellido}`,
+          ].some((valor) => valor.toLowerCase().includes(texto)));
 
-  readonly ventas = computed(() => this.resultado()?.items ?? []);
-  readonly total = computed(() => this.resultado()?.total ?? 0);
-  readonly paginas = computed(() => this.resultado()?.paginas ?? 0);
-  readonly resumen = computed(() => this.resultado()?.resumen ?? { cantidad: 0, facturado: 0 });
+      return coincideEstado && coincideFecha && coincideTexto;
+    });
+
+    return ordenarPedidos(coincidentes, this.orden());
+  });
+
+  readonly resumen = computed(() => {
+    const contables = this.filtrados().filter((venta) => venta.estado !== 'Cancelado');
+    return {
+      cantidad: contables.length,
+      facturado: contables.reduce((total, venta) => total + venta.total, 0),
+    };
+  });
+
+  readonly total = computed(() => this.filtrados().length);
+  readonly totalPaginas = computed(() => Math.ceil(this.total() / this.limite()));
+  readonly paginaActual = computed(() =>
+    Math.min(this.pagina(), Math.max(1, this.totalPaginas())),
+  );
+
+  readonly ventas = computed(() => {
+    const inicio = (this.paginaActual() - 1) * this.limite();
+    return this.filtrados().slice(inicio, inicio + this.limite());
+  });
 
   readonly desdeItem = computed(() =>
-    this.total() === 0 ? 0 : (this.pagina() - 1) * this.limite() + 1,
+    this.total() === 0 ? 0 : (this.paginaActual() - 1) * this.limite() + 1,
   );
-  readonly hastaItem = computed(() => Math.min(this.pagina() * this.limite(), this.total()));
+  readonly hastaItem = computed(() => Math.min(this.paginaActual() * this.limite(), this.total()));
 
   readonly numerosPagina = computed<Array<number | null>>(() => {
-    const total = this.paginas();
-    const actual = this.pagina();
+    const total = this.totalPaginas();
+    const actual = this.paginaActual();
     const numeros: Array<number | null> = [];
 
     for (let n = 1; n <= total; n++) {
@@ -148,65 +151,14 @@ export class Ventas implements OnInit {
   // pedido que espera confirmacion para cancelarse
   readonly confirmandoCancelacion = signal<number | null>(null);
 
-  ngOnInit(): void {
-    this.busqueda$
-      .pipe(
-        map((texto) => texto.trim()),
-        debounceTime(ESPERA_BUSQUEDA_MS),
-        distinctUntilChanged(),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe((texto) => {
-        this.q.set(texto);
-        this.pagina.set(1);
-      });
-
-    merge(this.filtros$, this.recargar$.pipe(map(() => this.filtros())))
-      .pipe(
-        tap((filtros) => {
-          this.cargando.set(true);
-          this.error.set(null);
-          this.escribirFiltrosEnUrl(filtros);
-        }),
-        switchMap((filtros) =>
-          this.pedidosService.listarTodos(filtros).pipe(
-            catchError((error) => {
-              this.error.set(leerError(error).mensaje);
-              return of(null);
-            }),
-          ),
-        ),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe((resultado) => {
-        this.cargando.set(false);
-
-        if (!resultado) {
-          return;
-        }
-
-        if (
-          resultado.items.length === 0 &&
-          resultado.paginas > 0 &&
-          this.pagina() > resultado.paginas
-        ) {
-          this.pagina.set(resultado.paginas);
-          return;
-        }
-
-        this.resultado.set(resultado);
-      });
-  }
-
   filtrarEstado(estado: EstadoPedido | 'Todos'): void {
     this.estadoActivo.set(estado === 'Todos' ? null : estado);
     this.pagina.set(1);
   }
 
   buscar(event: Event): void {
-    const texto = (event.target as HTMLInputElement).value;
-    this.textoBusqueda.set(texto);
-    this.busqueda$.next(texto);
+    this.busqueda.set((event.target as HTMLInputElement).value);
+    this.pagina.set(1);
   }
 
   cambiarDesde(fecha: string): void {
@@ -230,24 +182,16 @@ export class Ventas implements OnInit {
   }
 
   irAPagina(pagina: number): void {
-    if (pagina < 1 || pagina > this.paginas() || pagina === this.pagina()) {
-      return;
-    }
+    if (pagina < 1 || pagina > this.totalPaginas()) return;
     this.pagina.set(pagina);
   }
 
   limpiarFiltros(): void {
+    this.busqueda.set('');
     this.estadoActivo.set(null);
-    this.textoBusqueda.set('');
-    this.q.set('');
-    this.busqueda$.next('');
     this.desde.set('');
     this.hasta.set('');
     this.pagina.set(1);
-  }
-
-  reintentar(): void {
-    this.recargar$.next();
   }
 
   // proximo paso del circuito normal, sin contar la cancelacion
@@ -292,62 +236,10 @@ export class Ventas implements OnInit {
       next: (pedido) => {
         this.actualizandoId.set(null);
         this.notificaciones.mostrar(`El pedido #${venta.id} pasó a "${pedido.estado}".`);
-
-        const filtroEstado = this.estadoActivo();
-        if ((filtroEstado && filtroEstado !== pedido.estado) || pedido.estado === 'Cancelado') {
-          this.recargar$.next();
-          return;
-        }
-
-        this.resultado.update((actual) =>
-          actual
-            ? {
-                ...actual,
-                items: actual.items.map((item) =>
-                  item.id === venta.id ? { ...item, estado: pedido.estado } : item,
-                ),
-              }
-            : actual,
-        );
       },
       error: (error) => {
         this.actualizandoId.set(null);
         this.notificaciones.mostrar(leerError(error).mensaje, 'error');
-      },
-    });
-  }
-
-  private leerFiltrosDeUrl(params: ParamMap): FiltrosVentas {
-    const estado = params.get('estado');
-    const orden = params.get('orden');
-    const desde = params.get('desde') ?? '';
-    const hasta = params.get('hasta') ?? '';
-    const pagina = Number(params.get('pagina'));
-    const limite = Number(params.get('limite'));
-
-    return {
-      estado: ESTADOS_PEDIDO.find((valor) => valor === estado) ?? null,
-      orden: ORDENES_VENTAS.find((valor) => valor === orden) ?? ORDEN_POR_DEFECTO,
-      q: params.get('q') ?? '',
-      desde: FECHA_VALIDA.test(desde) ? desde : '',
-      hasta: FECHA_VALIDA.test(hasta) ? hasta : '',
-      pagina: Number.isInteger(pagina) && pagina > 0 ? pagina : 1,
-      limite: LIMITES.find((valor) => valor === limite) ?? LIMITE_POR_DEFECTO,
-    };
-  }
-
-  private escribirFiltrosEnUrl(filtros: FiltrosVentas): void {
-    this.router.navigate([], {
-      relativeTo: this.route,
-      replaceUrl: true,
-      queryParams: {
-        estado: filtros.estado,
-        q: filtros.q || null,
-        desde: filtros.desde || null,
-        hasta: filtros.hasta || null,
-        orden: filtros.orden === ORDEN_POR_DEFECTO ? null : filtros.orden,
-        limite: filtros.limite === LIMITE_POR_DEFECTO ? null : filtros.limite,
-        pagina: filtros.pagina === 1 ? null : filtros.pagina,
       },
     });
   }

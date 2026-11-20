@@ -29,7 +29,7 @@ npm start         # http://localhost:4200
 
 El frontend redirige `/api` y `/uploads` al puerto 3000 mediante `proxy.conf.json`.
 
-`GET /api/productos` y `GET /api/categorias` devuelven los listados completos; el frontend filtra, ordena y pagina en memoria tanto el catálogo como los paneles de administración. La paginación en servidor (`LIMIT/OFFSET` + `count(*)`) queda para `GET /api/pedidos` (Mis pedidos) y `GET /api/pedidos/todos` (Ventas), que devuelven `{ items, total, pagina, limite, paginas }` y aceptan filtros.
+`GET /api/productos`, `GET /api/categorias`, `GET /api/pedidos` y `GET /api/pedidos/todos` devuelven los listados completos; el frontend filtra, ordena y pagina en memoria el catálogo, los paneles de administración, Mis pedidos y Ventas. `/api/pedidos/todos` es solo admin e incluye los datos del comprador; se carga recién al abrir Ventas, no al arrancar la app. El resumen de Ventas (ventas y total facturado, sin contar canceladas) también se calcula en el cliente. Ninguno de estos listados sincroniza filtros con la URL: al recargar se reinician.
 
 ## Usuarios de prueba
 

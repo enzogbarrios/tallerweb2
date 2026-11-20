@@ -36,7 +36,7 @@
           type="search"
           placeholder="Buscar por n° de pedido, nombre o email del comprador..."
           aria-label="Buscar ventas"
-          [value]="textoBusqueda()"
+          [value]="busqueda()"
           (input)="buscar($event)"
         />
       </div>
@@ -126,9 +126,7 @@
 
     <div class="mb-6 flex flex-wrap items-center justify-between gap-2">
       <span class="text-[0.85rem] text-muted">
-        @if (cargando()) {
-          Cargando ventas…
-        } @else if (total() > 0) {
+        @if (total() > 0) {
           Mostrando {{ desdeItem() }}–{{ hastaItem() }} de {{ total() }}
           {{ total() === 1 ? 'pedido' : 'pedidos' }}
         } @else {
@@ -147,22 +145,7 @@
       }
     </div>
 
-    @if (error(); as mensaje) {
-      <div class="border border-dashed border-gray-300 px-8 py-14 text-center">
-        <i class="bi bi-exclamation-triangle mb-4 block text-[2.2rem] text-brand"></i>
-        <h2 class="mb-2 text-[1.3rem] text-black uppercase">No pudimos cargar las ventas</h2>
-        <p class="mx-auto mb-6 max-w-[430px] text-muted">{{ mensaje }}</p>
-        <button
-          type="button"
-          class="inline-flex cursor-pointer items-center justify-center gap-2 bg-brand px-6 py-3 text-[0.9rem] text-white uppercase transition-colors hover:bg-brand/70"
-          (click)="reintentar()"
-        >
-          Reintentar
-        </button>
-      </div>
-    } @else if (!resultado()) {
-      <p class="py-14 text-center text-muted">Cargando ventas…</p>
-    } @else if (ventas().length === 0 && hayFiltros()) {
+    @if (ventas().length === 0 && hayFiltros()) {
       <div class="border border-dashed border-gray-300 px-8 py-14 text-center">
         <i class="bi bi-search mb-4 block text-[2.2rem] text-brand"></i>
         <h2 class="mb-2 text-[1.3rem] text-black uppercase">No encontramos ventas</h2>
@@ -186,10 +169,7 @@
         </p>
       </div>
     } @else {
-      <div
-        class="overflow-x-auto border-t border-gray-200 transition-opacity"
-        [class.opacity-50]="cargando()"
-      >
+      <div class="overflow-x-auto border-t border-gray-200">
         <table class="w-full min-w-[980px] border-collapse text-left">
           <thead>
             <tr class="text-[0.72rem] tracking-[0.06em] text-muted uppercase">
@@ -295,7 +275,7 @@
         </table>
       </div>
 
-      @if (paginas() > 1) {
+      @if (totalPaginas() > 1) {
         <nav
           class="mt-6 flex flex-wrap items-center justify-center gap-[0.4rem]"
           aria-label="Paginación de ventas"
@@ -303,8 +283,8 @@
           <button
             type="button"
             class="inline-flex cursor-pointer items-center gap-1 border border-gray-300 bg-white px-[0.8rem] py-[0.45rem] text-[0.78rem] text-muted uppercase transition-colors hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-gray-300 disabled:hover:text-muted"
-            [disabled]="pagina() === 1 || cargando()"
-            (click)="irAPagina(pagina() - 1)"
+            [disabled]="paginaActual() === 1"
+            (click)="irAPagina(paginaActual() - 1)"
           >
             <i class="bi bi-chevron-left"></i> Anterior
           </button>
@@ -317,12 +297,11 @@
                 type="button"
                 class="min-w-9 cursor-pointer border px-[0.6rem] py-[0.45rem] text-[0.78rem] transition-colors"
                 [class]="
-                  numero === pagina()
+                  numero === paginaActual()
                     ? 'border-brand bg-brand text-white'
                     : 'border-gray-300 bg-white text-muted hover:border-brand hover:text-brand'
                 "
-                [attr.aria-current]="numero === pagina() ? 'page' : null"
-                [disabled]="cargando()"
+                [attr.aria-current]="numero === paginaActual() ? 'page' : null"
                 (click)="irAPagina(numero)"
               >
                 {{ numero }}
@@ -333,8 +312,8 @@
           <button
             type="button"
             class="inline-flex cursor-pointer items-center gap-1 border border-gray-300 bg-white px-[0.8rem] py-[0.45rem] text-[0.78rem] text-muted uppercase transition-colors hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-gray-300 disabled:hover:text-muted"
-            [disabled]="pagina() === paginas() || cargando()"
-            (click)="irAPagina(pagina() + 1)"
+            [disabled]="paginaActual() === totalPaginas()"
+            (click)="irAPagina(paginaActual() + 1)"
           >
             Siguiente <i class="bi bi-chevron-right"></i>
           </button>

@@ -1,4 +1,3 @@
-import { Pagina } from './pagina.model';
 import { Clasificacion } from './producto.model';
 import { Usuario } from './usuario.model';
 
@@ -116,23 +115,3 @@ export const ORDENES_VENTAS = ['recientes', 'antiguos', 'total_desc', 'total_asc
 
 export type OrdenVentas = (typeof ORDENES_VENTAS)[number];
 
-export interface FiltrosVentas {
-  pagina: number;
-  limite: number;
-  estado: EstadoPedido | null;
-  q: string;
-  desde: string;
-  hasta: string;
-  orden: OrdenVentas;
-}
-
-export type FiltrosMisPedidos = FiltrosVentas;
-
-export interface ResumenVentas {
-  cantidad: number;
-  facturado: number;
-}
-
-export interface PaginaVentas extends Pagina<Pedido> {
-  resumen: ResumenVentas;
-}

@@ -2,13 +2,11 @@
   <div class="mx-4 sm:mx-10">
     <div class="mb-6">
       <h1 class="mt-2 text-black uppercase">Mis pedidos</h1>
-      @if (resultado()) {
-        <p class="text-sm text-muted">
-          {{ total() }}
-          {{ total() === 1 ? 'pedido' : 'pedidos' }}
-          {{ hayFiltros() ? 'con estos filtros' : (total() === 1 ? 'realizado' : 'realizados') }}
-        </p>
-      }
+      <p class="text-sm text-muted">
+        {{ total() }}
+        {{ total() === 1 ? 'pedido' : 'pedidos' }}
+        {{ hayFiltros() ? 'con estos filtros' : (total() === 1 ? 'realizado' : 'realizados') }}
+      </p>
     </div>
 
     <div class="mb-4 flex flex-wrap items-center justify-between gap-4">
@@ -21,7 +19,7 @@
           type="search"
           placeholder="Buscar por n° de pedido o producto..."
           aria-label="Buscar en mis pedidos"
-          [value]="textoBusqueda()"
+          [value]="busqueda()"
           (input)="buscar($event)"
         />
       </div>
@@ -111,9 +109,7 @@
 
     <div class="mb-6 flex min-h-6 flex-wrap items-center justify-between gap-2">
       <span class="text-[0.85rem] text-muted">
-        @if (cargando()) {
-          Cargando pedidos…
-        } @else if (total() > 0) {
+        @if (total() > 0) {
           Mostrando {{ desdeItem() }}–{{ hastaItem() }} de {{ total() }}
           {{ total() === 1 ? 'pedido' : 'pedidos' }}
         } @else {
@@ -133,26 +129,7 @@
     </div>
 
     <div class="flex h-[600px] flex-col">
-      @if (error(); as mensaje) {
-        <div
-          class="flex flex-1 flex-col justify-center border border-dashed border-gray-300 px-8 py-14 text-center"
-        >
-          <i class="bi bi-exclamation-triangle mb-4 block text-[2.2rem] text-brand"></i>
-          <h2 class="mb-2 text-[1.3rem] text-black uppercase">No pudimos cargar tus pedidos</h2>
-          <p class="mx-auto mb-6 max-w-[430px] text-muted">{{ mensaje }}</p>
-          <div>
-            <button
-              type="button"
-              class="inline-flex cursor-pointer items-center justify-center gap-2 bg-brand px-6 py-3 text-[0.9rem] text-white uppercase transition-colors hover:bg-brand/70"
-              (click)="reintentar()"
-            >
-              Reintentar
-            </button>
-          </div>
-        </div>
-      } @else if (!resultado()) {
-        <p class="py-14 text-center text-muted">Cargando pedidos…</p>
-      } @else if (pedidos().length === 0 && hayFiltros()) {
+      @if (pedidos().length === 0 && hayFiltros()) {
         <div
           class="flex flex-1 flex-col justify-center border border-dashed border-gray-300 px-8 py-14 text-center"
         >
@@ -189,10 +166,7 @@
           </div>
         </div>
       } @else {
-        <div
-          class="min-h-0 flex-1 overflow-auto border-t border-gray-200 transition-opacity"
-          [class.opacity-50]="cargando()"
-        >
+        <div class="min-h-0 flex-1 overflow-auto border-t border-gray-200">
           <table class="w-full min-w-[680px] table-fixed border-collapse text-left">
             <colgroup>
               <col class="w-[100px]" />
@@ -260,7 +234,7 @@
           </table>
         </div>
 
-        @if (paginas() > 1) {
+        @if (totalPaginas() > 1) {
           <nav
             class="mt-auto flex flex-wrap items-center justify-center gap-[0.4rem] pt-4"
             aria-label="Paginación de mis pedidos"
@@ -268,8 +242,8 @@
             <button
               type="button"
               class="inline-flex cursor-pointer items-center gap-1 border border-gray-300 bg-white px-[0.8rem] py-[0.45rem] text-[0.78rem] text-muted uppercase transition-colors hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-gray-300 disabled:hover:text-muted"
-              [disabled]="pagina() === 1 || cargando()"
-              (click)="irAPagina(pagina() - 1)"
+              [disabled]="paginaActual() === 1"
+              (click)="irAPagina(paginaActual() - 1)"
             >
               <i class="bi bi-chevron-left"></i> Anterior
             </button>
@@ -282,12 +256,11 @@
                   type="button"
                   class="min-w-9 cursor-pointer border px-[0.6rem] py-[0.45rem] text-[0.78rem] transition-colors"
                   [class]="
-                    numero === pagina()
+                    numero === paginaActual()
                       ? 'border-brand bg-brand text-white'
                       : 'border-gray-300 bg-white text-muted hover:border-brand hover:text-brand'
                   "
-                  [attr.aria-current]="numero === pagina() ? 'page' : null"
-                  [disabled]="cargando()"
+                  [attr.aria-current]="numero === paginaActual() ? 'page' : null"
                   (click)="irAPagina(numero)"
                 >
                   {{ numero }}
@@ -298,8 +271,8 @@
             <button
               type="button"
               class="inline-flex cursor-pointer items-center gap-1 border border-gray-300 bg-white px-[0.8rem] py-[0.45rem] text-[0.78rem] text-muted uppercase transition-colors hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-gray-300 disabled:hover:text-muted"
-              [disabled]="pagina() === paginas() || cargando()"
-              (click)="irAPagina(pagina() + 1)"
+              [disabled]="paginaActual() === totalPaginas()"
+              (click)="irAPagina(paginaActual() + 1)"
             >
               Siguiente <i class="bi bi-chevron-right"></i>
             </button>
