@@ -35,6 +35,7 @@ import {
   PaginaVentas,
   Pedido,
 } from '../../../../shared/models/pedido.model';
+import { nombreVariante } from '../../../../shared/models/producto.model';
 
 // las mismas transiciones que valida el back
 const SIGUIENTES_ESTADOS: Record<EstadoPedido, EstadoPedido[]> = {
@@ -60,6 +61,8 @@ const FECHA_VALIDA = /^\d{4}-\d{2}-\d{2}$/;
   changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class Ventas implements OnInit {
+  readonly nombreVariante = nombreVariante;
+
   private readonly pedidosService = inject(PedidosService);
   private readonly notificaciones = inject(NotificacionesService);
   private readonly route = inject(ActivatedRoute);

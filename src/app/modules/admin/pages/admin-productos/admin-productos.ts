@@ -30,7 +30,9 @@ import { SoloNumerosDirective } from '../../../../shared/directives/solo-numeros
 import { Pagina } from '../../../../shared/models/pagina.model';
 import { CategoriasService } from '../../../../api/services/categorias/categorias.service';
 import {
+  FiltroStock,
   FiltrosProductosAdmin,
+  nombreVariante,
   ORDENES_PRODUCTOS,
   OrdenProductos,
   Producto,
@@ -48,6 +50,7 @@ function enteroDeUrl(valor: string | null, minimo: number): number | undefined {
 
 function filtrosDesdeUrl(params: ParamMap): FiltrosProductosAdmin {
   const destacado = params.get('destacado');
+  const stock = params.get('stock');
   const orden = params.get('orden');
   const limite = enteroDeUrl(params.get('limite'), 1);
 
@@ -59,6 +62,7 @@ function filtrosDesdeUrl(params: ParamMap): FiltrosProductosAdmin {
     destacado: destacado === 'true' ? true : destacado === 'false' ? false : undefined,
     precio_min: enteroDeUrl(params.get('precio_min'), 0),
     precio_max: enteroDeUrl(params.get('precio_max'), 0),
+    stock: stock === 'con_stock' || stock === 'sin_stock' ? stock : undefined,
     orden: ORDENES_PRODUCTOS.find((item) => item.valor === orden)?.valor ?? ORDEN_POR_DEFECTO,
   };
 }
@@ -106,6 +110,7 @@ export class AdminProductos implements OnInit {
       filtros.destacado !== undefined ||
       filtros.precio_min !== undefined ||
       filtros.precio_max !== undefined ||
+      filtros.stock !== undefined ||
       filtros.orden !== ORDEN_POR_DEFECTO
     );
   });
@@ -202,6 +207,17 @@ export class AdminProductos implements OnInit {
   filtrarDestacado(event: Event): void {
     const valor = (event.target as HTMLSelectElement).value;
     this.actualizarFiltros({ destacado: valor === '' ? undefined : valor === 'true' });
+  }
+
+  filtrarStock(event: Event): void {
+    const valor = (event.target as HTMLSelectElement).value;
+    this.actualizarFiltros({ stock: valor === '' ? undefined : (valor as FiltroStock) });
+  }
+
+  detalleStock(producto: Producto): string {
+    return producto.variantes
+      .map((variante) => `${nombreVariante(variante) || 'Única'}: ${variante.stock}`)
+      .join(' · ');
   }
 
   filtrarPrecio(campo: 'precio_min' | 'precio_max', event: Event): void {
