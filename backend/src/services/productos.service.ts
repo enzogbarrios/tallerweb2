@@ -1,7 +1,8 @@
 import type { CategoriasRepository } from '../repository/categorias.repository.js';
-import type { ProductoDto } from '../schemas/productos.schemas.js';
+import type { FiltrosProductos, ProductoDto } from '../schemas/productos.schemas.js';
 import type { ProductosRepository } from '../repository/productos.repository.js';
 import { ErrorApi } from '../utils/errores.js';
+import { armarPagina } from '../utils/paginacion.js';
 import { type ArchivoImagen, borrarImagen, guardarImagen } from '../utils/imagenes.js';
 
 export class ProductosService {
@@ -25,6 +26,11 @@ export class ProductosService {
 
   async listar() {
     return await this.productos.listar();
+  }
+
+  async listarAdmin(filtros: FiltrosProductos) {
+    const { items, total } = await this.productos.listarFiltrado(filtros);
+    return armarPagina(items, total, filtros.pagina, filtros.limite);
   }
 
   async obtener(id: number) {

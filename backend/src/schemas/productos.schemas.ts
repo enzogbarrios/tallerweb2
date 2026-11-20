@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { camposPaginacion } from '../utils/paginacion.js';
 
 // el formulario de productos llega como multipart, asi que los campos de texto
 // son strings y el precio/destacado hay que convertirlos
@@ -31,3 +32,55 @@ export const esquemaProducto = z.object({
 });
 
 export type ProductoDto = z.infer<typeof esquemaProducto>;
+
+const sinVacio = (valor: unknown) => (valor === '' ? undefined : valor);
+
+const opcional = <T extends z.ZodType>(esquema: T) => z.preprocess(sinVacio, esquema.optional());
+
+const precioFiltro = (nombre: string) =>
+  z.coerce
+    .number(`El ${nombre} debe ser un número.`)
+    .int(`El ${nombre} debe ser un número entero.`)
+    .min(0, `El ${nombre} no puede ser negativo.`);
+
+export const ORDENES_PRODUCTOS = [
+  'recientes',
+  'nombre_asc',
+  'nombre_desc',
+  'precio_asc',
+  'precio_desc',
+] as const;
+
+export type OrdenProductos = (typeof ORDENES_PRODUCTOS)[number];
+
+export const esquemaFiltrosProductos = z
+  .object({
+    ...camposPaginacion,
+    q: opcional(z.string('La búsqueda no es válida.').trim().max(100, 'La búsqueda es muy larga.')),
+    categoria_id: opcional(
+      z.coerce
+        .number('La categoría no es válida.')
+        .int('La categoría no es válida.')
+        .positive('La categoría no es válida.'),
+    ),
+    destacado: opcional(
+      z
+        .enum(['true', 'false'], 'Destacado debe ser true o false.')
+        .transform((valor) => valor === 'true'),
+    ),
+    precio_min: opcional(precioFiltro('precio mínimo')),
+    precio_max: opcional(precioFiltro('precio máximo')),
+    orden: z.preprocess(
+      sinVacio,
+      z.enum(ORDENES_PRODUCTOS, 'El orden no es válido.').default('recientes'),
+    ),
+  })
+  .refine(
+    (filtros) =>
+      filtros.precio_min === undefined ||
+      filtros.precio_max === undefined ||
+      filtros.precio_min <= filtros.precio_max,
+    { message: 'El precio mínimo no puede ser mayor al máximo.', path: ['precio_min'] },
+  );
+
+export type FiltrosProductos = z.infer<typeof esquemaFiltrosProductos>;

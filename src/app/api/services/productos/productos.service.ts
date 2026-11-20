@@ -1,7 +1,12 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { catchError, Observable, of, tap } from 'rxjs';
-import { NuevoProducto, Producto } from '../../../shared/models/producto.model';
+import { Pagina } from '../../../shared/models/pagina.model';
+import {
+  FiltrosProductosAdmin,
+  NuevoProducto,
+  Producto,
+} from '../../../shared/models/producto.model';
 
 @Injectable({
   providedIn: 'root',
@@ -23,6 +28,18 @@ export class ProductosService {
         return of(null);
       }),
     );
+  }
+
+  listarAdmin(filtros: FiltrosProductosAdmin): Observable<Pagina<Producto>> {
+    let params = new HttpParams();
+
+    for (const [clave, valor] of Object.entries(filtros)) {
+      if (valor !== undefined && valor !== null && valor !== '') {
+        params = params.set(clave, String(valor));
+      }
+    }
+
+    return this.http.get<Pagina<Producto>>('/api/productos/admin', { params });
   }
 
   obtenerPorId(id: number): Producto | undefined {

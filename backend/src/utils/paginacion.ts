@@ -13,17 +13,23 @@ export type Pagina<T> = {
 };
 
 export const camposPaginacion = {
-  pagina: z.coerce
-    .number('La página debe ser un número.')
-    .int('La página debe ser un número entero.')
-    .min(1, 'La página debe ser 1 o mayor.')
-    .default(1),
-  limite: z.coerce
-    .number('El límite debe ser un número.')
-    .int('El límite debe ser un número entero.')
-    .min(1, 'El límite debe ser 1 o mayor.')
-    .max(LIMITE_MAXIMO, `El límite no puede superar ${LIMITE_MAXIMO}.`)
-    .default(LIMITE_POR_DEFECTO),
+  pagina: z.preprocess(
+    (valor) => (valor === '' ? undefined : valor),
+    z.coerce
+      .number('La página debe ser un número.')
+      .int('La página debe ser un número entero.')
+      .min(1, 'La página debe ser 1 o mayor.')
+      .default(1),
+  ),
+  limite: z.preprocess(
+    (valor) => (valor === '' ? undefined : valor),
+    z.coerce
+      .number('El límite debe ser un número.')
+      .int('El límite debe ser un número entero.')
+      .min(1, 'El límite debe ser 1 o mayor.')
+      .max(LIMITE_MAXIMO, `El límite no puede superar ${LIMITE_MAXIMO}.`)
+      .default(LIMITE_POR_DEFECTO),
+  ),
 };
 
 export function calcularOffset(pagina: number, limite: number) {

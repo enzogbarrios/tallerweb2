@@ -1,9 +1,10 @@
 import type { Request, Response } from 'express';
 import { CategoriasRepository } from '../repository/categorias.repository.js';
 import { ProductosRepository } from '../repository/productos.repository.js';
-import type { ProductoDto } from '../schemas/productos.schemas.js';
+import { esquemaFiltrosProductos, type ProductoDto } from '../schemas/productos.schemas.js';
 import { ProductosService } from '../services/productos.service.js';
 import { ErrorApi } from '../utils/errores.js';
+import { leerQuery } from '../utils/paginacion.js';
 import { idNumerico } from '../utils/validarId.js';
 
 const productosService = new ProductosService(
@@ -14,6 +15,11 @@ const productosService = new ProductosService(
 export class ProductosController {
   public listar = async (_req: Request, res: Response) => {
     return res.json(await productosService.listar());
+  };
+
+  public listarAdmin = async (req: Request, res: Response) => {
+    const filtros = leerQuery(esquemaFiltrosProductos, req.query);
+    return res.json(await productosService.listarAdmin(filtros));
   };
 
   public obtener = async (req: Request, res: Response) => {
