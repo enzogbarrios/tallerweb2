@@ -232,6 +232,14 @@ export class MisPedidos implements OnInit {
     this.recargar$.next();
   }
 
+  urlActual(): string {
+    return this.router.url;
+  }
+
+  verDetalle(id: number): void {
+    this.router.navigate(['/mis-pedidos', id], { state: { volverA: this.router.url } });
+  }
+
   private leerFiltrosDeUrl(params: ParamMap): FiltrosMisPedidos {
     const estado = params.get('estado');
     const orden = params.get('orden');

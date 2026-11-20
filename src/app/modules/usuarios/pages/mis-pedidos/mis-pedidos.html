@@ -218,11 +218,17 @@
             </thead>
             <tbody>
               @for (pedido of pedidos(); track pedido.id) {
-                <tr class="border-b border-gray-200">
+                <tr
+                  class="cursor-pointer border-b border-gray-200 transition-colors hover:bg-gray-50"
+                  [title]="'Ver el detalle del pedido #' + pedido.id"
+                  (click)="verDetalle(pedido.id)"
+                >
                   <td class="py-3 pr-4 align-top">
                     <a
                       class="font-semibold text-ink hover:text-brand"
-                      [routerLink]="['/carrito/pedido', pedido.id]"
+                      [routerLink]="['/mis-pedidos', pedido.id]"
+                      [state]="{ volverA: urlActual() }"
+                      (click)="$event.stopPropagation()"
                       >#{{ pedido.id }}</a
                     >
                   </td>

@@ -22,10 +22,22 @@ export const routes: Routes = [
   {
     path: 'mis-pedidos',
     canActivate: [authGuard],
-    loadComponent: () =>
-      import('./modules/usuarios/pages/mis-pedidos/mis-pedidos').then(
-        (modulo) => modulo.MisPedidos,
-      ),
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('./modules/usuarios/pages/mis-pedidos/mis-pedidos').then(
+            (modulo) => modulo.MisPedidos,
+          ),
+      },
+      {
+        path: ':id',
+        loadComponent: () =>
+          import('./modules/usuarios/pages/detalle-pedido/detalle-pedido').then(
+            (modulo) => modulo.DetallePedido,
+          ),
+      },
+    ],
   },
   {
     path: 'admin',
