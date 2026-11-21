@@ -1,0 +1,69 @@
+@import 'tailwindcss';
+
+/* ---------- Design tokens ---------- */
+
+@theme {
+  --font-sans: 'Arimo', ui-sans-serif, system-ui, sans-serif;
+  --color-primary: #3b5bdb;
+  --color-primary-dark: #2f4bb8;
+  --color-primary-soft: #eef2ff;
+  --color-accent: #d97706;
+  --color-ink: #1f2937;
+  --color-muted: #5b6472;
+  --color-canvas: #f3f4f6;
+  --color-line: #d1d5db;
+  --color-brand: #3993bb;
+}
+
+@utility container {
+  margin-inline: auto;
+  padding-inline: 1rem;
+}
+
+/* ---------- Base ---------- */
+
+@layer base {
+  html {
+    @apply scroll-smooth;
+    scrollbar-gutter: stable;
+  }
+
+  app-menu {
+    display: contents;
+  }
+
+  .contenido-principal {
+    flex: 1 0 auto;
+  }
+
+  body {
+    @apply min-h-screen bg-canvas text-ink antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply leading-[1.2] font-bold tracking-tight text-ink;
+  }
+
+  img {
+    color: transparent;
+  }
+}
+
+/* ---------- Componentes reutilizables ---------- */
+
+@layer components {
+  .field-error {
+    @apply mt-1 text-[0.78rem] text-red-600;
+  }
+}
+
+/* Campo inválido: va fuera de @layer para ganarle al border-black de las utilidades. */
+input.is-invalid,
+select.is-invalid {
+  border-color: var(--color-red-600);
+}

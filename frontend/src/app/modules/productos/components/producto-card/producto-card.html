@@ -1,0 +1,68 @@
+<article
+  class="flex h-full flex-col overflow-hidden bg-white transition-colors hover:border-primary"
+>
+  <a class="relative block overflow-hidden bg-gray-200" [routerLink]="['/productos', producto().id]">
+    <img
+      class="block aspect-[2.5/3] w-full object-cover"
+      [src]="producto().imagen"
+      [alt]="producto().nombre"
+      appImagenFallback
+      loading="lazy"
+    />
+
+    @if (producto().destacado) {
+      <span
+        class="absolute top-[0.65rem] left-[0.65rem] inline-flex items-center bg-brand px-[0.55rem] py-1 text-[0.68rem] tracking-[0.02em] text-white uppercase"
+      >
+        DESTACADO
+      </span>
+    }
+  </a>
+
+  <div class="flex flex-1 flex-col pt-4 pb-[1.05rem]">
+    <h3 class="mb-[0.2rem] text-base leading-[1.3]">
+      <a class="text-ink hover:text-brand" [routerLink]="['/productos', producto().id]">{{
+        producto().nombre.toUpperCase()
+      }}</a>
+    </h3>
+
+    <div class="flex items-center justify-between gap-[0.6rem]">
+      <span class="text-[0.9rem] text-brand tracking-tight">{{
+        producto().precio | currency: 'ARS' : 'symbol-narrow' : '1.0-0'
+      }}</span>
+
+      @if (producto().stock === 0) {
+        <span
+          class="inline-flex items-center px-[0.8rem] py-[0.45rem] text-[0.78rem] bg-gray-100 text-gray-500"
+        >
+          SIN STOCK
+        </span>
+      } @else if (conVariantes()) {
+        <a
+          class="inline-flex items-center gap-[0.35rem] bg-brand px-[0.8rem] py-[0.45rem] text-[0.78rem] text-white transition-colors hover:bg-brand/70 hover:text-white"
+          [routerLink]="['/productos', producto().id]"
+        >
+          ELEGIR TALLE
+        </a>
+      } @else {
+        <button
+          type="button"
+          class="inline-flex cursor-pointer items-center gap-[0.35rem] px-[0.8rem] py-[0.45rem] text-[0.78rem] transition-colors"
+          [class]="
+            agregado()
+              ? 'bg-emerald-50 text-emerald-700'
+              : 'bg-brand text-white hover:bg-brand/70 hover:text-white'
+          "
+          [disabled]="agregado()"
+          (click)="agregarAlCarrito()"
+        >
+          @if (agregado()) {
+            <i class="bi bi-check2"></i> AGREGADO
+          } @else {
+            AGREGAR AL CARRITO
+          }
+        </button>
+      }
+    </div>
+  </div>
+</article>

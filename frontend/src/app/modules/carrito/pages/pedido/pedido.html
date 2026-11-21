@@ -1,0 +1,73 @@
+@if (pedido(); as p) {
+  <section class="bg-white py-8 lg:py-12">
+    <div class="mx-4 sm:mx-10">
+      <div class="mb-8 border-b border-gray-200 pb-8 text-center">
+        <i class="bi bi-check-circle mb-3 block text-[2.6rem] text-brand"></i>
+        <h1 class="mb-2 text-[clamp(1.8rem,4vw,2.6rem)] text-black uppercase">
+          ¡Gracias por tu compra!
+        </h1>
+        <p class="mx-auto max-w-[560px] text-muted">
+          Tu pedido <strong class="text-ink">#{{ p.id }}</strong> fue registrado correctamente. Te
+          enviaremos las novedades por email.
+        </p>
+      </div>
+
+      <app-resumen-pedido [pedido]="p" [conCabecera]="true" titulo="Detalle del pedido">
+          <div
+            resumen-acciones
+            class="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3"
+          >
+            <a
+              routerLink="/productos"
+              class="inline-flex items-center justify-center gap-2 bg-brand px-6 py-3 text-[0.9rem] text-white uppercase transition-colors hover:bg-brand/70"
+            >
+              Seguir comprando
+            </a>
+            <a routerLink="/" class="text-[0.88rem] font-semibold text-ink hover:text-brand"
+              >Volver al inicio</a
+            >
+          </div>
+
+          <div resumen-aside class="mt-6 flex gap-3 border-t border-gray-300 pt-4 text-muted">
+            <i class="bi bi-truck text-xl text-brand"></i>
+            <div>
+              <strong class="block text-[0.82rem] text-ink uppercase">Entrega estimada</strong>
+              <span class="text-[0.8rem]">Entre 24 y 48 horas hábiles.</span>
+            </div>
+          </div>
+      </app-resumen-pedido>
+    </div>
+  </section>
+} @else if (cargando()) {
+  <section class="bg-white py-8 lg:py-12 lg:min-h-[40rem]">
+    <p class="py-14 text-center text-muted">Cargando pedido…</p>
+  </section>
+} @else if (error(); as mensaje) {
+  <section class="bg-white py-8 lg:py-12 lg:min-h-[40rem]">
+    <div class="mx-4 sm:mx-10">
+      <div class="border border-dashed border-gray-300 px-8 py-14 text-center">
+        <i class="bi bi-exclamation-triangle mb-4 block text-[2.2rem] text-brand"></i>
+        <h2 class="mb-2 text-[1.3rem] text-black uppercase">No pudimos cargar el pedido</h2>
+        <p class="mx-auto max-w-[430px] text-muted">{{ mensaje }}</p>
+      </div>
+    </div>
+  </section>
+} @else {
+  <section class="bg-white py-8 lg:py-12 lg:min-h-[40rem]">
+    <div class="mx-4 sm:mx-10">
+      <div class="border border-dashed border-gray-300 px-8 py-14 text-center">
+        <h2 class="mb-2 text-[1.3rem] text-black uppercase">Pedido no encontrado</h2>
+        <p class="mx-auto mb-6 max-w-[430px] text-muted">
+          El pedido que buscás no existe o no te pertenece. Podés revisar todos tus pedidos desde tu
+          cuenta.
+        </p>
+        <a
+          routerLink="/productos"
+          class="inline-flex items-center justify-center gap-2 bg-brand px-6 py-3 text-[0.9rem] text-white uppercase transition-colors hover:bg-brand/70"
+        >
+          Explorar productos
+        </a>
+      </div>
+    </div>
+  </section>
+}

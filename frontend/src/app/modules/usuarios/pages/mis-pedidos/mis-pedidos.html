@@ -1,0 +1,284 @@
+<section class="bg-white py-8 lg:py-12">
+  <div class="mx-4 sm:mx-10">
+    <div class="mb-6">
+      <h1 class="mt-2 text-black uppercase">Mis pedidos</h1>
+      <p class="text-sm text-muted">
+        {{ total() }}
+        {{ total() === 1 ? 'pedido' : 'pedidos' }}
+        {{ hayFiltros() ? 'con estos filtros' : (total() === 1 ? 'realizado' : 'realizados') }}
+      </p>
+    </div>
+
+    <div class="mb-4 flex flex-wrap items-center justify-between gap-4">
+      <div
+        class="flex flex-[1_1_300px] items-center gap-[0.6rem] border border-gray-300 bg-white px-[0.85rem] py-[0.65rem] focus-within:border-brand"
+      >
+        <i class="bi bi-search text-muted"></i>
+        <input
+          class="w-full bg-transparent text-[0.9rem] text-ink outline-none"
+          type="search"
+          placeholder="Buscar por n° de pedido o producto..."
+          aria-label="Buscar en mis pedidos"
+          [value]="busqueda()"
+          (input)="buscar($event)"
+        />
+      </div>
+
+      <div class="flex flex-wrap gap-[0.4rem]">
+        @for (estado of estados; track estado) {
+          <button
+            type="button"
+            class="cursor-pointer border px-[0.8rem] py-[0.45rem] text-[0.78rem] uppercase transition-colors"
+            [class]="
+              (estadoActivo() ?? 'Todos') === estado
+                ? 'border-brand bg-brand text-white'
+                : 'border-gray-300 bg-white text-muted hover:border-brand hover:text-brand'
+            "
+            (click)="filtrarEstado(estado)"
+          >
+            {{ estado }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <div class="mb-5 flex flex-wrap items-end gap-4">
+      <div>
+        <label
+          class="mb-1 block text-[0.72rem] tracking-[0.06em] text-muted uppercase"
+          for="pedidos-desde"
+          >Desde</label
+        >
+        <app-campo-fecha
+          idCampo="pedidos-desde"
+          etiqueta="Fecha desde"
+          [valor]="desde()"
+          [max]="hasta()"
+          (cambio)="cambiarDesde($event)"
+        />
+      </div>
+      <div>
+        <label
+          class="mb-1 block text-[0.72rem] tracking-[0.06em] text-muted uppercase"
+          for="pedidos-hasta"
+          >Hasta</label
+        >
+        <app-campo-fecha
+          idCampo="pedidos-hasta"
+          etiqueta="Fecha hasta"
+          [valor]="hasta()"
+          [min]="desde()"
+          (cambio)="cambiarHasta($event)"
+        />
+      </div>
+      <div>
+        <label
+          class="mb-1 block text-[0.72rem] tracking-[0.06em] text-muted uppercase"
+          for="pedidos-orden"
+          >Ordenar por</label
+        >
+        <select
+          id="pedidos-orden"
+          class="border border-gray-300 bg-white px-[0.85rem] py-[0.6rem] text-[0.85rem] text-ink outline-none focus:border-brand"
+          (change)="cambiarOrden($event)"
+        >
+          @for (opcion of ordenes; track opcion.valor) {
+            <option [value]="opcion.valor" [selected]="opcion.valor === orden()">
+              {{ opcion.texto }}
+            </option>
+          }
+        </select>
+      </div>
+      <div>
+        <label
+          class="mb-1 block text-[0.72rem] tracking-[0.06em] text-muted uppercase"
+          for="pedidos-limite"
+          >Por página</label
+        >
+        <select
+          id="pedidos-limite"
+          class="border border-gray-300 bg-white px-[0.85rem] py-[0.6rem] text-[0.85rem] text-ink outline-none focus:border-brand"
+          (change)="cambiarLimite($event)"
+        >
+          @for (opcion of limites; track opcion) {
+            <option [value]="opcion" [selected]="opcion === limite()">{{ opcion }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <div class="mb-6 flex min-h-6 flex-wrap items-center justify-between gap-2">
+      <span class="text-[0.85rem] text-muted">
+        @if (total() > 0) {
+          Mostrando {{ desdeItem() }}–{{ hastaItem() }} de {{ total() }}
+          {{ total() === 1 ? 'pedido' : 'pedidos' }}
+        } @else {
+          0 pedidos encontrados
+        }
+      </span>
+
+      @if (hayFiltros()) {
+        <button
+          type="button"
+          class="inline-flex cursor-pointer items-center gap-[0.35rem] text-[0.82rem] font-semibold text-ink hover:text-brand"
+          (click)="limpiarFiltros()"
+        >
+          <i class="bi bi-x-circle"></i> Limpiar filtros
+        </button>
+      }
+    </div>
+
+    <div class="flex h-[600px] flex-col">
+      @if (pedidos().length === 0 && hayFiltros()) {
+        <div
+          class="flex flex-1 flex-col justify-center border border-dashed border-gray-300 px-8 py-14 text-center"
+        >
+          <i class="bi bi-search mb-4 block text-[2.2rem] text-brand"></i>
+          <h2 class="mb-2 text-[1.3rem] text-black uppercase">No encontramos pedidos</h2>
+          <p class="mx-auto mb-6 max-w-[430px] text-muted">
+            Probá con otra búsqueda o quitá los filtros para ver todos tus pedidos.
+          </p>
+          <div>
+            <button
+              type="button"
+              class="inline-flex cursor-pointer items-center justify-center gap-2 bg-brand px-6 py-3 text-[0.9rem] text-white uppercase transition-colors hover:bg-brand/70"
+              (click)="limpiarFiltros()"
+            >
+              Ver todos mis pedidos
+            </button>
+          </div>
+        </div>
+      } @else if (pedidos().length === 0) {
+        <div
+          class="flex flex-1 flex-col justify-center border border-dashed border-gray-300 px-8 py-14 text-center"
+        >
+          <h2 class="mb-2 text-[1.3rem] text-black uppercase">Todavía no realizaste pedidos</h2>
+          <p class="mx-auto mb-6 max-w-[430px] text-muted">
+            Cuando confirmes una compra, la vas a ver acá.
+          </p>
+          <div>
+            <a
+              routerLink="/productos"
+              class="inline-flex items-center justify-center gap-2 bg-brand px-6 py-3 text-[0.9rem] text-white uppercase transition-colors hover:bg-brand/70"
+            >
+              Explorar productos
+            </a>
+          </div>
+        </div>
+      } @else {
+        <div class="min-h-0 flex-1 overflow-auto border-t border-gray-200">
+          <table class="w-full min-w-[680px] table-fixed border-collapse text-left">
+            <colgroup>
+              <col class="w-[100px]" />
+              <col class="w-[150px]" />
+              <col />
+              <col class="w-[130px]" />
+              <col class="w-[150px]" />
+            </colgroup>
+            <thead class="[&_th]:sticky [&_th]:top-0 [&_th]:z-10 [&_th]:bg-white">
+              <tr class="text-[0.72rem] tracking-[0.06em] text-muted uppercase">
+                <th scope="col" class="border-b border-gray-200 py-3 pr-4 font-normal">Pedido</th>
+                <th scope="col" class="border-b border-gray-200 px-4 py-3 font-normal">Fecha</th>
+                <th scope="col" class="border-b border-gray-200 px-4 py-3 font-normal">
+                  Productos
+                </th>
+                <th scope="col" class="border-b border-gray-200 px-4 py-3 text-right font-normal">
+                  Total
+                </th>
+                <th scope="col" class="border-b border-gray-200 py-3 pl-4 text-right font-normal">
+                  Estado
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (pedido of pedidos(); track pedido.id) {
+                <tr
+                  class="cursor-pointer border-b border-gray-200 transition-colors hover:bg-gray-50"
+                  [title]="'Ver el detalle del pedido #' + pedido.id"
+                  (click)="verDetalle(pedido.id)"
+                >
+                  <td class="py-3 pr-4 align-top">
+                    <a
+                      class="font-semibold text-ink hover:text-brand"
+                      [routerLink]="['/mis-pedidos', pedido.id]"
+                      [state]="{ volverA: urlActual() }"
+                      (click)="$event.stopPropagation()"
+                      >#{{ pedido.id }}</a
+                    >
+                  </td>
+                  <td class="px-4 py-3 align-top text-muted">
+                    {{ pedido.fecha | date: 'dd/MM/yyyy HH:mm' }}
+                  </td>
+                  <td class="px-4 py-3 align-top">
+                    <ul class="grid gap-1 text-[0.88rem]">
+                      @for (item of pedido.items; track $index) {
+                        <li class="truncate" [title]="item.producto.nombre">
+                          <span class="text-muted">{{ item.cantidad }} ×</span>
+                          <span class="text-ink uppercase"> {{ item.producto.nombre }}</span>
+                          @if (nombreVariante(item); as detalle) {
+                            <span class="text-muted uppercase"> ({{ detalle }})</span>
+                          }
+                        </li>
+                      }
+                    </ul>
+                  </td>
+                  <td class="px-4 py-3 text-right align-top text-brand">
+                    {{ pedido.total | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}
+                  </td>
+                  <td class="py-3 pl-4 text-right align-top">
+                    <app-estado-pedido [estado]="pedido.estado" />
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        @if (totalPaginas() > 1) {
+          <nav
+            class="mt-auto flex flex-wrap items-center justify-center gap-[0.4rem] pt-4"
+            aria-label="Paginación de mis pedidos"
+          >
+            <button
+              type="button"
+              class="inline-flex cursor-pointer items-center gap-1 border border-gray-300 bg-white px-[0.8rem] py-[0.45rem] text-[0.78rem] text-muted uppercase transition-colors hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-gray-300 disabled:hover:text-muted"
+              [disabled]="paginaActual() === 1"
+              (click)="irAPagina(paginaActual() - 1)"
+            >
+              <i class="bi bi-chevron-left"></i> Anterior
+            </button>
+
+            @for (numero of numerosPagina(); track $index) {
+              @if (numero === null) {
+                <span class="px-1 text-muted">…</span>
+              } @else {
+                <button
+                  type="button"
+                  class="min-w-9 cursor-pointer border px-[0.6rem] py-[0.45rem] text-[0.78rem] transition-colors"
+                  [class]="
+                    numero === paginaActual()
+                      ? 'border-brand bg-brand text-white'
+                      : 'border-gray-300 bg-white text-muted hover:border-brand hover:text-brand'
+                  "
+                  [attr.aria-current]="numero === paginaActual() ? 'page' : null"
+                  (click)="irAPagina(numero)"
+                >
+                  {{ numero }}
+                </button>
+              }
+            }
+
+            <button
+              type="button"
+              class="inline-flex cursor-pointer items-center gap-1 border border-gray-300 bg-white px-[0.8rem] py-[0.45rem] text-[0.78rem] text-muted uppercase transition-colors hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-gray-300 disabled:hover:text-muted"
+              [disabled]="paginaActual() === totalPaginas()"
+              (click)="irAPagina(paginaActual() + 1)"
+            >
+              Siguiente <i class="bi bi-chevron-right"></i>
+            </button>
+          </nav>
+        }
+      }
+    </div>
+  </div>
+</section>

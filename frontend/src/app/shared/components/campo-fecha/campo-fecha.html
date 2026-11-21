@@ -1,0 +1,43 @@
+<div class="relative">
+  <input
+    [id]="idCampo()"
+    type="text"
+    inputmode="numeric"
+    autocomplete="off"
+    placeholder="DD/MM/AAAA"
+    class="w-[10.5rem] border border-gray-300 bg-white py-[0.55rem] pr-9 pl-[0.85rem] text-[0.85rem] text-ink outline-none placeholder:text-gray-400 focus:border-brand"
+    [class.is-invalid]="error()"
+    [value]="texto()"
+    [attr.aria-invalid]="error() ? true : null"
+    (input)="escribir($event)"
+    (blur)="confirmar()"
+    (keydown.enter)="confirmar()"
+  />
+
+  <button
+    type="button"
+    class="absolute top-0 right-0 grid h-full w-9 cursor-pointer place-items-center text-muted hover:text-brand"
+    [attr.aria-label]="'Elegir ' + etiqueta().toLowerCase() + ' en el calendario'"
+    (click)="abrirCalendario()"
+  >
+    <i class="bi bi-calendar3"></i>
+  </button>
+
+  <input
+    #calendario
+    type="date"
+    tabindex="-1"
+    aria-hidden="true"
+    class="pointer-events-none absolute bottom-0 left-0 h-px w-px opacity-0"
+    [value]="valor()"
+    [min]="min() || null"
+    [max]="max() || null"
+    (change)="elegirDelCalendario($event)"
+  />
+
+  @if (error(); as mensaje) {
+    <div class="field-error absolute top-full left-0 whitespace-nowrap" role="alert">
+      {{ mensaje }}
+    </div>
+  }
+</div>

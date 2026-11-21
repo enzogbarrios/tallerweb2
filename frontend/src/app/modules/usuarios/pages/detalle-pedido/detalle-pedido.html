@@ -1,0 +1,111 @@
+<section class="bg-white py-8 lg:py-12">
+  <div class="mx-4 sm:mx-10">
+    <button
+      type="button"
+      class="mb-4 inline-flex cursor-pointer items-center gap-[0.35rem] text-sm text-muted hover:text-brand"
+      (click)="volver()"
+    >
+      <i class="bi bi-arrow-left"></i> Volver a mis pedidos
+    </button>
+
+    @if (pedido(); as p) {
+      <div class="mb-8 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 class="mt-2 text-black uppercase">Pedido #{{ p.id }}</h1>
+          <p class="text-sm text-muted">
+            Realizado el {{ p.fecha | date: "dd/MM/yyyy 'a las' HH:mm" }} ·
+            {{ cantidadUnidades() }} {{ cantidadUnidades() === 1 ? 'unidad' : 'unidades' }}
+          </p>
+        </div>
+        <app-estado-pedido [estado]="p.estado" />
+      </div>
+
+      @if (cancelado()) {
+        <div
+          class="mb-8 flex items-start gap-3 border border-red-200 bg-red-50 px-4 py-3 text-red-700"
+          role="status"
+        >
+          <i class="bi bi-x-circle mt-[0.1rem]"></i>
+          <div>
+            <strong class="block text-[0.85rem] uppercase">Pedido cancelado</strong>
+            <span class="text-[0.85rem]"
+              >Este pedido fue cancelado y no se va a enviar. Si ya se había cobrado, el importe se
+              reintegra a tu tarjeta.</span
+            >
+          </div>
+        </div>
+      } @else {
+        <ol class="mb-8 grid grid-cols-4 gap-2" aria-label="Seguimiento del pedido">
+          @for (paso of pasos; track paso.estado; let i = $index) {
+            <li
+              class="flex flex-col items-start gap-2 border-t-4 pt-3"
+              [class.border-black]="i <= pasoActual()"
+              [class.border-gray-200]="i > pasoActual()"
+              [attr.aria-current]="i === pasoActual() ? 'step' : null"
+            >
+              <span
+                class="inline-flex h-8 w-8 items-center justify-center text-[0.95rem]"
+                [class.bg-black]="i <= pasoActual()"
+                [class.text-white]="i <= pasoActual()"
+                [class.bg-gray-100]="i > pasoActual()"
+                [class.text-muted]="i > pasoActual()"
+              >
+                <i class="bi" [class]="paso.icono"></i>
+              </span>
+              <span
+                class="text-[0.72rem] tracking-[0.06em] uppercase sm:text-[0.8rem]"
+                [class.text-black]="i === pasoActual()"
+                [class.font-semibold]="i === pasoActual()"
+                [class.text-muted]="i !== pasoActual()"
+              >
+                {{ paso.titulo }}
+              </span>
+            </li>
+          }
+        </ol>
+      }
+
+      <app-resumen-pedido [pedido]="p" [conLinks]="true" titulo="Resumen">
+          <a
+            resumen-acciones
+            routerLink="/productos"
+            class="mt-6 inline-flex w-full items-center justify-center gap-2 bg-brand px-6 py-3 text-[0.9rem] text-white uppercase transition-colors hover:bg-brand/70"
+          >
+            Seguir comprando
+          </a>
+
+          @if (!cancelado() && p.estado !== 'Entregado') {
+            <div resumen-aside class="mt-6 flex gap-3 border-t border-gray-300 pt-4 text-muted">
+              <i class="bi bi-truck text-xl text-brand"></i>
+              <div>
+                <strong class="block text-[0.82rem] text-ink uppercase">Entrega estimada</strong>
+                <span class="text-[0.8rem]">Entre 24 y 48 horas hábiles.</span>
+              </div>
+            </div>
+          }
+      </app-resumen-pedido>
+    } @else if (cargando()) {
+      <p class="py-14 text-center text-muted">Cargando pedido…</p>
+    } @else if (error(); as mensaje) {
+      <div class="border border-dashed border-gray-300 px-8 py-14 text-center">
+        <i class="bi bi-exclamation-triangle mb-4 block text-[2.2rem] text-brand"></i>
+        <h2 class="mb-2 text-[1.3rem] text-black uppercase">No pudimos cargar el pedido</h2>
+        <p class="mx-auto max-w-[430px] text-muted">{{ mensaje }}</p>
+      </div>
+    } @else {
+      <div class="border border-dashed border-gray-300 px-8 py-14 text-center">
+        <i class="bi bi-receipt mb-4 block text-[2.2rem] text-brand"></i>
+        <h2 class="mb-2 text-[1.3rem] text-black uppercase">Pedido no encontrado</h2>
+        <p class="mx-auto mb-6 max-w-[430px] text-muted">
+          El pedido que buscás no existe o no es de tu cuenta.
+        </p>
+        <a
+          routerLink="/mis-pedidos"
+          class="inline-flex items-center justify-center gap-2 bg-brand px-6 py-3 text-[0.9rem] text-white uppercase transition-colors hover:bg-brand/70"
+        >
+          Ver mis pedidos
+        </a>
+      </div>
+    }
+  </div>
+</section>

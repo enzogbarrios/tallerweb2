@@ -1,0 +1,101 @@
+import type { CategoriasRepository } from '../repository/categorias.repository.js';
+import type { ProductoDto } from '../schemas/productos.schemas.js';
+import type { ProductosRepository } from '../repository/productos.repository.js';
+import { codigoDeError, ErrorApi } from '../utils/errores.js';
+import { type ArchivoImagen, borrarImagen, guardarImagen } from '../utils/imagenes.js';
+
+function errorDeVariantes(error: unknown) {
+  if (codigoDeError(error) === '23505') {
+    return new ErrorApi(409, 'VARIANTE_DUPLICADA', 'Hay variantes repetidas (mismo talle y color).', {
+      variantes: 'Hay variantes repetidas (mismo talle y color).',
+    });
+  }
+  return error;
+}
+
+export class ProductosService {
+  private readonly productos: ProductosRepository;
+  private readonly categorias: CategoriasRepository;
+
+  constructor(productos: ProductosRepository, categorias: CategoriasRepository) {
+    this.productos = productos;
+    this.categorias = categorias;
+  }
+
+  private async validarCategoria(categoriaId: number) {
+    const categoria = await this.categorias.buscarPorId(categoriaId);
+
+    if (!categoria) {
+      throw new ErrorApi(400, 'DATOS_INVALIDOS', 'Hay datos incorrectos.', {
+        categoria_id: 'La categoría elegida no existe.',
+      });
+    }
+  }
+
+  async listar() {
+    return await this.productos.listar();
+  }
+
+  async obtener(id: number) {
+    const producto = Number.isInteger(id) ? await this.productos.buscarPorId(id) : undefined;
+
+    if (!producto) {
+      throw new ErrorApi(404, 'PRODUCTO_NO_ENCONTRADO', 'El producto no existe.');
+    }
+    return producto;
+  }
+
+  async crear(datos: ProductoDto, archivo: ArchivoImagen) {
+    await this.validarCategoria(datos.categoria_id);
+    const imagen = await guardarImagen(datos.nombre, archivo);
+
+    try {
+      const producto = await this.productos.crear({ ...datos, imagen });
+
+      if (!producto) {
+        throw new Error('No se pudo crear el producto');
+      }
+      return producto;
+    } catch (error) {
+      // si fallo la base no dejamos la imagen en disco
+      await borrarImagen(imagen);
+      throw errorDeVariantes(error);
+    }
+  }
+
+  async actualizar(id: number, datos: ProductoDto, archivo?: ArchivoImagen) {
+    const actual = await this.obtener(id);
+    await this.validarCategoria(datos.categoria_id);
+    const imagen = archivo ? await guardarImagen(datos.nombre, archivo) : actual.imagen;
+
+    try {
+      const producto = await this.productos.actualizar(id, { ...datos, imagen });
+
+      if (!producto) {
+        throw new Error('No se pudo actualizar el producto');
+      }
+
+      // Recién cuando el cambio se guardó borramos la imagen anterior.
+      if (archivo) {
+        await borrarImagen(actual.imagen);
+      }
+      return producto;
+    } catch (error) {
+      if (archivo && imagen !== actual.imagen) {
+        await borrarImagen(imagen);
+      }
+      throw errorDeVariantes(error);
+    }
+  }
+
+  async eliminar(id: number) {
+    const producto = await this.productos.eliminar(id);
+
+    if (!producto) {
+      throw new ErrorApi(404, 'PRODUCTO_NO_ENCONTRADO', 'El producto no existe.');
+    }
+
+    await borrarImagen(producto.imagen);
+    return producto;
+  }
+}

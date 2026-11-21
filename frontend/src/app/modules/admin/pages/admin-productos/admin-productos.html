@@ -1,0 +1,376 @@
+<section class="bg-white py-8 lg:py-12">
+  <div class="mx-4 sm:mx-10">
+    <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
+      <div>
+        <h1 class="mt-2 text-black uppercase">Administración</h1>
+        <p class="text-sm text-muted">
+          {{ total() }} {{ total() === 1 ? 'producto' : 'productos' }}
+          {{ hayFiltros() ? (total() === 1 ? 'encontrado' : 'encontrados') : 'cargados' }}
+        </p>
+      </div>
+
+      <div class="flex flex-wrap gap-3">
+        <a
+          routerLink="/admin/ventas"
+          class="inline-flex items-center justify-center gap-2 border border-black px-6 py-3 text-[0.9rem] text-black uppercase transition-colors hover:bg-black hover:text-white"
+        >
+          Ventas
+        </a>
+        <a
+          routerLink="/admin/categorias"
+          class="inline-flex items-center justify-center gap-2 border border-black px-6 py-3 text-[0.9rem] text-black uppercase transition-colors hover:bg-black hover:text-white"
+        >
+          Categorías
+        </a>
+        <a
+          routerLink="/productos/nuevo"
+          class="inline-flex items-center justify-center gap-2 bg-brand px-6 py-3 text-[0.9rem] text-white uppercase transition-colors hover:bg-brand/70"
+        >
+          <i class="bi bi-plus-lg"></i> Agregar producto
+        </a>
+      </div>
+    </div>
+
+    <div class="mb-5 flex flex-wrap items-end gap-4">
+      <div
+        class="flex flex-[1_1_300px] items-center gap-[0.6rem] border border-gray-300 bg-white px-[0.85rem] py-[0.65rem] focus-within:border-brand"
+      >
+        <i class="bi bi-search text-muted"></i>
+        <input
+          class="w-full bg-transparent text-[0.9rem] text-ink outline-none"
+          type="search"
+          placeholder="Buscar por nombre o descripción..."
+          aria-label="Buscar productos"
+          [value]="busqueda()"
+          (input)="buscar($event)"
+        />
+      </div>
+
+      <div>
+        <label
+          class="mb-1 block text-[0.72rem] tracking-[0.06em] text-muted uppercase"
+          for="filtro-categoria"
+          >Categoría</label
+        >
+        <select
+          id="filtro-categoria"
+          class="border border-gray-300 bg-white px-3 py-[0.6rem] text-[0.9rem] text-ink focus:border-brand focus:outline-none"
+          (change)="filtrarCategoria($event)"
+        >
+          <option value="" [selected]="!categoriaId()">Todas</option>
+          @for (categoria of categorias(); track categoria.id) {
+            <option [value]="categoria.id" [selected]="categoriaId() === categoria.id">
+              {{ categoria.nombre }}
+            </option>
+          }
+        </select>
+      </div>
+
+      <div>
+        <label
+          class="mb-1 block text-[0.72rem] tracking-[0.06em] text-muted uppercase"
+          for="filtro-destacado"
+          >Destacado</label
+        >
+        <select
+          id="filtro-destacado"
+          class="border border-gray-300 bg-white px-3 py-[0.6rem] text-[0.9rem] text-ink focus:border-brand focus:outline-none"
+          (change)="filtrarDestacado($event)"
+        >
+          <option value="" [selected]="destacado() === undefined">Todos</option>
+          <option value="true" [selected]="destacado() === true">Sí</option>
+          <option value="false" [selected]="destacado() === false">No</option>
+        </select>
+      </div>
+
+      <div>
+        <label
+          class="mb-1 block text-[0.72rem] tracking-[0.06em] text-muted uppercase"
+          for="filtro-stock"
+          >Stock</label
+        >
+        <select
+          id="filtro-stock"
+          class="border border-gray-300 bg-white px-3 py-[0.6rem] text-[0.9rem] text-ink focus:border-brand focus:outline-none"
+          (change)="filtrarStock($event)"
+        >
+          <option value="" [selected]="stock() === undefined">Todos</option>
+          <option value="con_stock" [selected]="stock() === 'con_stock'">Con stock</option>
+          <option value="sin_stock" [selected]="stock() === 'sin_stock'">Sin stock</option>
+        </select>
+      </div>
+
+      <div>
+        <span class="mb-1 block text-[0.72rem] tracking-[0.06em] text-muted uppercase"
+          >Precio (ARS)</span
+        >
+        <div class="flex items-center gap-2">
+          <input
+            class="w-28 border border-gray-300 bg-white px-3 py-[0.6rem] text-[0.9rem] text-ink placeholder:text-gray-400 focus:border-brand focus:outline-none"
+            type="number"
+            appSoloNumeros
+            min="0"
+            step="1"
+            placeholder="Mínimo"
+            aria-label="Precio mínimo"
+            [value]="precioMin() ?? ''"
+            (change)="filtrarPrecio('precio_min', $event)"
+          />
+          <span class="text-muted">—</span>
+          <input
+            class="w-28 border border-gray-300 bg-white px-3 py-[0.6rem] text-[0.9rem] text-ink placeholder:text-gray-400 focus:border-brand focus:outline-none"
+            type="number"
+            appSoloNumeros
+            min="0"
+            step="1"
+            placeholder="Máximo"
+            aria-label="Precio máximo"
+            [value]="precioMax() ?? ''"
+            (change)="filtrarPrecio('precio_max', $event)"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label
+          class="mb-1 block text-[0.72rem] tracking-[0.06em] text-muted uppercase"
+          for="filtro-orden"
+          >Ordenar por</label
+        >
+        <select
+          id="filtro-orden"
+          class="border border-gray-300 bg-white px-3 py-[0.6rem] text-[0.9rem] text-ink focus:border-brand focus:outline-none"
+          (change)="ordenar($event)"
+        >
+          @for (opcion of ordenes; track opcion.valor) {
+            <option [value]="opcion.valor" [selected]="orden() === opcion.valor">
+              {{ opcion.etiqueta }}
+            </option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <div class="mb-6 flex flex-wrap items-center justify-between gap-2">
+      <span class="text-[0.85rem] text-muted">
+        {{ total() }} {{ total() === 1 ? 'producto' : 'productos' }}
+        {{ hayFiltros() ? (total() === 1 ? 'encontrado' : 'encontrados') : 'cargados' }}
+      </span>
+
+      @if (hayFiltros()) {
+        <button
+          type="button"
+          class="inline-flex cursor-pointer items-center gap-[0.35rem] text-[0.82rem] font-semibold text-ink hover:text-brand"
+          (click)="limpiarFiltros()"
+        >
+          <i class="bi bi-x-circle"></i> Limpiar filtros
+        </button>
+      }
+    </div>
+
+    @if (productos().length === 0) {
+      @if (hayFiltros()) {
+        <div class="border border-dashed border-gray-300 px-8 py-14 text-center">
+          <i class="bi bi-search mb-4 block text-[2.2rem] text-brand"></i>
+          <h2 class="mb-2 text-[1.3rem] text-black uppercase">No encontramos productos</h2>
+          <p class="mx-auto mb-6 max-w-[430px] text-muted">
+            Probá con otra búsqueda o quitá los filtros para ver todo el catálogo.
+          </p>
+          <button
+            type="button"
+            class="inline-flex cursor-pointer items-center justify-center gap-2 bg-brand px-6 py-3 text-[0.9rem] text-white uppercase transition-colors hover:bg-brand/70"
+            (click)="limpiarFiltros()"
+          >
+            Limpiar filtros
+          </button>
+        </div>
+      } @else {
+        <div class="border border-dashed border-gray-300 px-8 py-14 text-center">
+          <i class="bi bi-box-seam mb-4 block text-[2.2rem] text-brand"></i>
+          <h2 class="mb-2 text-[1.3rem] text-black uppercase">No hay productos</h2>
+          <p class="mx-auto max-w-[430px] text-muted">
+            Agregá el primero con el botón "Agregar producto".
+          </p>
+        </div>
+      }
+    } @else {
+      <div class="overflow-x-auto border-t border-gray-200">
+        <table class="w-full min-w-[960px] table-fixed border-collapse text-left">
+          <colgroup>
+            <col class="w-[70px]" />
+            <col />
+            <col class="w-[160px]" />
+            <col class="w-[130px]" />
+            <col class="w-[120px]" />
+            <col class="w-[110px]" />
+            <col class="w-[210px]" />
+          </colgroup>
+          <thead>
+            <tr class="text-[0.72rem] tracking-[0.06em] text-muted uppercase">
+              <th scope="col" class="border-b border-gray-200 py-3 pr-4 font-normal">ID</th>
+              <th scope="col" class="border-b border-gray-200 px-4 py-3 font-normal">Producto</th>
+              <th scope="col" class="border-b border-gray-200 px-4 py-3 font-normal">
+                Categoría
+              </th>
+              <th scope="col" class="border-b border-gray-200 px-4 py-3 text-right font-normal">
+                Precio
+              </th>
+              <th scope="col" class="border-b border-gray-200 px-4 py-3 text-center font-normal">
+                Stock
+              </th>
+              <th scope="col" class="border-b border-gray-200 px-4 py-3 text-center font-normal">
+                Destacado
+              </th>
+              <th scope="col" class="border-b border-gray-200 py-3 pl-4 text-right font-normal">
+                Acciones
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (producto of productos(); track producto.id) {
+              <tr class="border-b border-gray-200">
+                <td class="py-3 pr-4 align-middle text-muted">{{ producto.id }}</td>
+                <td class="px-4 py-3 align-middle">
+                  <div class="flex min-w-0 items-center gap-3">
+                    <img
+                      class="aspect-[2.5/3] w-12 flex-none bg-gray-200 object-cover"
+                      [src]="producto.imagen"
+                      [alt]="producto.nombre"
+                      appImagenFallback
+                    />
+                    <strong class="truncate text-ink uppercase" [title]="producto.nombre">{{
+                      producto.nombre
+                    }}</strong>
+                  </div>
+                </td>
+                <td class="truncate px-4 py-3 align-middle text-muted" [title]="producto.clasificacion">
+                  {{ producto.clasificacion }}
+                </td>
+                <td class="px-4 py-3 text-right align-middle text-brand">
+                  {{ producto.precio | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}
+                </td>
+                <td
+                  class="px-4 py-3 text-center align-middle"
+                  [title]="detalleStock(producto)"
+                >
+                  @if (producto.stock === 0) {
+                    <span
+                      class="bg-red-100 px-2 py-1 text-xs font-bold whitespace-nowrap text-red-800 uppercase"
+                      >Sin stock</span
+                    >
+                  } @else {
+                    <span [class]="producto.stock <= 5 ? 'font-bold text-amber-700' : 'text-ink'">{{
+                      producto.stock
+                    }}</span>
+                  }
+                </td>
+                <td class="px-4 py-3 text-center align-middle">
+                  @if (producto.destacado) {
+                    <i class="bi bi-check-lg text-brand" aria-label="Sí"></i>
+                  } @else {
+                    <span class="text-gray-400" aria-label="No">—</span>
+                  }
+                </td>
+                <td class="py-3 pl-4 text-right align-middle">
+                  @if (confirmandoId() === producto.id) {
+                    <span class="mr-2 text-[0.82rem] text-ink">¿Eliminar?</span>
+                    <button
+                      type="button"
+                      class="mr-2 cursor-pointer bg-red-600 px-3 py-1 text-[0.78rem] text-white uppercase hover:bg-red-700"
+                      (click)="eliminar(producto)"
+                    >
+                      Sí
+                    </button>
+                    <button
+                      type="button"
+                      class="cursor-pointer border border-gray-400 px-3 py-1 text-[0.78rem] text-ink uppercase hover:border-black"
+                      (click)="cancelar()"
+                    >
+                      No
+                    </button>
+                  } @else {
+                    <a
+                      [routerLink]="['/admin/productos', producto.id, 'editar']"
+                      class="mr-3 inline-flex items-center gap-1 text-[0.85rem] text-ink hover:text-brand"
+                      [attr.aria-label]="'Editar ' + producto.nombre"
+                    >
+                      <i class="bi bi-pencil"></i> Editar
+                    </a>
+                    <button
+                      type="button"
+                      class="inline-flex cursor-pointer items-center gap-1 text-[0.85rem] text-ink hover:text-red-600"
+                      [attr.aria-label]="'Eliminar ' + producto.nombre"
+                      (click)="pedirConfirmacion(producto.id)"
+                    >
+                      <i class="bi bi-trash3"></i> Eliminar
+                    </button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-2 text-[0.85rem] text-muted">
+          <label for="filtro-limite">Mostrar</label>
+          <select
+            id="filtro-limite"
+            class="border border-gray-300 bg-white px-2 py-1 text-[0.85rem] text-ink focus:border-brand focus:outline-none"
+            (change)="cambiarLimite($event)"
+          >
+            @for (cantidad of limites; track cantidad) {
+              <option [value]="cantidad" [selected]="limite() === cantidad">
+                {{ cantidad }}
+              </option>
+            }
+          </select>
+          <span>por página</span>
+        </div>
+
+        @if (totalPaginas() > 1) {
+          <nav class="flex flex-wrap items-center gap-[0.4rem]" aria-label="Paginación">
+            <button
+              type="button"
+              class="cursor-pointer border border-gray-300 bg-white px-[0.8rem] py-[0.45rem] text-[0.78rem] text-ink uppercase transition-colors hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-gray-300 disabled:hover:text-ink"
+              [disabled]="paginaActual() <= 1"
+              (click)="irAPagina(paginaActual() - 1)"
+            >
+              <i class="bi bi-chevron-left"></i> Anterior
+            </button>
+
+            @for (numero of paginasVisibles(); track $index) {
+              @if (numero === null) {
+                <span class="px-1 text-muted">…</span>
+              } @else {
+                <button
+                  type="button"
+                  class="min-w-[2.2rem] cursor-pointer border px-[0.7rem] py-[0.45rem] text-[0.78rem] transition-colors"
+                  [class]="
+                    numero === paginaActual()
+                      ? 'border-brand bg-brand text-white'
+                      : 'border-gray-300 bg-white text-muted hover:border-brand hover:text-brand'
+                  "
+                  [attr.aria-current]="numero === paginaActual() ? 'page' : null"
+                  (click)="irAPagina(numero)"
+                >
+                  {{ numero }}
+                </button>
+              }
+            }
+
+            <button
+              type="button"
+              class="cursor-pointer border border-gray-300 bg-white px-[0.8rem] py-[0.45rem] text-[0.78rem] text-ink uppercase transition-colors hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-gray-300 disabled:hover:text-ink"
+              [disabled]="paginaActual() >= totalPaginas()"
+              (click)="irAPagina(paginaActual() + 1)"
+            >
+              Siguiente <i class="bi bi-chevron-right"></i>
+            </button>
+          </nav>
+        }
+      </div>
+    }
+  </div>
+</section>

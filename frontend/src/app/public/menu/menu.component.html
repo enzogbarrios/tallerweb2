@@ -1,0 +1,122 @@
+<nav class="sticky top-0 z-50 bg-white">
+  <div class="h-7 w-full bg-brand"></div>
+  <div class="container flex flex-wrap items-center justify-between lg:flex-nowrap py-3">
+    <a routerLink="/" class="flex items-center gap-[0.6rem] text-[1.3rem] font-bold tracking-tight text-white">
+      <img
+          src="/img/logo.webp"
+          alt="Logo de Shaka"
+          appImagenFallback
+          class="block w-40 rounded-lg border object-cover"
+        />
+    </a>
+
+    <button
+      class="cursor-pointer rounded-md border border-gray-600 px-3 py-2 text-black focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-400 lg:hidden"
+      type="button"
+      aria-controls="menuPrincipal"
+      [attr.aria-expanded]="menuAbierto()"
+      aria-label="Abrir menú"
+      (click)="menuAbierto.set(!menuAbierto())"
+    >
+      <i class="bi text-xl" [class.bi-list]="!menuAbierto()" [class.bi-x-lg]="menuAbierto()"></i>
+    </button>
+
+    <div
+      id="menuPrincipal"
+      class="w-full basis-full pt-3 lg:flex lg:w-auto lg:flex-1 lg:basis-auto lg:items-center lg:pt-0"
+      [class.hidden]="!menuAbierto()"
+    >
+      <ul class="my-3 flex flex-col gap-1 lg:mx-auto lg:my-0 lg:flex-row">
+        <li>
+          <a
+            class="block rounded-md px-3 py-1 text-[0.92rem] font-medium text-black hover:text-gray-800 transition-all"
+            routerLink="/"
+            routerLinkActive=""
+            [routerLinkActiveOptions]="{ exact: true }"
+            >INICIO</a
+          >
+        </li>
+        <li>
+          <a
+            class="block rounded-md px-3 py-1 text-[0.92rem] font-medium text-black hover:text-gray-800 transition-all"
+            routerLink="/productos"
+            >PRODUCTOS</a
+          >
+        </li>
+        @if (auth.esAdmin()) {
+          <li>
+            <a
+              class="block rounded-md px-3 py-1 text-[0.92rem] font-medium text-brand hover:text-brand/70 transition-all"
+              routerLink="/admin"
+              routerLinkActive="underline"
+              >ADMIN</a
+            >
+          </li>
+        }
+      </ul>
+
+      <div class="flex flex-wrap items-center gap-5">
+        <a
+          routerLink="/carrito"
+          aria-label="Ver carrito"
+          class="relative grid size-[42px] place-items-center rounded-md text-[1.1rem] text-black transition-colors"
+        >
+          <i class="bi bi-cart text-black"></i>
+          @if (carrito.cantidadTotal() > 0) {
+            <span
+              class="absolute -top-[1px] -right-[1px] grid h-5 min-w-5 place-items-center rounded-full bg-brand px-[0.3rem] text-[0.7rem] font-extrabold text-white"
+              >{{ carrito.cantidadTotal() }}</span
+            >
+          }
+        </a>
+
+        @if (auth.usuarioActual(); as usuario) {
+          <div class="relative">
+            <button
+              class="flex cursor-pointer items-center gap-2 py-[0.3rem] pr-[0.65rem] pl-[0.3rem] text-[0.9rem] text-black"
+              type="button"
+              aria-haspopup="menu"
+              [attr.aria-expanded]="usuarioMenuAbierto()"
+              (click)="usuarioMenuAbierto.set(!usuarioMenuAbierto())"
+            >
+             <i class="bi bi-person text-black text-[1.1rem]"></i>
+              <span class="hidden xl:inline">{{ usuario.nombre }}</span>
+              <i class="bi bi-chevron-down text-[0.7rem]"></i>
+            </button>
+
+            @if (usuarioMenuAbierto()) {
+              <ul
+                role="menu"
+                class="absolute left-0 z-50 mt-2 min-w-[220px] max-w-[calc(100vw-2rem)] rounded-md border border-line bg-white py-2 lg:right-0 lg:left-auto"
+              >
+                <li class="px-4 py-1 text-sm break-all text-muted">{{ usuario.email }}</li>
+                <li><hr class="my-2 border-line" /></li>
+                <li>
+                  <a
+                    routerLink="/mis-pedidos"
+                    role="menuitem"
+                    class="block w-full px-4 py-2 text-left text-ink text-sm hover:bg-gray-100"
+                  >
+                    MIS PEDIDOS
+                  </a>
+                </li>
+                <li>
+                  <button
+                    type="button"
+                    role="menuitem"
+                    class="block w-full cursor-pointer px-4 py-2 text-sm text-left text-ink hover:bg-gray-100"
+                    (click)="cerrarSesion()"
+                  >
+                    CERRAR SESIÓN
+                  </button>
+                </li>
+              </ul>
+            }
+          </div>
+        } @else {
+          <a routerLink="/auth/signin" class="text-black hover:text-gray-800 transition-all">INGRESAR</a>
+        }
+      </div>
+    </div>
+  </div>
+</nav>

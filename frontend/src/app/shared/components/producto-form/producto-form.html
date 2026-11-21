@@ -1,0 +1,272 @@
+<div class="grid items-start gap-8 lg:grid-cols-12">
+  <div class="lg:col-span-7">
+    <p class="mb-6 text-sm text-muted">
+      Los campos marcados con <span class="text-red-600">*</span> son obligatorios.
+    </p>
+
+    <form [formGroup]="form" (ngSubmit)="guardar()" novalidate>
+      <div class="mb-4">
+        <label class="mb-2 block text-sm text-black uppercase" for="nombre"
+          >Nombre <span class="text-red-600">*</span></label
+        >
+        <input
+          id="nombre"
+          type="text"
+          class="w-full border border-black p-3 placeholder:text-sm placeholder:text-gray-400 focus:outline-none"
+          formControlName="nombre"
+          placeholder="Ej: Remera Ranglan Rosa"
+        />
+        @if (form.get('nombre')?.touched && form.get('nombre')?.hasError('required')) {
+          <div class="field-error">El nombre es obligatorio.</div>
+        }
+        @if (form.get('nombre')?.touched && form.get('nombre')?.hasError('minlength')) {
+          <div class="field-error">El nombre debe tener al menos 3 caracteres.</div>
+        }
+      </div>
+
+      <div class="mb-4">
+        <label class="mb-2 block text-sm text-black uppercase" for="descripcion"
+          >Descripción <span class="text-red-600">*</span></label
+        >
+        <textarea
+          id="descripcion"
+          rows="4"
+          class="w-full border border-black p-3 placeholder:text-sm placeholder:text-gray-400 focus:outline-none"
+          formControlName="descripcion"
+          placeholder="Contá brevemente las características del producto..."
+        ></textarea>
+        @if (form.get('descripcion')?.touched && form.get('descripcion')?.hasError('required')) {
+          <div class="field-error">La descripción es obligatoria.</div>
+        }
+        @if (form.get('descripcion')?.touched && form.get('descripcion')?.hasError('minlength')) {
+          <div class="field-error">La descripción debe tener al menos 15 caracteres.</div>
+        }
+      </div>
+
+      <div class="grid gap-4 md:grid-cols-2">
+        <div>
+          <label class="mb-2 block text-sm text-black uppercase" for="categoria"
+            >Categoría <span class="text-red-600">*</span></label
+          >
+          <select
+            id="categoria"
+            class="w-full border border-black bg-white p-3 focus:outline-none"
+            formControlName="categoria_id"
+          >
+            <option [ngValue]="null" disabled>Elegí una categoría</option>
+            @for (categoria of categorias(); track categoria.id) {
+              <option [ngValue]="categoria.id">{{ categoria.nombre }}</option>
+            }
+          </select>
+          @if (form.get('categoria_id')?.touched && form.get('categoria_id')?.hasError('required')) {
+            <div class="field-error">La categoría es obligatoria.</div>
+          }
+          @if (categorias().length === 0) {
+            <p class="mt-1 text-[0.78rem] text-muted">
+              Todavía no hay categorías.
+              <a routerLink="/admin/categorias" class="font-semibold text-ink hover:text-brand"
+                >Creá una acá</a
+              >.
+            </p>
+          }
+        </div>
+
+        <div>
+          <label class="mb-2 block text-sm text-black uppercase" for="precio"
+            >Precio (ARS) <span class="text-red-600">*</span></label
+          >
+          <input
+            id="precio"
+            type="number"
+            appSoloNumeros
+            min="1"
+            step="1"
+            class="w-full border border-black p-3 placeholder:text-sm placeholder:text-gray-400 focus:outline-none"
+            formControlName="precio"
+            placeholder="0"
+          />
+          @if (form.get('precio')?.touched && form.get('precio')?.hasError('required')) {
+            <div class="field-error">El precio es obligatorio.</div>
+          }
+          @if (form.get('precio')?.touched && form.get('precio')?.hasError('min')) {
+            <div class="field-error">El precio debe ser mayor a cero.</div>
+          }
+        </div>
+      </div>
+
+      <fieldset class="mt-6" formArrayName="variantes">
+        <div class="mb-2 flex flex-wrap items-end justify-between gap-2">
+          <legend class="block text-sm text-black uppercase">
+            Talles, colores y stock <span class="text-red-600">*</span>
+          </legend>
+          <span class="text-[0.85rem] text-muted">
+            Stock total: <strong class="text-ink">{{ stockTotal() }}</strong>
+          </span>
+        </div>
+        <p class="mb-3 text-[0.78rem] text-muted">
+          Una fila por cada combinación. Si el producto no tiene talles ni colores, dejalos vacíos
+          y cargá solo el stock.
+        </p>
+
+        <div class="border-t border-gray-200">
+          <div
+            class="hidden grid-cols-[1fr_1fr_110px_40px] gap-3 py-2 text-[0.72rem] tracking-[0.06em] text-muted uppercase sm:grid"
+          >
+            <span>Talle</span>
+            <span>Color</span>
+            <span>Stock</span>
+            <span></span>
+          </div>
+
+          @for (variante of variantes.controls; track variante; let i = $index) {
+            <div
+              class="grid grid-cols-[1fr_1fr_90px_40px] items-start gap-3 border-b border-gray-200 py-2 sm:grid-cols-[1fr_1fr_110px_40px]"
+              [formGroupName]="i"
+            >
+              <input
+                type="text"
+                class="w-full border border-black p-2 text-[0.9rem] uppercase placeholder:text-sm placeholder:normal-case placeholder:text-gray-400 focus:outline-none"
+                formControlName="talle"
+                placeholder="Ej: M"
+                [attr.aria-label]="'Talle de la variante ' + (i + 1)"
+              />
+              <input
+                type="text"
+                class="w-full border border-black p-2 text-[0.9rem] placeholder:text-sm placeholder:text-gray-400 focus:outline-none"
+                formControlName="color"
+                placeholder="Ej: Negro"
+                [attr.aria-label]="'Color de la variante ' + (i + 1)"
+              />
+              <input
+                type="number"
+                appSoloNumeros
+                min="0"
+                step="1"
+                class="w-full border border-black p-2 text-[0.9rem] focus:outline-none"
+                formControlName="stock"
+                [class.is-invalid]="variante.get('stock')?.invalid && variante.get('stock')?.touched"
+                [attr.aria-label]="'Stock de la variante ' + (i + 1)"
+              />
+              <button
+                type="button"
+                class="grid h-[42px] cursor-pointer place-items-center text-gray-500 transition-colors hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:text-gray-500"
+                [disabled]="variantes.length === 1"
+                [attr.aria-label]="'Quitar la variante ' + (i + 1)"
+                (click)="quitarVariante(i)"
+              >
+                <i class="bi bi-trash3"></i>
+              </button>
+            </div>
+          }
+        </div>
+
+        @if (variantes.hasError('repetidas')) {
+          <div class="field-error">Hay variantes repetidas (mismo talle y color).</div>
+        }
+        @if (variantes.touched && variantes.invalid && !variantes.hasError('repetidas')) {
+          <div class="field-error">Revisá el stock de cada variante (número entero, 0 o más).</div>
+        }
+
+        <div class="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2">
+          <button
+            type="button"
+            class="inline-flex cursor-pointer items-center gap-1 text-[0.85rem] font-semibold text-ink hover:text-brand"
+            (click)="agregarVariante()"
+          >
+            <i class="bi bi-plus-lg"></i> Agregar variante
+          </button>
+          <button
+            type="button"
+            class="inline-flex cursor-pointer items-center gap-1 text-[0.85rem] text-muted hover:text-brand"
+            (click)="cargarTalles(tallesRopa)"
+          >
+            Cargar talles S a XL
+          </button>
+          <button
+            type="button"
+            class="inline-flex cursor-pointer items-center gap-1 text-[0.85rem] text-muted hover:text-brand"
+            (click)="cargarTalles(tallesPantalon)"
+          >
+            Cargar talles 38 a 44
+          </button>
+        </div>
+      </fieldset>
+
+      <div class="mt-4">
+        <label class="mb-2 block text-sm text-black uppercase" for="imagen"
+          >Imagen <span class="text-red-600">*</span></label
+        >
+        <input
+          id="imagen"
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          class="block w-full cursor-pointer border border-black p-2 text-sm file:mr-3 file:cursor-pointer file:border-0 file:bg-black file:px-4 file:py-2 file:text-white file:uppercase"
+          (change)="seleccionarImagen($event)"
+        />
+        <p class="mt-1 text-[0.78rem] text-muted">
+          JPG, PNG o WebP. Máximo 2 MB.
+          @if (producto() && !archivo()) {
+            Si no elegís un archivo, se mantiene la imagen actual.
+          }
+          @if (nombreArchivo()) {
+            <span class="mt-1 block text-ink">{{ nombreArchivo() }}</span>
+          }
+        </p>
+        @if (errorImagen()) {
+          <div class="field-error">{{ errorImagen() }}</div>
+        }
+      </div>
+
+      <label class="mt-4 flex cursor-pointer items-center gap-2 text-sm text-black">
+        <input type="checkbox" class="size-4 accent-black" formControlName="destacado" />
+        Mostrar como destacado en el inicio
+      </label>
+
+      <div class="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
+        <button
+          type="submit"
+          class="inline-flex cursor-pointer items-center justify-center bg-black px-6 py-3 text-[0.9rem] text-white uppercase disabled:cursor-not-allowed disabled:opacity-50"
+          [disabled]="form.invalid"
+        >
+          {{ textoBoton() }}
+        </button>
+        <a routerLink="/admin" class="text-[0.88rem] font-semibold text-ink hover:text-brand"
+          >Cancelar</a
+        >
+      </div>
+    </form>
+  </div>
+
+  <div class="lg:sticky lg:top-[100px] lg:col-span-5">
+    <span class="mb-3 block text-[0.72rem] tracking-[0.12em] text-muted uppercase"
+      >Vista previa</span
+    >
+
+    <div class="overflow-hidden bg-gray-200">
+      @if (imagenPrevia(); as imagen) {
+        <img
+          class="block aspect-[2.5/3] w-full object-cover"
+          [src]="imagen"
+          alt="Vista previa del producto"
+          appImagenFallback
+        />
+      } @else {
+        <div
+          class="flex aspect-[2.5/3] flex-col items-center justify-center gap-2 text-[0.82rem] text-gray-500"
+        >
+          <i class="bi bi-image text-[1.8rem]"></i>
+          <span>La imagen aparecerá acá</span>
+        </div>
+      }
+    </div>
+
+    <div class="pt-4">
+      <h3 class="mb-1 text-base text-ink uppercase">
+        {{ vistaPrevia().nombre || 'Nombre del producto' }}
+      </h3>
+      <span class="text-[0.9rem] tracking-tight text-brand">
+        {{ vistaPrevia().precio || 0 | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}
+      </span>
+    </div>
+  </div>
+</div>

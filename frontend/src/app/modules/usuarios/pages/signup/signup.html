@@ -1,0 +1,168 @@
+<section class="bg-white py-10">
+  <div class="container">
+    <div class="flex items-center justify-center">
+      <div class="flex items-center px-6 py-8 sm:px-[clamp(1.5rem,5vw,3.5rem)] lg:py-10">
+        <div class="mx-auto w-full max-w-[560px]">
+          <h1 class="my-2 text-3xl">CREAR CUENTA</h1>
+
+          @if (error()) {
+            <div class="mb-4 bg-red-50 px-4 py-2 text-red-700" role="alert">
+              <i class="bi bi-exclamation-circle mr-2"></i>{{ error() }}
+            </div>
+          }
+
+          <form [formGroup]="form" (ngSubmit)="registrarse()" novalidate>
+            <div class="grid gap-4 md:grid-cols-2">
+              <div>
+                <label class="block text-sm text-black" for="nombre">NOMBRE</label>
+                <input
+                  id="nombre"
+                  type="text"
+                  class="w-full border border-black p-3 placeholder:text-sm placeholder:text-gray-400 focus:outline-none"
+                  formControlName="nombre"
+                  [class.is-invalid]="form.get('nombre')?.invalid && form.get('nombre')?.touched"
+                />
+                @if (form.get('nombre')?.touched && form.get('nombre')?.hasError('required')) {
+                  <div class="field-error">El nombre es obligatorio.</div>
+                }
+                @if (form.get('nombre')?.touched && form.get('nombre')?.hasError('minlength')) {
+                  <div class="field-error">Ingresá al menos 2 caracteres.</div>
+                }
+              </div>
+
+              <div>
+                <label class="block text-sm text-black" for="apellido">APELLIDO</label>
+                <input
+                  id="apellido"
+                  type="text"
+                  class="w-full border border-black p-3 placeholder:text-sm placeholder:text-gray-400 focus:outline-none"
+                  formControlName="apellido"
+                  [class.is-invalid]="
+                    form.get('apellido')?.invalid && form.get('apellido')?.touched
+                  "
+                />
+                @if (form.get('apellido')?.touched && form.get('apellido')?.hasError('required')) {
+                  <div class="field-error">El apellido es obligatorio.</div>
+                }
+                @if (form.get('apellido')?.touched && form.get('apellido')?.hasError('minlength')) {
+                  <div class="field-error">Ingresá al menos 2 caracteres.</div>
+                }
+              </div>
+            </div>
+
+            <div class="mt-4">
+              <label class="block text-sm text-black" for="email">EMAIL</label>
+              <input
+                id="email"
+                type="email"
+                class="w-full border border-black p-3 placeholder:text-sm placeholder:text-gray-400 focus:outline-none"
+                formControlName="email"
+                [class.is-invalid]="form.get('email')?.invalid && form.get('email')?.touched"
+              />
+              @if (form.get('email')?.touched && form.get('email')?.hasError('required')) {
+                <div class="field-error">El email es obligatorio.</div>
+              }
+              @if (form.get('email')?.touched && form.get('email')?.hasError('email')) {
+                <div class="field-error">Ingresá un email válido.</div>
+              }
+              @if (form.get('email')?.touched && form.get('email')?.hasError('emailDuplicado')) {
+                <div class="field-error">Ya existe una cuenta registrada con este email.</div>
+              }
+            </div>
+
+            <div class="mt-4">
+              <label class="block text-sm text-black" for="direccion">DIRECCIÓN</label>
+              <input
+                id="direccion"
+                type="text"
+                class="w-full border border-black p-3 placeholder:text-sm placeholder:text-gray-400 focus:outline-none"
+                formControlName="direccion"
+                [class.is-invalid]="
+                  form.get('direccion')?.invalid && form.get('direccion')?.touched
+                "
+              />
+              @if (form.get('direccion')?.touched && form.get('direccion')?.hasError('required')) {
+                <div class="field-error">La dirección es obligatoria.</div>
+              }
+              @if (form.get('direccion')?.touched && form.get('direccion')?.hasError('minlength')) {
+                <div class="field-error">Ingresá una dirección más completa.</div>
+              }
+            </div>
+
+            <div class="mt-4">
+              <label class="block text-sm text-black" for="password">CONTRASEÑA</label>
+              <div class="flex">
+                <input
+                  id="password"
+                  [type]="mostrarPassword() ? 'text' : 'password'"
+                  class="w-full border border-black p-3 placeholder:text-sm placeholder:text-gray-400 focus:outline-none border-r-0"
+                  formControlName="password"
+                  [class.is-invalid]="
+                    form.get('password')?.invalid && form.get('password')?.touched
+                  "
+                  (input)="actualizarPassword($event)"
+                />
+                <button
+                  type="button"
+                  class="cursor-pointer border border-black bg-black px-3 text-white"
+                  [attr.aria-label]="
+                    mostrarPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'
+                  "
+                  (click)="mostrarPassword.set(!mostrarPassword())"
+                >
+                  <i [class]="'bi ' + (mostrarPassword() ? 'bi-eye-slash' : 'bi-eye')"></i>
+                </button>
+              </div>
+
+              <app-medidor-password [valor]="passwordValue()" />
+
+              @if (
+                form.get('password')?.touched && form.get('password')?.hasError('passwordCompleja')
+              ) {
+                <div class="field-error mt-2">
+                  La contraseña debe cumplir con todos los requisitos de seguridad.
+                </div>
+              }
+            </div>
+
+            <div class="mt-4">
+              <label class="block text-sm text-black" for="confirmarPassword"
+                >REPETIR CONTRASEÑA</label
+              >
+              <input
+                id="confirmarPassword"
+                [type]="mostrarPassword() ? 'text' : 'password'"
+                class="w-full border border-black p-3 placeholder:text-sm placeholder:text-gray-400 focus:outline-none"
+                formControlName="confirmarPassword"
+                [class.is-invalid]="
+                  form.get('confirmarPassword')?.touched && form.hasError('passwordsDistintas')
+                "
+              />
+              @if (form.get('confirmarPassword')?.touched && form.hasError('passwordsDistintas')) {
+                <div class="field-error">Las contraseñas no coinciden.</div>
+              }
+            </div>
+
+            <button
+              type="submit"
+              class="mt-6 w-full cursor-pointer bg-black py-3 text-white uppercase disabled:cursor-not-allowed disabled:opacity-50"
+              [disabled]="form.invalid"
+            >
+              Crear cuenta
+            </button>
+          </form>
+
+          <p class="mt-6 text-center text-sm text-muted">
+            ¿Ya tenés cuenta?
+            <a
+              [routerLink]="['/auth/signin']"
+              [queryParams]="{ returnUrl: returnUrl }"
+              class="font-semibold text-brand hover:text-brand/80"
+              >Ingresá</a
+            >
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
