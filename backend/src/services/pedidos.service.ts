@@ -13,9 +13,9 @@ import type { CarritoService } from './carrito.service.js';
 import type { PedidoDto } from '../schemas/pedidos.schemas.js';
 import { detectarMarca, type PagosService } from './pagos.service.js';
 
-export type DatosCompra = PedidoDto;
+type DatosCompra = PedidoDto;
 
-export function armarDireccionEnvio(direccion: DireccionPedido) {
+function armarDireccionEnvio(direccion: DireccionPedido) {
   const calleYNumero = `${direccion.calle} ${direccion.numero}`;
   const partes = [calleYNumero, direccion.piso_depto, direccion.ciudad, direccion.provincia].filter(
     (parte) => !!parte,

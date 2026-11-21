@@ -1,4 +1,3 @@
-import { CurrencyPipe, DatePipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -12,21 +11,16 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { catchError, distinctUntilChanged, map, of, switchMap } from 'rxjs';
 import { PedidosService } from '../../../../api/services/pedidos/pedidos.service';
 import { leerError } from '../../../../api/utils/leer-error';
-import { EstadoPedidoBadge } from '../../../../shared/components/estado-pedido/estado-pedido';
-import { ImagenFallbackDirective } from '../../../../shared/directives/imagen-fallback.directive';
+import { ResumenPedido } from '../../../../shared/components/resumen-pedido/resumen-pedido';
 import { Pedido as PedidoModel } from '../../../../shared/models/pedido.model';
-import { nombreVariante } from '../../../../shared/models/producto.model';
-import { NOMBRES_MARCA } from '../../../../shared/utils/tarjeta';
 
 @Component({
   selector: 'app-pedido',
-  imports: [RouterLink, CurrencyPipe, DatePipe, ImagenFallbackDirective, EstadoPedidoBadge],
+  imports: [RouterLink, ResumenPedido],
   templateUrl: './pedido.html',
   changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class Pedido implements OnInit {
-  readonly nombreVariante = nombreVariante;
-
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
   private readonly pedidosService = inject(PedidosService);
@@ -34,7 +28,6 @@ export class Pedido implements OnInit {
   readonly pedido = signal<PedidoModel | undefined>(undefined);
   readonly cargando = signal(true);
   readonly error = signal<string | null>(null);
-  readonly nombresMarca = NOMBRES_MARCA;
 
   ngOnInit(): void {
     this.route.paramMap

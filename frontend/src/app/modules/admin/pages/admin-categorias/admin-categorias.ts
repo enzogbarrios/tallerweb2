@@ -15,11 +15,11 @@ import { NotificacionesService } from '../../../../api/services/notificaciones/n
 import { ProductosService } from '../../../../api/services/productos/productos.service';
 import { leerError } from '../../../../api/utils/leer-error';
 import { CategoriaAdmin, OrdenCategorias } from '../../../../shared/models/categoria.model';
+import { paginasVisibles, slicePagina } from '../../../../shared/utils/paginacion';
 
 const LIMITES = [5, 10, 20];
 const LIMITE_POR_DEFECTO = 10;
 const ORDEN_POR_DEFECTO: OrdenCategorias = 'nombre_asc';
-const PAGINAS_VISIBLES = 5;
 
 @Component({
   selector: 'app-admin-categorias',
@@ -109,20 +109,13 @@ export class AdminCategorias {
   readonly paginaActual = computed(() =>
     Math.min(this.pagina(), Math.max(1, this.totalPaginas())),
   );
-  readonly items = computed(() => {
-    const inicio = (this.paginaActual() - 1) * this.limite();
-    return this.filtrados().slice(inicio, inicio + this.limite());
-  });
+  readonly items = computed(() =>
+    slicePagina(this.filtrados(), this.paginaActual(), this.limite()),
+  );
 
-  readonly numerosPagina = computed(() => {
-    const ultima = this.totalPaginas();
-    const hasta = Math.min(
-      ultima,
-      Math.max(this.paginaActual() + Math.floor(PAGINAS_VISIBLES / 2), PAGINAS_VISIBLES),
-    );
-    const desde = Math.max(1, hasta - PAGINAS_VISIBLES + 1);
-    return Array.from({ length: hasta - desde + 1 }, (_, indice) => desde + indice);
-  });
+  readonly numerosPagina = computed(() =>
+    paginasVisibles(this.paginaActual(), this.totalPaginas()),
+  );
 
   private readonly formulario = viewChild<ElementRef<HTMLElement>>('formulario');
 

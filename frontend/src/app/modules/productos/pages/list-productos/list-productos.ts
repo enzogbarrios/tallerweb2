@@ -12,6 +12,7 @@ import {
 } from '../../../../shared/models/producto.model';
 import { agregarAlCarrito } from '../../../../shared/utils/agregar-al-carrito';
 import { ordenarProductos } from '../../../../shared/utils/ordenar-productos';
+import { paginasVisibles, slicePagina } from '../../../../shared/utils/paginacion';
 import { ProductoCard } from '../../components/producto-card/producto-card';
 
 const LIMITES = [8, 12, 24];
@@ -64,27 +65,15 @@ export class ListProductos {
     Math.min(this.pagina(), Math.max(1, this.totalPaginas())),
   );
 
-  readonly productos = computed(() => {
-    const inicio = (this.paginaActual() - 1) * this.limite();
-    return this.filtrados().slice(inicio, inicio + this.limite());
-  });
+  readonly productos = computed(() =>
+    slicePagina(this.filtrados(), this.paginaActual(), this.limite()),
+  );
 
   readonly hayFiltros = computed(() => !!this.busqueda().trim() || this.categoriaId() !== undefined);
 
-  readonly paginasVisibles = computed<Array<number | null>>(() => {
-    const actual = this.paginaActual();
-    const ultima = this.totalPaginas();
-    const visibles: Array<number | null> = [];
-
-    for (let numero = 1; numero <= ultima; numero++) {
-      if (numero === 1 || numero === ultima || Math.abs(numero - actual) <= 1) {
-        visibles.push(numero);
-      } else if (visibles[visibles.length - 1] !== null) {
-        visibles.push(null);
-      }
-    }
-    return visibles;
-  });
+  readonly paginasVisibles = computed(() =>
+    paginasVisibles(this.paginaActual(), this.totalPaginas()),
+  );
 
   buscar(event: Event): void {
     this.busqueda.set((event.target as HTMLInputElement).value);

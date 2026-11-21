@@ -10,13 +10,13 @@ import { EstadoPedidoBadge } from '../../../../shared/components/estado-pedido/e
 import {
   ESTADOS_PEDIDO,
   EstadoPedido,
-  ORDENES_VENTAS,
   OrdenVentas,
   Pedido,
 } from '../../../../shared/models/pedido.model';
 import { nombreVariante } from '../../../../shared/models/producto.model';
 import { fechaLocal } from '../../../../shared/utils/fecha-local';
 import { ordenarPedidos } from '../../../../shared/utils/ordenar-pedidos';
+import { paginasVisibles, slicePagina } from '../../../../shared/utils/paginacion';
 
 const SIGUIENTES_ESTADOS: Record<EstadoPedido, EstadoPedido[]> = {
   Confirmado: ['En preparación', 'Cancelado'],
@@ -119,31 +119,18 @@ export class Ventas {
     Math.min(this.pagina(), Math.max(1, this.totalPaginas())),
   );
 
-  readonly ventas = computed(() => {
-    const inicio = (this.paginaActual() - 1) * this.limite();
-    return this.filtrados().slice(inicio, inicio + this.limite());
-  });
+  readonly ventas = computed(() =>
+    slicePagina(this.filtrados(), this.paginaActual(), this.limite()),
+  );
 
   readonly desdeItem = computed(() =>
     this.total() === 0 ? 0 : (this.paginaActual() - 1) * this.limite() + 1,
   );
   readonly hastaItem = computed(() => Math.min(this.paginaActual() * this.limite(), this.total()));
 
-  readonly numerosPagina = computed<Array<number | null>>(() => {
-    const total = this.totalPaginas();
-    const actual = this.paginaActual();
-    const numeros: Array<number | null> = [];
-
-    for (let n = 1; n <= total; n++) {
-      const cerca = Math.abs(n - actual) <= 1;
-      if (n === 1 || n === total || cerca) {
-        numeros.push(n);
-      } else if (numeros[numeros.length - 1] !== null) {
-        numeros.push(null);
-      }
-    }
-    return numeros;
-  });
+  readonly numerosPagina = computed(() =>
+    paginasVisibles(this.paginaActual(), this.totalPaginas()),
+  );
 
   // pedido que su cambio de estado esta viajando al back
   readonly actualizandoId = signal<number | null>(null);

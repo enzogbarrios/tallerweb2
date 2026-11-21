@@ -28,8 +28,6 @@ export class HomeComponent {
       .slice(0, 4),
   );
 
-  readonly totalProductos = computed(() => this.productosService.productos().length);
-
   agregarAlCarrito(producto: Producto): void {
     const variante = producto.variantes[0];
     if (!variante) return;

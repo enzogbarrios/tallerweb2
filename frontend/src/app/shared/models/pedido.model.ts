@@ -111,7 +111,5 @@ export interface DatosPedido {
   tarjeta: TarjetaPago;
 }
 
-export const ORDENES_VENTAS = ['recientes', 'antiguos', 'total_desc', 'total_asc'] as const;
-
-export type OrdenVentas = (typeof ORDENES_VENTAS)[number];
+export type OrdenVentas = 'recientes' | 'antiguos' | 'total_desc' | 'total_asc';
 

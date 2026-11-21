@@ -37,8 +37,6 @@ export const PROVINCIAS = [
   'Tucumán',
 ] as const;
 
-export type Provincia = (typeof PROVINCIAS)[number];
-
 export type MarcaTarjeta = 'visa' | 'mastercard' | 'amex' | 'otra';
 
 export class Pedido {

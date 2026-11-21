@@ -8,13 +8,13 @@ import { EstadoPedidoBadge } from '../../../../shared/components/estado-pedido/e
 import {
   ESTADOS_PEDIDO,
   EstadoPedido,
-  ORDENES_VENTAS,
   OrdenVentas,
   Pedido,
 } from '../../../../shared/models/pedido.model';
 import { nombreVariante } from '../../../../shared/models/producto.model';
 import { fechaLocal } from '../../../../shared/utils/fecha-local';
 import { ordenarPedidos } from '../../../../shared/utils/ordenar-pedidos';
+import { paginasVisibles, slicePagina } from '../../../../shared/utils/paginacion';
 
 const LIMITES = [5, 10, 20] as const;
 const LIMITE_POR_DEFECTO = 10;
@@ -94,31 +94,18 @@ export class MisPedidos {
     Math.min(this.pagina(), Math.max(1, this.totalPaginas())),
   );
 
-  readonly pedidos = computed(() => {
-    const inicio = (this.paginaActual() - 1) * this.limite();
-    return this.filtrados().slice(inicio, inicio + this.limite());
-  });
+  readonly pedidos = computed(() =>
+    slicePagina(this.filtrados(), this.paginaActual(), this.limite()),
+  );
 
   readonly desdeItem = computed(() =>
     this.total() === 0 ? 0 : (this.paginaActual() - 1) * this.limite() + 1,
   );
   readonly hastaItem = computed(() => Math.min(this.paginaActual() * this.limite(), this.total()));
 
-  readonly numerosPagina = computed<Array<number | null>>(() => {
-    const total = this.totalPaginas();
-    const actual = this.paginaActual();
-    const numeros: Array<number | null> = [];
-
-    for (let n = 1; n <= total; n++) {
-      const cerca = Math.abs(n - actual) <= 1;
-      if (n === 1 || n === total || cerca) {
-        numeros.push(n);
-      } else if (numeros[numeros.length - 1] !== null) {
-        numeros.push(null);
-      }
-    }
-    return numeros;
-  });
+  readonly numerosPagina = computed(() =>
+    paginasVisibles(this.paginaActual(), this.totalPaginas()),
+  );
 
   filtrarEstado(estado: EstadoPedido | 'Todos'): void {
     this.estadoActivo.set(estado === 'Todos' ? null : estado);

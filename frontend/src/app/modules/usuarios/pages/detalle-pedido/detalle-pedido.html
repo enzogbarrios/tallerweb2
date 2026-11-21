@@ -65,160 +65,17 @@
         </ol>
       }
 
-      <div class="grid items-start gap-8 lg:grid-cols-3">
-        <div class="min-w-0 lg:col-span-2">
-          <div class="overflow-x-auto border-t border-gray-200">
-            <table class="w-full border-collapse text-left">
-              <thead>
-                <tr class="text-[0.72rem] tracking-[0.06em] text-muted uppercase">
-                  <th scope="col" class="border-b border-gray-200 py-3 pr-4 font-normal">
-                    Producto
-                  </th>
-                  <th
-                    scope="col"
-                    class="border-b border-gray-200 px-2 py-3 text-center font-normal sm:px-4"
-                  >
-                    Cantidad
-                  </th>
-                  <th
-                    scope="col"
-                    class="hidden border-b border-gray-200 px-4 py-3 text-right font-normal sm:table-cell"
-                  >
-                    Precio
-                  </th>
-                  <th
-                    scope="col"
-                    class="border-b border-gray-200 py-3 pl-2 text-right font-normal sm:pl-4"
-                  >
-                    Subtotal
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (item of p.items; track $index) {
-                  <tr class="border-b border-gray-200">
-                    <td class="py-3 pr-2 align-middle sm:pr-4">
-                      <div class="flex items-center gap-3">
-                        <img
-                          class="aspect-[2.5/3] w-10 flex-none bg-gray-200 object-cover sm:w-14"
-                          [src]="item.producto.imagen"
-                          [alt]="item.producto.nombre"
-                          appImagenFallback
-                        />
-                        <div class="min-w-0">
-                          <span class="text-[0.7rem] tracking-[0.06em] text-muted uppercase">{{
-                            item.producto.clasificacion
-                          }}</span>
-                          @if (item.producto.id !== null) {
-                            <a
-                              class="block font-bold text-ink uppercase hover:text-brand"
-                              [routerLink]="['/productos', item.producto.id]"
-                              >{{ item.producto.nombre }}</a
-                            >
-                          } @else {
-                            <strong class="block text-ink uppercase">{{
-                              item.producto.nombre
-                            }}</strong>
-                          }
-                          @if (nombreVariante(item); as detalle) {
-                            <span class="block text-[0.8rem] text-muted uppercase">{{
-                              detalle
-                            }}</span>
-                          }
-                        </div>
-                      </div>
-                    </td>
-                    <td class="px-2 py-3 text-center align-middle sm:px-4">{{ item.cantidad }}</td>
-                    <td class="hidden px-4 py-3 text-right align-middle sm:table-cell">
-                      {{ item.producto.precio | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}
-                    </td>
-                    <td class="py-3 pl-2 text-right align-middle text-brand sm:pl-4">
-                      {{
-                        item.producto.precio * item.cantidad
-                          | currency: 'ARS' : 'symbol-narrow' : '1.0-0'
-                      }}
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-
-          <div class="mt-6 grid gap-4 sm:grid-cols-3">
-            <div class="border border-gray-200 p-4">
-              <strong class="mb-3 block text-[0.82rem] text-ink uppercase">Comprador</strong>
-              @if (p.datos_comprador; as c) {
-                <p class="text-[0.88rem] text-muted">
-                  <span class="block text-ink">{{ c.nombre }} {{ c.apellido }}</span>
-                  <span class="block break-all">{{ c.email }}</span>
-                  <span class="block">Tel. {{ c.telefono }}</span>
-                  <span class="block">DNI {{ c.dni }}</span>
-                </p>
-              } @else {
-                <p class="text-[0.88rem] text-muted">Sin datos cargados.</p>
-              }
-            </div>
-
-            <div class="border border-gray-200 p-4">
-              <strong class="mb-3 block text-[0.82rem] text-ink uppercase">Envío</strong>
-              @if (p.direccion; as d) {
-                <p class="text-[0.88rem] text-muted">
-                  <span class="block text-ink">
-                    {{ d.calle }} {{ d.numero }}{{ d.piso_depto ? ', ' + d.piso_depto : '' }}
-                  </span>
-                  <span class="block">{{ d.ciudad }}, {{ d.provincia }}</span>
-                  <span class="block">CP {{ d.codigo_postal }}</span>
-                  @if (d.indicaciones) {
-                    <span class="mt-1 block italic">"{{ d.indicaciones }}"</span>
-                  }
-                </p>
-              } @else {
-                <p class="text-[0.88rem] text-muted">{{ p.direccion_envio }}</p>
-              }
-            </div>
-
-            <div class="border border-gray-200 p-4">
-              <strong class="mb-3 block text-[0.82rem] text-ink uppercase">Pago</strong>
-              <p class="text-[0.88rem] text-muted">
-                @if (p.tarjeta.ultimos4) {
-                  <span class="block text-ink">
-                    {{ nombresMarca[p.tarjeta.marca ?? 'otra'] }} terminada en
-                    {{ p.tarjeta.ultimos4 }}
-                  </span>
-                }
-                <span class="block capitalize">Pago {{ p.estado_pago }}</span>
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <aside class="bg-gray-100 p-6 lg:sticky lg:top-[100px]">
-          <h2 class="mb-5 text-[1.1rem] text-black uppercase">Resumen</h2>
-
-          <div class="mb-3 flex justify-between gap-4 text-[0.95rem] text-muted">
-            <span>Productos ({{ cantidadUnidades() }})</span>
-            <span>{{ p.subtotal | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</span>
-          </div>
-          <div class="mb-3 flex justify-between gap-4 text-[0.95rem] text-muted">
-            <span>Envío</span>
-            @if (p.envio === 0) {
-              <span class="font-semibold text-green-700">Gratis</span>
-            } @else {
-              <span>{{ p.envio | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</span>
-            }
-          </div>
-
-          <hr class="my-4 border-gray-300" />
-
-          <div class="flex justify-between gap-4 text-[1.1rem] font-bold text-ink">
-            <span>Total</span>
-            <span class="text-brand">{{
-              p.total | currency: 'ARS' : 'symbol-narrow' : '1.0-0'
-            }}</span>
-          </div>
+      <app-resumen-pedido [pedido]="p" [conLinks]="true" titulo="Resumen">
+          <a
+            resumen-acciones
+            routerLink="/productos"
+            class="mt-6 inline-flex w-full items-center justify-center gap-2 bg-brand px-6 py-3 text-[0.9rem] text-white uppercase transition-colors hover:bg-brand/70"
+          >
+            Seguir comprando
+          </a>
 
           @if (!cancelado() && p.estado !== 'Entregado') {
-            <div class="mt-6 flex gap-3 border-t border-gray-300 pt-4 text-muted">
+            <div resumen-aside class="mt-6 flex gap-3 border-t border-gray-300 pt-4 text-muted">
               <i class="bi bi-truck text-xl text-brand"></i>
               <div>
                 <strong class="block text-[0.82rem] text-ink uppercase">Entrega estimada</strong>
@@ -226,15 +83,7 @@
               </div>
             </div>
           }
-
-          <a
-            routerLink="/productos"
-            class="mt-6 inline-flex w-full items-center justify-center gap-2 bg-brand px-6 py-3 text-[0.9rem] text-white uppercase transition-colors hover:bg-brand/70"
-          >
-            Seguir comprando
-          </a>
-        </aside>
-      </div>
+      </app-resumen-pedido>
     } @else if (cargando()) {
       <p class="py-14 text-center text-muted">Cargando pedido…</p>
     } @else if (error(); as mensaje) {

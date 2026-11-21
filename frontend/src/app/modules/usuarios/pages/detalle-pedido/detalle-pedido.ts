@@ -1,4 +1,4 @@
-import { CurrencyPipe, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -13,10 +13,8 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { PedidosService } from '../../../../api/services/pedidos/pedidos.service';
 import { leerError } from '../../../../api/utils/leer-error';
 import { EstadoPedidoBadge } from '../../../../shared/components/estado-pedido/estado-pedido';
-import { ImagenFallbackDirective } from '../../../../shared/directives/imagen-fallback.directive';
+import { ResumenPedido } from '../../../../shared/components/resumen-pedido/resumen-pedido';
 import { EstadoPedido, Pedido } from '../../../../shared/models/pedido.model';
-import { nombreVariante } from '../../../../shared/models/producto.model';
-import { NOMBRES_MARCA } from '../../../../shared/utils/tarjeta';
 
 const PASOS: Array<{ estado: EstadoPedido; titulo: string; icono: string }> = [
   { estado: 'Confirmado', titulo: 'Confirmado', icono: 'bi-check2-circle' },
@@ -27,7 +25,7 @@ const PASOS: Array<{ estado: EstadoPedido; titulo: string; icono: string }> = [
 
 @Component({
   selector: 'app-detalle-pedido',
-  imports: [RouterLink, CurrencyPipe, DatePipe, ImagenFallbackDirective, EstadoPedidoBadge],
+  imports: [RouterLink, DatePipe, EstadoPedidoBadge, ResumenPedido],
   templateUrl: './detalle-pedido.html',
   changeDetection: ChangeDetectionStrategy.Eager,
 })
@@ -37,8 +35,6 @@ export class DetallePedido implements OnInit {
   private readonly pedidosService = inject(PedidosService);
   private readonly destroyRef = inject(DestroyRef);
 
-  readonly nombreVariante = nombreVariante;
-  readonly nombresMarca = NOMBRES_MARCA;
   readonly pasos = PASOS;
 
   readonly pedido = signal<Pedido | null>(null);

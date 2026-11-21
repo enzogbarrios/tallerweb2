@@ -66,12 +66,6 @@ export class CarritoService {
       .pipe(tap((carrito) => this.carritoState.set(carrito)));
   }
 
-  vaciar(): Observable<CarritoResumen> {
-    return this.http
-      .delete<CarritoResumen>('/api/carrito')
-      .pipe(tap((carrito) => this.carritoState.set(carrito)));
-  }
-
   limpiar(): void {
     this.carritoState.set({ ...CARRITO_VACIO });
   }
